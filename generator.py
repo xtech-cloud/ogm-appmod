@@ -1,5 +1,9 @@
 import os
 import sys
+import re
+
+org_name = 'ogm'
+mod_name = 'file'
 
 template_sln = r"""
 Microsoft Visual Studio Solution File, Format Version 12.00
@@ -221,7 +225,7 @@ namespace app
 template_app_Program_cs = r"""
 using System;
 using System.Windows.Forms;
-using OGM.Module.{{mod}};
+using {{org}}.Module.{{mod}};
 using XTC.oelMVCS;
 
 namespace app
@@ -459,9 +463,7 @@ template_app_RootForm_resx = r"""
 
 
 
-org_name = 'ogm'
-mod_name = 'file'
-proto_dir = os.path.join('../ogm-msp-file/proto', mod_name)
+proto_dir = os.path.join('../{}-msp-{}/proto'.format(org_name, mod_name), mod_name)
 protos = {}
 # 解析协议文件
 for entry in os.listdir(proto_dir):
@@ -470,11 +472,13 @@ for entry in os.listdir(proto_dir):
     with open(os.path.join(proto_dir, entry), 'r', encoding='utf-8') as rf:
         content = rf.read()
         rf.close()
-        print(content)
+        # 匹配出service
+        match = re.findall(r'.*service (.*?\n\}\n)', content, re.S)
+        print(match[0])
 
 # 生成.sln文件
 os.makedirs('vs2019', exist_ok=True)
-with open('./vs2019/ogm-{}.sln'.format(mod_name), 'w', encoding='utf-8') as wf:
+with open('./vs2019/{}-{}.sln'.format(org_name, mod_name), 'w', encoding='utf-8') as wf:
     wf.write(template_sln)
     wf.close()
 
@@ -504,7 +508,7 @@ with open('./vs2019/app/ConsoleLogger.cs', 'w', encoding='utf-8') as wf:
 
 # 生成Program.cs
 with open('./vs2019/app/Program.cs', 'w', encoding='utf-8') as wf:
-    wf.write(template_app_Program_cs.replace('{{mod}}', mod_name.capitalize()))
+    wf.write(template_app_Program_cs.replace('{{org}}', org_name.upper()).replace('{{mod}}', mod_name.capitalize()))
     wf.close()
 
 # 生成RootForm.cs
