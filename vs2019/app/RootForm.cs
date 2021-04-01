@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace app
@@ -11,6 +12,7 @@ namespace app
         }
         private TabControl tcPages;
         private TreeView tvPages;
+        private Dictionary<string, TabPage> pages = new Dictionary<string, TabPage>();
 
         /// <summary>
         /// 必需的设计器变量。
@@ -52,15 +54,19 @@ namespace app
                 nodes = found[0].Nodes;
             }
             TabPage tabPage = new TabPage();
-            tabPage.Location = new System.Drawing.Point(4, 5);
+            tabPage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            tabPage.Location = new System.Drawing.Point(10, 10);
             tabPage.Name = _path;
             tabPage.Padding = new System.Windows.Forms.Padding(3);
-            tabPage.Size = new System.Drawing.Size(1084, 1186);
+            tabPage.Size = new System.Drawing.Size(760, 660);
             tabPage.TabIndex = 0;
             tabPage.Text = _path;
             tabPage.UseVisualStyleBackColor = true;
             tabPage.Controls.Add(page);
             this.tcPages.Controls.Add(tabPage);
+            this.pages[_path] = tabPage;
             this.tvPages.ExpandAll();
         }
 
@@ -80,7 +86,7 @@ namespace app
             this.tcPages.Location = new System.Drawing.Point(216, 20);
             this.tcPages.Name = "tcPages";
             this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(1092, 1195);
+            this.tcPages.Size = new System.Drawing.Size(780, 680);
             this.tcPages.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tcPages.TabIndex = 1;
             //
@@ -91,13 +97,13 @@ namespace app
             this.tvPages.Location = new System.Drawing.Point(13, 20);
             this.tvPages.Name = "tvPages";
             this.tvPages.PathSeparator = "/";
-            this.tvPages.Size = new System.Drawing.Size(188, 1191);
+            this.tvPages.Size = new System.Drawing.Size(188, 679);
             this.tvPages.TabIndex = 2;
             this.tvPages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPages_AfterSelect);
             //
             // RootForm
             //
-            this.ClientSize = new System.Drawing.Size(1320, 1241);
+            this.ClientSize = new System.Drawing.Size(1008, 729);
             this.Controls.Add(this.tvPages);
             this.Controls.Add(this.tcPages);
             this.Name = "RootForm";
@@ -107,6 +113,14 @@ namespace app
 
         private void tvPages_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            TreeNode node = e.Node;
+            if (node.Nodes.Count > 0)
+                return;
+            string fullpath = "/" + node.FullPath;
+            TabPage page;
+            if (!this.pages.TryGetValue(fullpath, out page))
+                return;
+            this.tcPages.SelectedTab = page;
         }
     }
 

@@ -25,9 +25,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "module", "module\module.csproj", "{124ACB03-D1AC-479D-B95A-DE9F13C266FA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "app", "app\app.csproj", "{F2F84FF1-7987-476F-8F03-8316DB67217F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "module", "module\module.csproj", "{124ACB03-D1AC-479D-B95A-DE9F13C266FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "winform", "winform\winform.csproj", "{ECEBC9A0-5079-470A-A380-5B80756DEA61}"
 EndProject
@@ -63,6 +63,7 @@ Global
                 SolutionGuid = {089BAFA9-97A5-468A-9FA8-D368A7EE49A6}
         EndGlobalSection
 EndGlobal
+
 """
 
 template_proj_app = r"""
@@ -309,6 +310,7 @@ namespace app
 """
 
 template_app_RootForm_cs = r"""
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace app
@@ -321,6 +323,7 @@ namespace app
         }
         private TabControl tcPages;
         private TreeView tvPages;
+        private Dictionary<string, TabPage> pages = new Dictionary<string, TabPage>();
 
         /// <summary>
         /// 必需的设计器变量。
@@ -362,15 +365,19 @@ namespace app
                 nodes = found[0].Nodes;
             }
             TabPage tabPage = new TabPage();
-            tabPage.Location = new System.Drawing.Point(4, 5);
+            tabPage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            tabPage.Location = new System.Drawing.Point(10, 10);
             tabPage.Name = _path;
             tabPage.Padding = new System.Windows.Forms.Padding(3);
-            tabPage.Size = new System.Drawing.Size(1084, 1186);
+            tabPage.Size = new System.Drawing.Size(760, 660);
             tabPage.TabIndex = 0;
             tabPage.Text = _path;
             tabPage.UseVisualStyleBackColor = true;
             tabPage.Controls.Add(page);
             this.tcPages.Controls.Add(tabPage);
+            this.pages[_path] = tabPage;
             this.tvPages.ExpandAll();
         }
 
@@ -390,7 +397,7 @@ namespace app
             this.tcPages.Location = new System.Drawing.Point(216, 20);
             this.tcPages.Name = "tcPages";
             this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(1092, 1195);
+            this.tcPages.Size = new System.Drawing.Size(780, 680);
             this.tcPages.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tcPages.TabIndex = 1;
             //
@@ -401,13 +408,13 @@ namespace app
             this.tvPages.Location = new System.Drawing.Point(13, 20);
             this.tvPages.Name = "tvPages";
             this.tvPages.PathSeparator = "/";
-            this.tvPages.Size = new System.Drawing.Size(188, 1191);
+            this.tvPages.Size = new System.Drawing.Size(188, 679);
             this.tvPages.TabIndex = 2;
             this.tvPages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPages_AfterSelect);
             //
             // RootForm
             //
-            this.ClientSize = new System.Drawing.Size(1320, 1241);
+            this.ClientSize = new System.Drawing.Size(1008, 729);
             this.Controls.Add(this.tvPages);
             this.Controls.Add(this.tcPages);
             this.Name = "RootForm";
@@ -417,6 +424,14 @@ namespace app
 
         private void tvPages_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            TreeNode node = e.Node;
+            if (node.Nodes.Count > 0)
+                return;
+            string fullpath = "/" + node.FullPath;
+            TabPage page;
+            if (!this.pages.TryGetValue(fullpath, out page))
+                return;
+            this.tcPages.SelectedTab = page;
         }
     }
 
@@ -755,15 +770,14 @@ namespace {{org}}.Module.{{mod}}
 
         public {{service}}Panel()
         {
+            InitializeComponent();
+
             this.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Location = new System.Drawing.Point(1, -3);
+            this.Location = new System.Drawing.Point(10, 10);
             this.Name = "rootPanel";
-            this.Size = new System.Drawing.Size(1050, 801);
             this.TabIndex = 0;
-
-            InitializeComponent();
         }
     }
 }
@@ -864,36 +878,41 @@ namespace {{org}}.Module.{{mod}}
         /// </summary>
         private void InitializeComponent()
         {
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.tcPages = new System.Windows.Forms.TabControl();
+            this.tcPages.SuspendLayout();
             this.SuspendLayout();
             // 
-            // dataGridView1
+            // tcPages
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(62, 101);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.RowTemplate.Height = 29;
-            this.dataGridView1.Size = new System.Drawing.Size(1109, 561);
-            this.dataGridView1.TabIndex = 0;
-            // 
-            // RootPanel
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.dataGridView1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.Name = "RootPanel";
-            this.Size = new System.Drawing.Size(1541, 761);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            this.ResumeLayout(false);
+            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tcPages.Location = new System.Drawing.Point(10, 10);
+            this.tcPages.Multiline = true;
+            this.tcPages.Name = "tcPages";
+            this.tcPages.SelectedIndex = 0;
+            this.tcPages.Size = new System.Drawing.Size(720, 620);
+            this.tcPages.TabIndex = 0;
 
+{{tabPage_block}}
+
+            // 
+            // {{service}}Panel
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.tcPages);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Name = "{{Service}}Panel";
+            this.Size = new System.Drawing.Size(740, 640);
+            this.tcPages.ResumeLayout(false);
+            this.ResumeLayout(false);
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.TabControl tcPages;
+{{tabPage_define}}
     }
 }
 """
@@ -1456,12 +1475,37 @@ for service in services.keys():
 
 # 生成Panel.Designer.cs文件
 for service in services.keys():
+    template_tabpage_define = r"""
+        private System.Windows.Forms.TabPage tabPage{{rpc}};
+    """
+    template_tabpage_block = r"""
+            //
+            // tabPage{{rpc}}
+            //
+            this.tabPage{{rpc}} = new System.Windows.Forms.TabPage();
+            this.tabPage{{rpc}}.Location = new System.Drawing.Point(4, 48);
+            this.tabPage{{rpc}}.Name = "{{rpc}}";
+            this.tabPage{{rpc}}.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage{{rpc}}.Size = new System.Drawing.Size(459, 373);
+            this.tabPage{{rpc}}.TabIndex = 0;
+            this.tabPage{{rpc}}.Text = "{{rpc}}";
+            this.tabPage{{rpc}}.UseVisualStyleBackColor = true;
+            this.tcPages.Controls.Add(tabPage{{rpc}});
+    """
     with open(
-        "./vs2019/winform/{}.Designer.cs".format(service), "w", encoding="utf-8"
+        "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
     ) as wf:
+        tabPage_define = ''
+        tabPage_block = ''
+        for rpc_name in services[service]:
+            tabPage_define = tabPage_define + template_tabpage_define.replace('{{rpc}}', rpc_name)
+            tabPage_block = tabPage_block + template_tabpage_block.replace('{{rpc}}', rpc_name)
+
         code = template_winform_Panel_Designer_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
         code = code.replace("{{service}}", service)
+        code = code.replace("{{tabPage_define}}", tabPage_define)
+        code = code.replace("{{tabPage_block}}", tabPage_block)
         wf.write(code)
         wf.close()

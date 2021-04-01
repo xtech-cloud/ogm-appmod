@@ -21,15 +21,14 @@ namespace OGM.Module.File
 
         public BucketPanel()
         {
+            InitializeComponent();
+
             this.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Location = new System.Drawing.Point(1, -3);
+            this.Location = new System.Drawing.Point(10, 10);
             this.Name = "rootPanel";
-            this.Size = new System.Drawing.Size(1050, 801);
             this.TabIndex = 0;
-
-            InitializeComponent();
         }
     }
 }
