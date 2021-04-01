@@ -1,11 +1,10 @@
 import os
 import sys
 import re
+import yaml
 from typing import Dict, List, Tuple
 
-org_name = "ogm"
-mod_name = "file"
-proto_dir = os.path.join("../{}-msp-{}/proto".format(org_name, mod_name), mod_name)
+
 
 template_gitignore = r"""
 .vs/
@@ -921,6 +920,30 @@ namespace {{org}}.Module.{{mod}}
 ##############################################################################
 ##############################################################################
 
+org_name = ""
+mod_name = ""
+layouts: Dict[str, str] = {}
+with open('./generator.yml', 'r', encoding='utf-8') as rf:
+    yml_str = rf.read()
+    rf.close()
+    yml_data = yaml.load(yml_str, Loader=yaml.FullLoader)
+    org_name = yml_data['org']
+    mod_name = yml_data['mod']
+    if 'layouts' in yml_data:
+        for layout in yml_data['layouts']:
+            layouts[layout['method']] = layout['page']
+
+
+if '' == org_name:
+    print('org is empty')
+    sys.exit(0)
+
+if '' == mod_name:
+    print('mod is empty')
+    sys.exit(0)
+
+proto_dir = os.path.join("../{}-msp-{}/proto".format(org_name, mod_name), mod_name)
+
 
 services: Dict[str, Dict[str, Tuple]] = {}
 """
@@ -1478,6 +1501,9 @@ for service in services.keys():
     template_tabpage_define = r"""
         private System.Windows.Forms.TabPage tabPage{{rpc}};
     """
+    template_submit_button_define = r"""
+        private System.Windows.Forms.Button btnSubmit{{rpc}};
+    """
     template_tabpage_block = r"""
             //
             // tabPage{{rpc}}
@@ -1492,6 +1518,20 @@ for service in services.keys():
             this.tabPage{{rpc}}.UseVisualStyleBackColor = true;
             this.tcPages.Controls.Add(tabPage{{rpc}});
     """
+    template_submit_button_block = r"""
+            // 
+            // btnSubmit{{rpc}}
+            // 
+            this.btnSubmit{{rpc}} = new System.Windows.Forms.Button();
+            this.btnSubmit{{rpc}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSubmit{{rpc}}.Location = new System.Drawing.Point(17, 650);
+            this.btnSubmit{{rpc}}.Name = "btnSubmit{{rpc}}";
+            this.btnSubmit{{rpc}}.Size = new System.Drawing.Size(94, 29);
+            this.btnSubmit{{rpc}}.TabIndex = 0;
+            this.btnSubmit{{rpc}}.Text = "btnSubmit{{rpc}}";
+            this.btnSubmit{{rpc}}.UseVisualStyleBackColor = true;
+            this.tabPage{{rpc}}.Controls.Add(this.btnSubmit{{rpc}});
+    """
     with open(
         "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
     ) as wf:
@@ -1500,6 +1540,13 @@ for service in services.keys():
         for rpc_name in services[service]:
             tabPage_define = tabPage_define + template_tabpage_define.replace('{{rpc}}', rpc_name)
             tabPage_block = tabPage_block + template_tabpage_block.replace('{{rpc}}', rpc_name)
+            #生成页面
+            rpc_method = '{}.{}'.format(service, rpc_name)
+            if rpc_method in layouts.keys():
+                page = layouts[rpc_method]
+                if page == 'PostForm':
+                    tabPage_define = tabPage_define + template_submit_button_define.replace('{{rpc}}', rpc_name)
+                    tabPage_block = tabPage_block + template_submit_button_block.replace('{{rpc}}', rpc_name)
 
         code = template_winform_Panel_Designer_cs
         code = code.replace("{{org}}", org_name.upper())

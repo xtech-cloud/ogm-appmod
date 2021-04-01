@@ -1,0 +1,17 @@
+#组织名
+org: ogm
+#模块名
+mod: file
+#布局
+layouts:
+-
+  #方法
+  method: Bucket.Make
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Bucket.List
+  #页面
+  page: PostForm
+

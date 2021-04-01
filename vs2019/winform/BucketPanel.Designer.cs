@@ -60,6 +60,19 @@ namespace OGM.Module.File
             this.tabPageMake.UseVisualStyleBackColor = true;
             this.tcPages.Controls.Add(tabPageMake);
     
+            // 
+            // btnSubmitMake
+            // 
+            this.btnSubmitMake = new System.Windows.Forms.Button();
+            this.btnSubmitMake.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSubmitMake.Location = new System.Drawing.Point(17, 650);
+            this.btnSubmitMake.Name = "btnSubmitMake";
+            this.btnSubmitMake.Size = new System.Drawing.Size(94, 29);
+            this.btnSubmitMake.TabIndex = 0;
+            this.btnSubmitMake.Text = "btnSubmitMake";
+            this.btnSubmitMake.UseVisualStyleBackColor = true;
+            this.tabPageMake.Controls.Add(this.btnSubmitMake);
+    
             //
             // tabPageList
             //
@@ -72,6 +85,19 @@ namespace OGM.Module.File
             this.tabPageList.Text = "List";
             this.tabPageList.UseVisualStyleBackColor = true;
             this.tcPages.Controls.Add(tabPageList);
+    
+            // 
+            // btnSubmitList
+            // 
+            this.btnSubmitList = new System.Windows.Forms.Button();
+            this.btnSubmitList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSubmitList.Location = new System.Drawing.Point(17, 650);
+            this.btnSubmitList.Name = "btnSubmitList";
+            this.btnSubmitList.Size = new System.Drawing.Size(94, 29);
+            this.btnSubmitList.TabIndex = 0;
+            this.btnSubmitList.Text = "btnSubmitList";
+            this.btnSubmitList.UseVisualStyleBackColor = true;
+            this.tabPageList.Controls.Add(this.btnSubmitList);
     
             //
             // tabPageRemove
@@ -171,7 +197,11 @@ namespace OGM.Module.File
 
         private System.Windows.Forms.TabPage tabPageMake;
     
+        private System.Windows.Forms.Button btnSubmitMake;
+    
         private System.Windows.Forms.TabPage tabPageList;
+    
+        private System.Windows.Forms.Button btnSubmitList;
     
         private System.Windows.Forms.TabPage tabPageRemove;
     
