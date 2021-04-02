@@ -27,6 +27,23 @@ namespace OGM.Module.File
         protected override void setup()
         {
             getLogger().Trace("setup BucketView");
+
+           route("/ogm/file/Bucket/Make", this.handleBucketMake);
+    
+           route("/ogm/file/Bucket/List", this.handleBucketList);
+    
+           route("/ogm/file/Bucket/Remove", this.handleBucketRemove);
+    
+           route("/ogm/file/Bucket/Get", this.handleBucketGet);
+    
+           route("/ogm/file/Bucket/Find", this.handleBucketFind);
+    
+           route("/ogm/file/Bucket/UpdateEngine", this.handleBucketUpdateEngine);
+    
+           route("/ogm/file/Bucket/UpdateCapacity", this.handleBucketUpdateCapacity);
+    
+           route("/ogm/file/Bucket/ResetToken", this.handleBucketResetToken);
+    
         }
 
         protected override void postSetup()
@@ -38,5 +55,78 @@ namespace OGM.Module.File
             data["/OGM/File/Bucket"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
         }
+
+        private void handleBucketMake(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketList(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BucketListResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketRemove(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketGet(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BucketGetResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketFind(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BucketFindResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketUpdateEngine(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketUpdateCapacity(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
+        private void handleBucketResetToken(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    
     }
 }

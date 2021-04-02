@@ -7,247 +7,247 @@ namespace OGM.Module.File.Proto
 
         public class BucketMakeRequest
         {
-            public string name;
-            public long capacity;
-            public int engine;
-            public string address;
-            public string scope;
-            public string accessKey;
-            public string accessSecret;
+            public string name {get;set;}
+            public long capacity {get;set;}
+            public int engine {get;set;}
+            public string address {get;set;}
+            public string scope {get;set;}
+            public string accessKey {get;set;}
+            public string accessSecret {get;set;}
 
         }
     
         public class BucketListRequest
         {
-            public long offset;
-            public long count;
+            public long offset {get;set;}
+            public long count {get;set;}
 
         }
     
         public class BucketListResponse
         {
-            public Status status;
-            public long total;
-            public BucketEntity[] entity;
+            public Status status {get;set;}
+            public long total {get;set;}
+            public BucketEntity[] entity {get;set;}
 
         }
     
         public class BucketRemoveRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class BucketGetRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class BucketGetResponse
         {
-            public Status status;
-            public BucketEntity entity;
+            public Status status {get;set;}
+            public BucketEntity entity {get;set;}
 
         }
     
         public class BucketFindRequest
         {
-            public string name;
+            public string name {get;set;}
 
         }
     
         public class BucketFindResponse
         {
-            public Status status;
-            public BucketEntity entity;
+            public Status status {get;set;}
+            public BucketEntity entity {get;set;}
 
         }
     
         public class BucketUpdateEngineRequest
         {
-            public string uuid;
-            public int engine;
-            public string address;
-            public string scope;
-            public string accessKey;
-            public string accessSecret;
+            public string uuid {get;set;}
+            public int engine {get;set;}
+            public string address {get;set;}
+            public string scope {get;set;}
+            public string accessKey {get;set;}
+            public string accessSecret {get;set;}
 
         }
     
         public class BucketUpdateCapacityRequest
         {
-            public string uuid;
-            public long capacity;
+            public string uuid {get;set;}
+            public long capacity {get;set;}
 
         }
     
         public class BucketResetTokenRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class ObjectPrepareRequest
         {
-            public string bucket;
-            public string uname;
-            public long size;
+            public string bucket {get;set;}
+            public string uname {get;set;}
+            public long size {get;set;}
 
         }
     
         public class ObjectPrepareResponse
         {
-            public Status status;
-            public int engine;
-            public string address;
-            public string accessToken;
+            public Status status {get;set;}
+            public int engine {get;set;}
+            public string address {get;set;}
+            public string accessToken {get;set;}
 
         }
     
         public class ObjectFlushRequest
         {
-            public string bucket;
-            public string uname;
-            public string path;
+            public string bucket {get;set;}
+            public string uname {get;set;}
+            public string path {get;set;}
 
         }
     
         public class ObjectPublishRequest
         {
-            public string uuid;
-            public long expiry;
+            public string uuid {get;set;}
+            public long expiry {get;set;}
 
         }
     
         public class ObjectPublishResponse
         {
-            public Status status;
-            public string url;
+            public Status status {get;set;}
+            public string url {get;set;}
 
         }
     
         public class ObjectPreviewRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class ObjectPreviewResponse
         {
-            public Status status;
-            public string url;
+            public Status status {get;set;}
+            public string url {get;set;}
 
         }
     
         public class ObjectRetractRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class ObjectUploadRequest
         {
-            public string bucket;
-            public string filepath;
-            public byte[] data;
-            public bool overwrite;
+            public string bucket {get;set;}
+            public string filepath {get;set;}
+            public byte[] data {get;set;}
+            public bool overwrite {get;set;}
 
         }
     
         public class ObjectDownloadRequest
         {
-            public string bucket;
-            public string filepath;
+            public string bucket {get;set;}
+            public string filepath {get;set;}
 
         }
     
         public class ObjectDownloadResponse
         {
-            public Status status;
-            public byte[] data;
+            public Status status {get;set;}
+            public byte[] data {get;set;}
 
         }
     
         public class ObjectLinkRequest
         {
-            public string bucket;
-            public string filepath;
-            public string url;
-            public bool overwrite;
+            public string bucket {get;set;}
+            public string filepath {get;set;}
+            public string url {get;set;}
+            public bool overwrite {get;set;}
 
         }
     
         public class ObjectGetRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class ObjectGetResponse
         {
-            public Status status;
-            public ObjectEntity entity;
+            public Status status {get;set;}
+            public ObjectEntity entity {get;set;}
 
         }
     
         public class ObjectFindRequest
         {
-            public string bucket;
-            public string filepath;
+            public string bucket {get;set;}
+            public string filepath {get;set;}
 
         }
     
         public class ObjectFindResponse
         {
-            public Status status;
-            public ObjectEntity entity;
+            public Status status {get;set;}
+            public ObjectEntity entity {get;set;}
 
         }
     
         public class ObjectRemoveRequest
         {
-            public string uuid;
+            public string uuid {get;set;}
 
         }
     
         public class ObjectListRequest
         {
-            public long offset;
-            public long count;
-            public string bucket;
+            public long offset {get;set;}
+            public long count {get;set;}
+            public string bucket {get;set;}
 
         }
     
         public class ObjectListResponse
         {
-            public Status status;
-            public long total;
-            public ObjectEntity[] entity;
+            public Status status {get;set;}
+            public long total {get;set;}
+            public ObjectEntity[] entity {get;set;}
 
         }
     
         public class ObjectSearchRequest
         {
-            public long offset;
-            public long count;
-            public string bucket;
-            public string prefix;
+            public long offset {get;set;}
+            public long count {get;set;}
+            public string bucket {get;set;}
+            public string prefix {get;set;}
 
         }
     
         public class ObjectSearchResponse
         {
-            public Status status;
-            public long total;
-            public ObjectEntity[] entity;
+            public Status status {get;set;}
+            public long total {get;set;}
+            public ObjectEntity[] entity {get;set;}
 
         }
     
         public class Status
         {
-            public int code;
-            public string message;
+            public int code {get;set;}
+            public string message {get;set;}
 
         }
     
@@ -258,32 +258,32 @@ namespace OGM.Module.File.Proto
     
         public class BlankResponse
         {
-            public Status status;
+            public Status status {get;set;}
 
         }
     
         public class BucketEntity
         {
-            public string uuid;
-            public string name;
-            public string token;
-            public long totalSize;
-            public long usedSize;
-            public int engine;
-            public string address;
-            public string scope;
-            public string accessKey;
-            public string accessSecret;
+            public string uuid {get;set;}
+            public string name {get;set;}
+            public string token {get;set;}
+            public long totalSize {get;set;}
+            public long usedSize {get;set;}
+            public int engine {get;set;}
+            public string address {get;set;}
+            public string scope {get;set;}
+            public string accessKey {get;set;}
+            public string accessSecret {get;set;}
 
         }
     
         public class ObjectEntity
         {
-            public string uuid;
-            public string filepath;
-            public string url;
-            public long size;
-            public string md5;
+            public string uuid {get;set;}
+            public string filepath {get;set;}
+            public string url {get;set;}
+            public long size {get;set;}
+            public string md5 {get;set;}
 
         }
     

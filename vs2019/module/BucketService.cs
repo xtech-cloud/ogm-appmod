@@ -178,7 +178,9 @@ namespace OGM.Module.File
             req.Method = _method;
             req.ContentType =
             "application/json;charset=utf-8";
-            string json = System.Text.Json.JsonSerializer.Serialize(_params);
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyConverter());
+            string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
             byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
             req.ContentLength = data.Length;
             using (Stream reqStream = req.GetRequestStream())

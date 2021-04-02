@@ -6,7 +6,7 @@ namespace app
 {
     class ConfigSchema
     {
-        public string domain;
+        public string domain {get;set;}
     }
     class AppConfig: Config
     {

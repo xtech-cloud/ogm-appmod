@@ -25,7 +25,7 @@ namespace app
             Config config = new AppConfig();
             ConfigSchema schema = new ConfigSchema();
             schema.domain = rootForm.getDomainUi().Text;
-            config.Merge(System.Text.Json.JsonSerializer.Serialize<ConfigSchema>(schema));
+            config.Merge(System.Text.Json.JsonSerializer.Serialize(schema));
             Framework framework = new Framework();
             framework.setLogger(logger);
             framework.setConfig(config);

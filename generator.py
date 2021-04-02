@@ -204,7 +204,7 @@ namespace app
 {
     class ConfigSchema
     {
-        public string domain;
+        public string domain {get;set;}
     }
     class AppConfig: Config
     {
@@ -311,7 +311,7 @@ namespace app
             Config config = new AppConfig();
             ConfigSchema schema = new ConfigSchema();
             schema.domain = rootForm.getDomainUi().Text;
-            config.Merge(System.Text.Json.JsonSerializer.Serialize<ConfigSchema>(schema));
+            config.Merge(System.Text.Json.JsonSerializer.Serialize(schema));
             Framework framework = new Framework();
             framework.setLogger(logger);
             framework.setConfig(config);
@@ -590,6 +590,7 @@ namespace {{org}}.Module.{{mod}}
     public interface I{{service}}UiBridge : View.Facade.Bridge
     {
         object getRootPanel();
+        void Alert(string _message);
     }
 }
 """
@@ -620,6 +621,39 @@ namespace {{org}}.Module.{{mod}}
         private Framework framework_ = null;
     }
 }
+"""
+
+template_module_Json_Convert_cs = r"""
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using XTC.oelMVCS;
+namespace {{org}}.Module.{{mod}}
+{
+    class AnyConverter : JsonConverter<Any>
+    {
+        public override Any Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return new Any();
+        }
+
+        public override void Write(Utf8JsonWriter writer, Any _value, JsonSerializerOptions options)
+        {
+            if(_value.IsString())
+                writer.WriteStringValue(_value.AsString());
+            else if (_value.IsInt())
+                writer.WriteNumberValue(_value.AsInt());
+            else if (_value.IsLong())
+                writer.WriteNumberValue(_value.AsLong());
+            else if (_value.IsFloat())
+                writer.WriteNumberValue(_value.AsFloat());
+            else if (_value.IsDouble())
+                writer.WriteNumberValue(_value.AsDouble());
+            else if (_value.IsBool())
+                writer.WriteBooleanValue(_value.AsBool());
+        }
+    }//class
+}//namespace
 """
 
 template_module_Model_cs = r"""
@@ -694,6 +728,7 @@ namespace {{org}}.Module.{{mod}}
         protected override void setup()
         {
             getLogger().Trace("setup {{service}}View");
+{{routers}}
         }
 
         protected override void postSetup()
@@ -705,6 +740,7 @@ namespace {{org}}.Module.{{mod}}
             data["/{{org}}/{{mod}}/{{service}}"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
         }
+{{handlers}}
     }
 }
 """
@@ -773,7 +809,9 @@ namespace {{org}}.Module.{{mod}}
             req.Method = _method;
             req.ContentType =
             "application/json;charset=utf-8";
-            string json = System.Text.Json.JsonSerializer.Serialize(_params);
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyConverter());
+            string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
             byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
             req.ContentLength = data.Length;
             using (Stream reqStream = req.GetRequestStream())
@@ -871,6 +909,11 @@ namespace {{org}}.Module.{{mod}}
             public object getRootPanel()
             {
                 return panel;
+            }
+
+            public void Alert(string _message)
+            {
+                MessageBox.Show(_message);
             }
         }
 
@@ -1377,11 +1420,33 @@ for service in services.keys():
 
 # 生成View.cs文件
 for service in services.keys():
+    template_router = r"""
+           route("/{{org}}/{{mod}}/{{service}}/{{rpc}}", this.handle{{service}}{{rpc}});
+    """
+    template_handler = r"""
+        private void handle{{service}}{{rpc}}(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.{{rsp}})_data;
+            if(rsp.status.code == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+        }
+    """
     with open("./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8") as wf:
+        router_block = ''
+        handler_block = ''
+        for rpc_name in services[service].keys():
+            rsp_name = services[service][rpc_name][1]
+            router_block = router_block + template_router.replace("{{org}}", org_name).replace("{{mod}}", mod_name).replace("{{service}}", service).replace("{{rpc}}", rpc_name)
+            handler_block = handler_block + template_handler.replace("{{service}}", service).replace("{{rpc}}", rpc_name).replace("{{rsp}}", rsp_name)
+
         code = template_module_View_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
         code = code.replace("{{service}}", service)
+        code = code.replace("{{routers}}", router_block)
+        code = code.replace("{{handlers}}", handler_block)
         wf.write(code)
         wf.close()
 
@@ -1520,7 +1585,7 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
             if field_type in type_dict.keys():
                 field_type = type_dict[field_type]
             field_block = field_block + str.format(
-                    "            public {} {};\n", field_type, field_name
+                    "            public {} {} {{get;set;}}\n", field_type, field_name
                     )
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)
@@ -1531,6 +1596,15 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
     code = code.replace("{{proto}}", proto_block)
     wf.write(code)
     wf.close()
+
+# 生成JsonConvert.cs文件
+with open("./vs2019/module/JsonConvert.cs", "w", encoding="utf-8") as wf:
+    code = template_module_Json_Convert_cs
+    code = code.replace("{{org}}", org_name.upper())
+    code = code.replace("{{mod}}", mod_name.capitalize())
+    wf.write(code)
+    wf.close()
+
 
 
 # -----------------------------------------------------------------------------
@@ -1633,10 +1707,10 @@ for service in services.keys():
     """,
     }
     template_postform_label = r"""
-        private System.Windows.Forms.Label label_{{field}}_{{type}};
+        private System.Windows.Forms.Label label_{{rpc}}_{{field}}_{{type}};
     """
     template_postform_textbox = r"""
-        private System.Windows.Forms.TextBox tb_{{field}};
+        private System.Windows.Forms.TextBox tb_{{rpc}}_{{field}};
     """
     template_tabpage_block = r"""
             //
@@ -1722,29 +1796,29 @@ for service in services.keys():
             }
     template_label_block = r"""
             //
-            // label_{{field}}
+            // label_{{rpc}}_{{field}}
             //
-            this.label_{{field}}_{{type}} = new System.Windows.Forms.Label();
-            this.label_{{field}}_{{type}}.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label_{{field}}_{{type}}.AutoSize = true;
-            this.label_{{field}}_{{type}}.Location = new System.Drawing.Point(3, 113);
-            this.label_{{field}}_{{type}}.Name = "label_{{field}}";
-            this.label_{{field}}_{{type}}.Size = new System.Drawing.Size(43, 17);
-            this.label_{{field}}_{{type}}.TabIndex = 0;
-            this.label_{{field}}_{{type}}.Text = "{{text}}";
-            this.tlp{{rpc}}.Controls.Add(this.label_{{field}}_{{type}}, {{column}}, {{row}});
+            this.label_{{rpc}}_{{field}}_{{type}} = new System.Windows.Forms.Label();
+            this.label_{{rpc}}_{{field}}_{{type}}.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label_{{rpc}}_{{field}}_{{type}}.AutoSize = true;
+            this.label_{{rpc}}_{{field}}_{{type}}.Location = new System.Drawing.Point(3, 113);
+            this.label_{{rpc}}_{{field}}_{{type}}.Name = "label_{{rpc}}_{{field}}";
+            this.label_{{rpc}}_{{field}}_{{type}}.Size = new System.Drawing.Size(43, 17);
+            this.label_{{rpc}}_{{field}}_{{type}}.TabIndex = 0;
+            this.label_{{rpc}}_{{field}}_{{type}}.Text = "{{text}}";
+            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_{{field}}_{{type}}, {{column}}, {{row}});
     """
     template_textbox_block = r"""
             //
-            // tb_{{field}}
+            // tb_{{rpc}}_{{field}}
             //
-            this.tb_{{field}} = new System.Windows.Forms.TextBox();
-            this.tb_{{field}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tb_{{field}}.Location = new System.Drawing.Point(189, 50);
-            this.tb_{{field}}.Name = "tb_{{field}}";
-            this.tb_{{field}}.Size = new System.Drawing.Size(363, 23);
-            this.tb_{{field}}.TabIndex = 1;
-            this.tlp{{rpc}}.Controls.Add(this.tb_{{field}}, 1, {{row}});
+            this.tb_{{rpc}}_{{field}} = new System.Windows.Forms.TextBox();
+            this.tb_{{rpc}}_{{field}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tb_{{rpc}}_{{field}}.Location = new System.Drawing.Point(189, 50);
+            this.tb_{{rpc}}_{{field}}.Name = "tb_{{rpc}}_{{field}}";
+            this.tb_{{rpc}}_{{field}}.Size = new System.Drawing.Size(363, 23);
+            this.tb_{{rpc}}_{{field}}.TabIndex = 1;
+            this.tlp{{rpc}}.Controls.Add(this.tb_{{rpc}}_{{field}}, 1, {{row}});
             this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
     """
     template_type_parse = r"""
@@ -1780,11 +1854,11 @@ for service in services.keys():
                         field_type = field[1]
                         field_remark = field[2]
                         # 字段名声明
-                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "name")
+                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "name").replace("{{rpc}}", rpc_name)
                         # 字段注释声明
-                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "remark")
+                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "remark").replace("{{rpc}}", rpc_name)
                         # 字段输入声明
-                        tabPage_define = tabPage_define + template_postform_textbox.replace('{{field}}', field_name)
+                        tabPage_define = tabPage_define + template_postform_textbox.replace('{{field}}', field_name).replace("{{rpc}}", rpc_name)
                         # 字段名代码
                         tabPage_block = tabPage_block + template_label_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1)).replace("{{column}}", str(0)).replace("{{type}}", "name").replace("{{text}}", field_name)
                         # 字段注释代码
@@ -1796,9 +1870,9 @@ for service in services.keys():
                             field_type = 'enum'
                         field_type = type_dict[field_type]
                         if 'string' == field_type:
-                            type_parse_block = type_parse_block + template_assign.replace('{{type}}', field_type).replace("{{name}}", field_name).replace("{{value}}",'this.tb_{}.Text'.format(field_name))
+                            type_parse_block = type_parse_block + template_assign.replace('{{type}}', field_type).replace("{{name}}", field_name).replace("{{value}}",'this.tb_{}_{}.Text'.format(rpc_name, field_name))
                         else:
-                            type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}.Text'.format(field_name))
+                            type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}_{}.Text'.format(rpc_name, field_name))
                         args_exp = args_exp + '{}, '.format(field_name)
                         row=row+1
                     # 移除末尾得', '

@@ -15,6 +15,11 @@ namespace OGM.Module.File
             {
                 return panel;
             }
+
+            public void Alert(string _message)
+            {
+                MessageBox.Show(_message);
+            }
         }
 
         public BucketFacade facade { get; set; }
