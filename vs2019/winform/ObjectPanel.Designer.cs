@@ -4,12 +4,12 @@ namespace OGM.Module.File
 {
     partial class ObjectPanel
     {
-        /// <summary> 
+        /// <summary>
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary> 
+        /// <summary>
         /// 清理所有正在使用的资源。
         /// </summary>
         /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
@@ -24,7 +24,7 @@ namespace OGM.Module.File
 
         #region 组件设计器生成的代码
 
-        /// <summary> 
+        /// <summary>
         /// 设计器支持所需的方法 - 不要修改
         /// 使用代码编辑器修改此方法的内容。
         /// </summary>
@@ -33,11 +33,11 @@ namespace OGM.Module.File
             this.tcPages = new System.Windows.Forms.TabControl();
             this.tcPages.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // tcPages
-            // 
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tcPages.Location = new System.Drawing.Point(10, 10);
             this.tcPages.Multiline = true;
@@ -191,9 +191,9 @@ namespace OGM.Module.File
             this.tcPages.Controls.Add(tabPageRetract);
     
 
-            // 
+            //
             // ObjectPanel
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tcPages);

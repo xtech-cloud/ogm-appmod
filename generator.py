@@ -197,65 +197,98 @@ namespace app
 """
 
 template_app_AppConfig_cs = r"""
-using System;
+using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace app
 {
+    class ConfigSchema
+    {
+        public string domain;
+    }
     class AppConfig: Config
     {
         public override void Merge(string _content)
         {
+            ConfigSchema schema = JsonSerializer.Deserialize<ConfigSchema>(_content);
+            fields_["domain"] = Any.FromString(schema.domain);
         }
     }//class
 }//namespace
 """
 
 template_app_ConsoleLogger_cs = r"""
+
+
+
 using System;
+using System.Drawing;
 using XTC.oelMVCS;
 
 namespace app
 {
     class ConsoleLogger : Logger
     {
+        public System.Windows.Forms.RichTextBox rtbLog { get; set; }
         protected override void trace(string _categoray, string _message)
         {
-            Console.WriteLine("TRACE | {0} > {1}", _categoray, _message);
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("TRACE | {0} > {1}", _categoray, _message), Color.Gray);
         }
 
         protected override void debug(string _categoray, string _message)
         {
-            Console.WriteLine("DEBUG | {0} > {1}", _categoray, _message);
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("DEBUG | {0} > {1}", _categoray, _message), Color.Blue);
         }
 
         protected override void info(string _categoray, string _message)
         {
-            Console.WriteLine("INFO | {0} > {1}", _categoray, _message);
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("INFO | {0} > {1}", _categoray, _message), Color.Green);
         }
 
         protected override void warning(string _categoray, string _message)
         {
-            Console.WriteLine("WARN | {0} > {1}", _categoray, _message);
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("WARN | {0} > {1}", _categoray, _message), Color.Orange);
         }
 
         protected override void error(string _categoray, string _message)
         {
-            Console.WriteLine("ERROR | {0} > {1}", _categoray, _message);
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("ERROR | {0} > {1}", _categoray, _message), Color.Red);
         }
 
         protected override void exception(Exception _exception)
         {
-            Console.WriteLine(_exception.ToString());
+            if (rtbLog.IsDisposed)
+                return;
+            this.appendTextColorful(string.Format("EXCEPT | > {0}", _exception.ToString()), Color.Purple);
+        }
+
+        private void appendTextColorful(string addtext, Color color)
+        {
+            addtext += Environment.NewLine;
+            rtbLog.SelectionStart = rtbLog.TextLength;
+            rtbLog.SelectionLength = 0;
+            rtbLog.SelectionColor = color;
+            rtbLog.AppendText(addtext);
         }
     }//class
 }//namespace
 """
 
 template_app_Program_cs = r"""
+
 using System;
 using System.Windows.Forms;
-using {{org}}.Module.{{mod}};
+using OGM.Module.File;
 using XTC.oelMVCS;
 
 namespace app
@@ -273,9 +306,12 @@ namespace app
             Application.SetCompatibleTextRenderingDefault(false);
             RootForm rootForm = new RootForm();
 
-            Logger logger = new ConsoleLogger();
+            ConsoleLogger logger = new ConsoleLogger();
+            logger.rtbLog = rootForm.getLoggerUi();
             Config config = new AppConfig();
-            config.Merge("");
+            ConfigSchema schema = new ConfigSchema();
+            schema.domain = rootForm.getDomainUi().Text;
+            config.Merge(System.Text.Json.JsonSerializer.Serialize<ConfigSchema>(schema));
             Framework framework = new Framework();
             framework.setLogger(logger);
             framework.setConfig(config);
@@ -320,9 +356,22 @@ namespace app
         {
             InitializeComponent();
         }
+
+        public RichTextBox getLoggerUi()
+        {
+            return this.rtbLog;
+        }
+
+        public TextBox getDomainUi()
+        {
+            return this.tbDomain;
+        }
+
         private TabControl tcPages;
         private TreeView tvPages;
         private Dictionary<string, TabPage> pages = new Dictionary<string, TabPage>();
+        private RichTextBox rtbLog;
+        private TextBox tbDomain;
 
         /// <summary>
         /// 必需的设计器变量。
@@ -384,40 +433,63 @@ namespace app
         {
             this.tcPages = new System.Windows.Forms.TabControl();
             this.tvPages = new System.Windows.Forms.TreeView();
+            this.rtbLog = new System.Windows.Forms.RichTextBox();
+            this.tbDomain = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-            //
+            // 
             // tcPages
-            //
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tcPages.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.tcPages.ItemSize = new System.Drawing.Size(0, 1);
-            this.tcPages.Location = new System.Drawing.Point(216, 20);
+            this.tcPages.Location = new System.Drawing.Point(216, 61);
             this.tcPages.Name = "tcPages";
             this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(780, 680);
+            this.tcPages.Size = new System.Drawing.Size(780, 468);
             this.tcPages.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tcPages.TabIndex = 1;
-            //
+            // 
             // tvPages
-            //
-            this.tvPages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            // 
+            this.tvPages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tvPages.Location = new System.Drawing.Point(13, 20);
             this.tvPages.Name = "tvPages";
             this.tvPages.PathSeparator = "/";
-            this.tvPages.Size = new System.Drawing.Size(188, 679);
+            this.tvPages.Size = new System.Drawing.Size(188, 509);
             this.tvPages.TabIndex = 2;
             this.tvPages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPages_AfterSelect);
-            //
+            // 
+            // rtbLog
+            // 
+            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbLog.Location = new System.Drawing.Point(13, 547);
+            this.rtbLog.Name = "rtbLog";
+            this.rtbLog.Size = new System.Drawing.Size(983, 170);
+            this.rtbLog.TabIndex = 3;
+            this.rtbLog.Text = "";
+            // 
+            // tbDomain
+            // 
+            this.tbDomain.Location = new System.Drawing.Point(231, 20);
+            this.tbDomain.Name = "tbDomain";
+            this.tbDomain.Size = new System.Drawing.Size(416, 23);
+            this.tbDomain.TabIndex = 4;
+            this.tbDomain.Text = "http://localhost:8080";
+            // 
             // RootForm
-            //
+            // 
             this.ClientSize = new System.Drawing.Size(1008, 729);
+            this.Controls.Add(this.tbDomain);
+            this.Controls.Add(this.rtbLog);
             this.Controls.Add(this.tvPages);
             this.Controls.Add(this.tcPages);
             this.Name = "RootForm";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -545,7 +617,7 @@ namespace {{org}}.Module.{{mod}}
 {{cancel}}
         }
 
-        private Framework framework_ = null; 
+        private Framework framework_ = null;
     }
 }
 """
@@ -671,8 +743,10 @@ namespace {{org}}.Module.{{mod}}
 """
 
 template_module_Service_cs = r"""
-using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Text.Json;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace {{org}}.Module.{{mod}}
@@ -692,6 +766,41 @@ namespace {{org}}.Module.{{mod}}
             getLogger().Trace("setup {{service}}Service");
         }
 {{rpc}}
+
+        protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(_url); 
+            req.Method = _method;
+            req.ContentType =
+            "application/json;charset=utf-8";
+            string json = System.Text.Json.JsonSerializer.Serialize(_params);
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+            req.ContentLength = data.Length;
+            using (Stream reqStream = req.GetRequestStream())
+            {
+                reqStream.Write(data, 0, data.Length);
+            }
+            HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
+            if(rsp == null)
+            {
+                _onError(Error.NewNullErr("HttpWebResponse is null"));
+                return;
+            }
+            if(rsp.StatusCode != HttpStatusCode.OK)
+            {
+                rsp.Close();
+                _onError(new Error(rsp.StatusCode.GetHashCode(), "HttpStatusCode != 200"));
+                return;
+            }
+            string reply = "";
+            StreamReader sr;
+            using (sr = new StreamReader(rsp.GetResponseStream()))
+            {
+                reply = sr.ReadToEnd();
+            }
+            sr.Close();
+            _onReply(reply);
+        }
     }
 }
 """
@@ -851,12 +960,12 @@ namespace {{org}}.Module.{{mod}}
 {
     partial class {{service}}Panel
     {
-        /// <summary> 
+        /// <summary>
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary> 
+        /// <summary>
         /// 清理所有正在使用的资源。
         /// </summary>
         /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
@@ -871,7 +980,7 @@ namespace {{org}}.Module.{{mod}}
 
         #region 组件设计器生成的代码
 
-        /// <summary> 
+        /// <summary>
         /// 设计器支持所需的方法 - 不要修改
         /// 使用代码编辑器修改此方法的内容。
         /// </summary>
@@ -880,11 +989,11 @@ namespace {{org}}.Module.{{mod}}
             this.tcPages = new System.Windows.Forms.TabControl();
             this.tcPages.SuspendLayout();
             this.SuspendLayout();
-            // 
+            //
             // tcPages
-            // 
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tcPages.Location = new System.Drawing.Point(10, 10);
             this.tcPages.Multiline = true;
@@ -895,9 +1004,9 @@ namespace {{org}}.Module.{{mod}}
 
 {{tabPage_block}}
 
-            // 
+            //
             // {{service}}Panel
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tcPages);
@@ -952,7 +1061,7 @@ service Healthy {
 }
 转换为
 {
-    startkit: 
+    startkit:
     {
         healthy: (EchoRequest, EchoResponse)
     }
@@ -962,13 +1071,13 @@ service Healthy {
 messages: Dict[str, List[Tuple]] = {}
 """
 message EchoRequest {
-  string msg = 1; 
+  string msg = 1;  // 消息
 }
 转换为
 {
-    EchoRequest: 
-    [ 
-        (msg, string),
+    EchoRequest:
+    [
+        (msg, string, 消息),
     ]
 }
 """
@@ -976,17 +1085,17 @@ message EchoRequest {
 enums: List[str] = []
 
 type_dict = {
-    "string": "string",
-    "int32": "int",
-    "uint32": "int",
-    "int64": "long",
-    "uint64": "long",
-    "bool": "bool",
-    "float32": "float",
-    "float64": "double",
-    "bytes": "byte[]",
-    "enum": "int",
-}
+        "string": "string",
+        "int32": "int",
+        "uint32": "int",
+        "int64": "long",
+        "uint64": "long",
+        "bool": "bool",
+        "float32": "float",
+        "float64": "double",
+        "bytes": "byte[]",
+        "enum": "int",
+        }
 
 # 解析协议文件
 for entry in os.listdir(proto_dir):
@@ -1077,7 +1186,12 @@ for entry in os.listdir(proto_dir):
                 field_name = ""
                 if len(match) > 0:
                     field_name = match[0]
-                messages[message_name].append((field_name, field_type))
+                # 提取字段注释
+                match = re.findall(r"//\s+(\w+)", line, re.S)
+                field_remark = ""
+                if len(match) > 0:
+                    field_remark = str.strip(match[0])
+                messages[message_name].append((field_name, field_type, field_remark))
 
 
 # 生成..gitignore文件
@@ -1125,10 +1239,10 @@ with open("./vs2019/app/AppConfig.cs", "w", encoding="utf-8") as wf:
 # 生成Program.cs
 with open("./vs2019/app/Program.cs", "w", encoding="utf-8") as wf:
     wf.write(
-        template_app_Program_cs.replace("{{org}}", org_name.upper()).replace(
-            "{{mod}}", mod_name.capitalize()
-        )
-    )
+            template_app_Program_cs.replace("{{org}}", org_name.upper()).replace(
+                "{{mod}}", mod_name.capitalize()
+                )
+            )
     wf.close()
 
 # 生成RootForm.cs
@@ -1148,15 +1262,15 @@ os.makedirs("vs2019/bridge", exist_ok=True)
 # 生成.proj文件
 with open("./vs2019/bridge/bridge.csproj", "w", encoding="utf-8") as wf:
     wf.write(
-        template_proj_bridge.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
-    )
+            template_proj_bridge.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
+            )
     wf.close()
 
 # 生成ViewBridge.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/bridge/I{}ViewBridge.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/bridge/I{}ViewBridge.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         template_method = r"        void On{{rpc}}Submit({{args}});"
         rpc_block = ""
         for rpc_name in services[service].keys():
@@ -1188,8 +1302,8 @@ for service in services.keys():
 # 生成UiBridge.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/bridge/I{}UiBridge.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/bridge/I{}UiBridge.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = templete_bridge_ui_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1205,8 +1319,8 @@ os.makedirs("vs2019/module", exist_ok=True)
 # 生成.proj文件
 with open("./vs2019/module/module.csproj", "w", encoding="utf-8") as wf:
     wf.write(
-        template_proj_module.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
-    )
+            template_proj_module.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
+            )
     wf.close()
 
 
@@ -1236,11 +1350,11 @@ with open("./vs2019/module/ModuleRoot.cs", "w", encoding="utf-8") as wf:
     cancel_block = ""
     for service in services.keys():
         register_block = register_block + template_register_block.replace(
-            "{{service}}", service
-        )
+                "{{service}}", service
+                )
         cancel_block = cancel_block + template_cancel_block.replace(
-            "{{service}}", service
-        )
+                "{{service}}", service
+                )
     code = template_module_ModuleRoot_cs
     code = code.replace("{{org}}", org_name.upper())
     code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1252,8 +1366,8 @@ with open("./vs2019/module/ModuleRoot.cs", "w", encoding="utf-8") as wf:
 # 生成Model.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/module/{}Model.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/module/{}Model.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = template_module_Model_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1274,8 +1388,8 @@ for service in services.keys():
 # 生成Controller.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/module/{}Controller.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/module/{}Controller.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = template_module_Controller_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1286,8 +1400,8 @@ for service in services.keys():
 # 生成ViewBridge.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/module/{}ViewBridge.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/module/{}ViewBridge.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         template_method = r"""
         public void On{{rpc}}Submit({{args}})
         {
@@ -1314,8 +1428,8 @@ for service in services.keys():
                 field_type = type_dict[field_type]
                 args_block = args_block + str.format("{} _{}, ", field_type, field_name)
                 assign_block = assign_block + str.format(
-                    "            req.{} = _{};\n", field_name, field_name
-                )
+                        "            req.{} = _{};\n", field_name, field_name
+                        )
             # 移除末尾的 ', '
             if len(args_block) > 0:
                 args_block = args_block[0:-2]
@@ -1333,14 +1447,14 @@ for service in services.keys():
 # 生成Service.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/module/{}Service.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/module/{}Service.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         template_method = r"""
         public void Post{{rpc}}(Proto.{{req}} _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
 {{assign}}
-            post("/{{org}}/{{mod}}/{{service}}/{{rpc}}", paramMap, (_reply) =>
+            post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply);
                 {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp.status.code, rsp.status.message);
@@ -1371,11 +1485,11 @@ for service in services.keys():
                 # 转换类型
                 field_type = type_dict[field_type]
                 assign_block = assign_block + str.format(
-                    '            paramMap["{}"] = Any.From{}(_request.{});\n',
-                    field_name,
-                    field_type.capitalize(),
-                    field_name,
-                )
+                        '            paramMap["{}"] = Any.From{}(_request.{});\n',
+                        field_name,
+                        field_type.capitalize(),
+                        field_name,
+                        )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
         code = template_module_Service_cs
         code = code.replace("{{org}}", org_name.upper())
@@ -1406,8 +1520,8 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
             if field_type in type_dict.keys():
                 field_type = type_dict[field_type]
             field_block = field_block + str.format(
-                "            public {} {};\n", field_type, field_name
-            )
+                    "            public {} {};\n", field_type, field_name
+                    )
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)
         proto_block = proto_block + message_block
@@ -1426,8 +1540,8 @@ os.makedirs("vs2019/winform", exist_ok=True)
 # 生成.proj文件
 with open("./vs2019/winform/winform.csproj", "w", encoding="utf-8") as wf:
     wf.write(
-        template_proj_winform.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
-    )
+            template_proj_winform.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
+            )
     wf.close()
 
 # 生成FormRoot.cs文件
@@ -1450,11 +1564,11 @@ with open("./vs2019/winform/FormRoot.cs", "w", encoding="utf-8") as wf:
     cancel_block = ""
     for service in services.keys():
         register_block = register_block + template_register_block.replace(
-            "{{service}}", service
-        )
+                "{{service}}", service
+                )
         cancel_block = cancel_block + template_cancel_block.replace(
-            "{{service}}", service
-        )
+                "{{service}}", service
+                )
     code = template_winform_FormRoot_cs
     code = code.replace("{{org}}", org_name.upper())
     code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1466,8 +1580,8 @@ with open("./vs2019/winform/FormRoot.cs", "w", encoding="utf-8") as wf:
 # 生成Facade.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/winform/{}Facade.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/winform/{}Facade.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = template_winform_Facade_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1478,8 +1592,8 @@ for service in services.keys():
 # 生成Panel.cs文件
 for service in services.keys():
     with open(
-        "./vs2019/winform/{}Panel.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/winform/{}Panel.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = template_winform_Panel_cs
         code = code.replace("{{org}}", org_name.upper())
         code = code.replace("{{mod}}", mod_name.capitalize())
@@ -1490,8 +1604,8 @@ for service in services.keys():
 # 生成Panel.resx文件
 for service in services.keys():
     with open(
-        "./vs2019/winform/{}Panel.resx".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/winform/{}Panel.resx".format(service), "w", encoding="utf-8"
+            ) as wf:
         code = template_winform_Panel_resx
         wf.write(code)
         wf.close()
@@ -1503,6 +1617,26 @@ for service in services.keys():
     """
     template_submit_button_define = r"""
         private System.Windows.Forms.Button btnSubmit{{rpc}};
+        private void btnSubmit{{rpc}}_Click(object sender, System.EventArgs e)
+        {
+            I{{service}}ViewBridge bridge =  facade.getViewBridge() as I{{service}}ViewBridge;
+            {{type_parse}}
+            bridge.On{{rpc}}Submit({{args}});
+        }
+    """
+    template_page_define ={
+            "PostForm": r"""
+        private System.Windows.Forms.TableLayoutPanel tlp{{rpc}};
+        private System.Windows.Forms.Label label_{{rpc}}_name;
+        private System.Windows.Forms.Label label_{{rpc}}_value;
+        private System.Windows.Forms.Label label_{{rpc}}_remark;
+    """,
+    }
+    template_postform_label = r"""
+        private System.Windows.Forms.Label label_{{field}}_{{type}};
+    """
+    template_postform_textbox = r"""
+        private System.Windows.Forms.TextBox tb_{{field}};
     """
     template_tabpage_block = r"""
             //
@@ -1519,25 +1653,115 @@ for service in services.keys():
             this.tcPages.Controls.Add(tabPage{{rpc}});
     """
     template_submit_button_block = r"""
-            // 
+            //
             // btnSubmit{{rpc}}
-            // 
+            //
             this.btnSubmit{{rpc}} = new System.Windows.Forms.Button();
             this.btnSubmit{{rpc}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSubmit{{rpc}}.Location = new System.Drawing.Point(17, 650);
+            this.btnSubmit{{rpc}}.Location = new System.Drawing.Point(17, 300);
             this.btnSubmit{{rpc}}.Name = "btnSubmit{{rpc}}";
-            this.btnSubmit{{rpc}}.Size = new System.Drawing.Size(94, 29);
+            this.btnSubmit{{rpc}}.Size = new System.Drawing.Size(120, 29);
             this.btnSubmit{{rpc}}.TabIndex = 0;
-            this.btnSubmit{{rpc}}.Text = "btnSubmit{{rpc}}";
+            this.btnSubmit{{rpc}}.Text = "Submit";
             this.btnSubmit{{rpc}}.UseVisualStyleBackColor = true;
+            this.btnSubmit{{rpc}}.Click += new System.EventHandler(this.btnSubmit{{rpc}}_Click);
             this.tabPage{{rpc}}.Controls.Add(this.btnSubmit{{rpc}});
     """
+    template_page_block = {
+            "PostForm": r"""
+            //
+            // tlp{{rpc}}
+            //
+            this.tlp{{rpc}} = new System.Windows.Forms.TableLayoutPanel();
+            this.tlp{{rpc}}.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tlp{{rpc}}.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
+            this.tlp{{rpc}}.ColumnCount = 3;
+            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tlp{{rpc}}.Location = new System.Drawing.Point(17, 15);
+            this.tlp{{rpc}}.Name = "tlp";
+            this.tlp{{rpc}}.RowCount = {{field_count}};
+            this.tlp{{rpc}}.Size = new System.Drawing.Size(400, 260);
+            this.tlp{{rpc}}.TabIndex = 1;
+            this.tabPage{{rpc}}.Controls.Add(this.tlp{{rpc}});
+
+            this.label_{{rpc}}_name = new System.Windows.Forms.Label();
+            this.label_{{rpc}}_name.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label_{{rpc}}_name.AutoSize = true;
+            this.label_{{rpc}}_name.Location = new System.Drawing.Point(3, 113);
+            this.label_{{rpc}}_name.Name = "label_{{rpc}}_name";
+            this.label_{{rpc}}_name.Size = new System.Drawing.Size(43, 17);
+            this.label_{{rpc}}_name.TabIndex = 0;
+            this.label_{{rpc}}_name.Text = "参数名";
+            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_name, 0, 0);
+
+            this.label_{{rpc}}_value = new System.Windows.Forms.Label();
+            this.label_{{rpc}}_value.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label_{{rpc}}_value.AutoSize = true;
+            this.label_{{rpc}}_value.Location = new System.Drawing.Point(3, 113);
+            this.label_{{rpc}}_value.Name = "label_{{rpc}}_value";
+            this.label_{{rpc}}_value.Size = new System.Drawing.Size(43, 17);
+            this.label_{{rpc}}_value.TabIndex = 0;
+            this.label_{{rpc}}_value.Text = "参数值";
+            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_value, 1, 0);
+
+            this.label_{{rpc}}_remark= new System.Windows.Forms.Label();
+            this.label_{{rpc}}_remark.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label_{{rpc}}_remark.AutoSize = true;
+            this.label_{{rpc}}_remark.Location = new System.Drawing.Point(3, 113);
+            this.label_{{rpc}}_remark.Name = "label_{{rpc}}_name";
+            this.label_{{rpc}}_remark.Size = new System.Drawing.Size(43, 17);
+            this.label_{{rpc}}_remark.TabIndex = 0;
+            this.label_{{rpc}}_remark.Text = "说明";
+            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_remark, 2, 0);
+            """
+            }
+    template_label_block = r"""
+            //
+            // label_{{field}}
+            //
+            this.label_{{field}}_{{type}} = new System.Windows.Forms.Label();
+            this.label_{{field}}_{{type}}.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label_{{field}}_{{type}}.AutoSize = true;
+            this.label_{{field}}_{{type}}.Location = new System.Drawing.Point(3, 113);
+            this.label_{{field}}_{{type}}.Name = "label_{{field}}";
+            this.label_{{field}}_{{type}}.Size = new System.Drawing.Size(43, 17);
+            this.label_{{field}}_{{type}}.TabIndex = 0;
+            this.label_{{field}}_{{type}}.Text = "{{text}}";
+            this.tlp{{rpc}}.Controls.Add(this.label_{{field}}_{{type}}, {{column}}, {{row}});
+    """
+    template_textbox_block = r"""
+            //
+            // tb_{{field}}
+            //
+            this.tb_{{field}} = new System.Windows.Forms.TextBox();
+            this.tb_{{field}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tb_{{field}}.Location = new System.Drawing.Point(189, 50);
+            this.tb_{{field}}.Name = "tb_{{field}}";
+            this.tb_{{field}}.Size = new System.Drawing.Size(363, 23);
+            this.tb_{{field}}.TabIndex = 1;
+            this.tlp{{rpc}}.Controls.Add(this.tb_{{field}}, 1, {{row}});
+            this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+    """
+    template_type_parse = r"""
+            {{field_type}} {{field_name}};
+            {{field_type}}.TryParse({{value}}, out {{field_name}});
+    """
+    template_assign = r"""
+            {{type}} {{name}} = {{value}};
+    """
     with open(
-        "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
-    ) as wf:
+            "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         tabPage_define = ''
         tabPage_block = ''
         for rpc_name in services[service]:
+            req_name = services[service][rpc_name][0]
+            rsp_name = services[service][rpc_name][0]
             tabPage_define = tabPage_define + template_tabpage_define.replace('{{rpc}}', rpc_name)
             tabPage_block = tabPage_block + template_tabpage_block.replace('{{rpc}}', rpc_name)
             #生成页面
@@ -1545,7 +1769,44 @@ for service in services.keys():
             if rpc_method in layouts.keys():
                 page = layouts[rpc_method]
                 if page == 'PostForm':
-                    tabPage_define = tabPage_define + template_submit_button_define.replace('{{rpc}}', rpc_name)
+                    tabPage_define = tabPage_define + template_page_define[page].replace('{{rpc}}', rpc_name)
+                    # 多添加一个空位尾行
+                    tabPage_block = tabPage_block + template_page_block[page].replace('{{rpc}}', rpc_name).replace("{{field_count}}", str(len(messages[req_name])+2))
+                    row = 0
+                    args_exp = ''
+                    type_parse_block = ''
+                    for field in messages[req_name]:
+                        field_name = field[0]
+                        field_type = field[1]
+                        field_remark = field[2]
+                        # 字段名声明
+                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "name")
+                        # 字段注释声明
+                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "remark")
+                        # 字段输入声明
+                        tabPage_define = tabPage_define + template_postform_textbox.replace('{{field}}', field_name)
+                        # 字段名代码
+                        tabPage_block = tabPage_block + template_label_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1)).replace("{{column}}", str(0)).replace("{{type}}", "name").replace("{{text}}", field_name)
+                        # 字段注释代码
+                        tabPage_block = tabPage_block + template_label_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1)).replace("{{column}}", str(2)).replace("{{type}}", "remark").replace("{{text}}", field_remark)
+                        # 字段输入代码
+                        tabPage_block = tabPage_block + template_textbox_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1))
+                        # 构建参数列表
+                        if field_type in enums:
+                            field_type = 'enum'
+                        field_type = type_dict[field_type]
+                        if 'string' == field_type:
+                            type_parse_block = type_parse_block + template_assign.replace('{{type}}', field_type).replace("{{name}}", field_name).replace("{{value}}",'this.tb_{}.Text'.format(field_name))
+                        else:
+                            type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}.Text'.format(field_name))
+                        args_exp = args_exp + '{}, '.format(field_name)
+                        row=row+1
+                    # 移除末尾得', '
+                    if len(messages[req_name]) > 0:
+                        args_exp = args_exp[:-2]
+                    # 提交按钮声明
+                    tabPage_define = tabPage_define + template_submit_button_define.replace('{{rpc}}', rpc_name).replace("{{service}}", service).replace("{{args}}", args_exp).replace("{{type_parse}}", type_parse_block)
+                    # 提交按钮代码
                     tabPage_block = tabPage_block + template_submit_button_block.replace('{{rpc}}', rpc_name)
 
         code = template_winform_Panel_Designer_cs

@@ -1,4 +1,5 @@
 
+
 using System;
 using System.Windows.Forms;
 using OGM.Module.File;
@@ -19,9 +20,12 @@ namespace app
             Application.SetCompatibleTextRenderingDefault(false);
             RootForm rootForm = new RootForm();
 
-            Logger logger = new ConsoleLogger();
+            ConsoleLogger logger = new ConsoleLogger();
+            logger.rtbLog = rootForm.getLoggerUi();
             Config config = new AppConfig();
-            config.Merge("");
+            ConfigSchema schema = new ConfigSchema();
+            schema.domain = rootForm.getDomainUi().Text;
+            config.Merge(System.Text.Json.JsonSerializer.Serialize<ConfigSchema>(schema));
             Framework framework = new Framework();
             framework.setLogger(logger);
             framework.setConfig(config);

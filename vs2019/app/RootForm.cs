@@ -10,9 +10,22 @@ namespace app
         {
             InitializeComponent();
         }
+
+        public RichTextBox getLoggerUi()
+        {
+            return this.rtbLog;
+        }
+
+        public TextBox getDomainUi()
+        {
+            return this.tbDomain;
+        }
+
         private TabControl tcPages;
         private TreeView tvPages;
         private Dictionary<string, TabPage> pages = new Dictionary<string, TabPage>();
+        private RichTextBox rtbLog;
+        private TextBox tbDomain;
 
         /// <summary>
         /// 必需的设计器变量。
@@ -74,40 +87,63 @@ namespace app
         {
             this.tcPages = new System.Windows.Forms.TabControl();
             this.tvPages = new System.Windows.Forms.TreeView();
+            this.rtbLog = new System.Windows.Forms.RichTextBox();
+            this.tbDomain = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-            //
+            // 
             // tcPages
-            //
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tcPages.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.tcPages.ItemSize = new System.Drawing.Size(0, 1);
-            this.tcPages.Location = new System.Drawing.Point(216, 20);
+            this.tcPages.Location = new System.Drawing.Point(216, 61);
             this.tcPages.Name = "tcPages";
             this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(780, 680);
+            this.tcPages.Size = new System.Drawing.Size(780, 468);
             this.tcPages.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tcPages.TabIndex = 1;
-            //
+            // 
             // tvPages
-            //
-            this.tvPages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            // 
+            this.tvPages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tvPages.Location = new System.Drawing.Point(13, 20);
             this.tvPages.Name = "tvPages";
             this.tvPages.PathSeparator = "/";
-            this.tvPages.Size = new System.Drawing.Size(188, 679);
+            this.tvPages.Size = new System.Drawing.Size(188, 509);
             this.tvPages.TabIndex = 2;
             this.tvPages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPages_AfterSelect);
-            //
+            // 
+            // rtbLog
+            // 
+            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtbLog.Location = new System.Drawing.Point(13, 547);
+            this.rtbLog.Name = "rtbLog";
+            this.rtbLog.Size = new System.Drawing.Size(983, 170);
+            this.rtbLog.TabIndex = 3;
+            this.rtbLog.Text = "";
+            // 
+            // tbDomain
+            // 
+            this.tbDomain.Location = new System.Drawing.Point(231, 20);
+            this.tbDomain.Name = "tbDomain";
+            this.tbDomain.Size = new System.Drawing.Size(416, 23);
+            this.tbDomain.TabIndex = 4;
+            this.tbDomain.Text = "http://localhost:8080";
+            // 
             // RootForm
-            //
+            // 
             this.ClientSize = new System.Drawing.Size(1008, 729);
+            this.Controls.Add(this.tbDomain);
+            this.Controls.Add(this.rtbLog);
             this.Controls.Add(this.tvPages);
             this.Controls.Add(this.tcPages);
             this.Name = "RootForm";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

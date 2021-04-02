@@ -57,6 +57,6 @@ namespace OGM.Module.File
     
         }
 
-        private Framework framework_ = null; 
+        private Framework framework_ = null;
     }
 }

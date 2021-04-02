@@ -1,6 +1,8 @@
 
-using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Text.Json;
+using System.Collections.Generic;
 using XTC.oelMVCS;
 
 namespace OGM.Module.File
@@ -27,7 +29,7 @@ namespace OGM.Module.File
             paramMap["uname"] = Any.FromString(_request.uname);
             paramMap["size"] = Any.FromLong(_request.size);
 
-            post("/ogm/file/Object/Prepare", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Prepare", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectPrepareResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -46,7 +48,7 @@ namespace OGM.Module.File
             paramMap["uname"] = Any.FromString(_request.uname);
             paramMap["path"] = Any.FromString(_request.path);
 
-            post("/ogm/file/Object/Flush", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Flush", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -66,7 +68,7 @@ namespace OGM.Module.File
             paramMap["url"] = Any.FromString(_request.url);
             paramMap["overwrite"] = Any.FromBool(_request.overwrite);
 
-            post("/ogm/file/Object/Link", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Link", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -83,7 +85,7 @@ namespace OGM.Module.File
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = Any.FromString(_request.uuid);
 
-            post("/ogm/file/Object/Get", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Get", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectGetResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -101,7 +103,7 @@ namespace OGM.Module.File
             paramMap["bucket"] = Any.FromString(_request.bucket);
             paramMap["filepath"] = Any.FromString(_request.filepath);
 
-            post("/ogm/file/Object/Find", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Find", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectFindResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -118,7 +120,7 @@ namespace OGM.Module.File
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = Any.FromString(_request.uuid);
 
-            post("/ogm/file/Object/Remove", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Remove", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -137,7 +139,7 @@ namespace OGM.Module.File
             paramMap["count"] = Any.FromLong(_request.count);
             paramMap["bucket"] = Any.FromString(_request.bucket);
 
-            post("/ogm/file/Object/List", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectListResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -157,7 +159,7 @@ namespace OGM.Module.File
             paramMap["bucket"] = Any.FromString(_request.bucket);
             paramMap["prefix"] = Any.FromString(_request.prefix);
 
-            post("/ogm/file/Object/Search", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Search", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectSearchResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -175,7 +177,7 @@ namespace OGM.Module.File
             paramMap["uuid"] = Any.FromString(_request.uuid);
             paramMap["expiry"] = Any.FromLong(_request.expiry);
 
-            post("/ogm/file/Object/Publish", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Publish", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectPublishResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -192,7 +194,7 @@ namespace OGM.Module.File
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = Any.FromString(_request.uuid);
 
-            post("/ogm/file/Object/Preview", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Preview", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.ObjectPreviewResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -209,7 +211,7 @@ namespace OGM.Module.File
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = Any.FromString(_request.uuid);
 
-            post("/ogm/file/Object/Retract", paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/file/Object/Retract", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
                 ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
@@ -221,5 +223,40 @@ namespace OGM.Module.File
         }
         
 
+
+        protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(_url); 
+            req.Method = _method;
+            req.ContentType =
+            "application/json;charset=utf-8";
+            string json = System.Text.Json.JsonSerializer.Serialize(_params);
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+            req.ContentLength = data.Length;
+            using (Stream reqStream = req.GetRequestStream())
+            {
+                reqStream.Write(data, 0, data.Length);
+            }
+            HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
+            if(rsp == null)
+            {
+                _onError(Error.NewNullErr("HttpWebResponse is null"));
+                return;
+            }
+            if(rsp.StatusCode != HttpStatusCode.OK)
+            {
+                rsp.Close();
+                _onError(new Error(rsp.StatusCode.GetHashCode(), "HttpStatusCode != 200"));
+                return;
+            }
+            string reply = "";
+            StreamReader sr;
+            using (sr = new StreamReader(rsp.GetResponseStream()))
+            {
+                reply = sr.ReadToEnd();
+            }
+            sr.Close();
+            _onReply(reply);
+        }
     }
 }
