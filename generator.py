@@ -653,6 +653,30 @@ namespace {{org}}.Module.{{mod}}
                 writer.WriteBooleanValue(_value.AsBool());
         }
     }//class
+
+    class FieldConverter : JsonConverter<Proto.Field>
+    {
+        public override Proto.Field Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return Proto.Field.FromString(reader.GetString());
+        }
+
+        public override void Write(Utf8JsonWriter writer, Proto.Field _value, JsonSerializerOptions options)
+        {
+            if(_value.IsString())
+                writer.WriteStringValue(_value.AsString());
+            else if (_value.IsInt())
+                writer.WriteNumberValue(_value.AsInt());
+            else if (_value.IsLong())
+                writer.WriteNumberValue(_value.AsLong());
+            else if (_value.IsFloat())
+                writer.WriteNumberValue(_value.AsFloat());
+            else if (_value.IsDouble())
+                writer.WriteNumberValue(_value.AsDouble());
+            else if (_value.IsBool())
+                writer.WriteBooleanValue(_value.AsBool());
+        }
+    }//class
 }//namespace
 """
 
@@ -847,9 +871,172 @@ namespace {{org}}.Module.{{mod}}
 template_module_Protocol_cs = r"""
 using System;
 using System.Text;
+using XTC.oelMVCS;
 
 namespace {{org}}.Module.{{mod}}.Proto
 {
+    public class Field
+    {
+        public enum Tag
+        {
+            NULL = 0,
+            StringValue = 1,
+            IntValue = 2,
+            LongValue = 3,
+            FloatValue = 4,
+            DoubleValue = 5,
+            BoolValue = 6
+        }
+
+        private string value_ = "";
+        private Tag tag_ = Tag.NULL;
+
+        public Field()
+        {
+        }
+
+        public static Field FromString(string _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.StringValue;
+            any.value_ = _value;
+            return any;
+        }
+
+        public static Field FromFloat(float _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.FloatValue;
+            any.value_ = _value.ToString();
+            return any;
+        }
+
+        public static Field FromDouble(double _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.DoubleValue;
+            any.value_ = _value.ToString(); ;
+            return any;
+        }
+
+        public static Field FromBool(bool _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.BoolValue;
+            any.value_ = _value.ToString(); ;
+            return any;
+        }
+
+        public static Field FromInt(int _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.IntValue;
+            any.value_ = _value.ToString(); ;
+            return any;
+        }
+
+        public static Field FromLong(long _value)
+        {
+            Field any = new Field();
+            any.tag_ = Tag.LongValue;
+            any.value_ = _value.ToString(); ;
+            return any;
+        }
+
+        public bool IsNull()
+        {
+            return tag_ == Tag.NULL;
+        }
+
+        public bool IsString()
+        {
+            return tag_ == Tag.StringValue;
+        }
+
+        public bool IsInt()
+        {
+            return tag_ == Tag.IntValue;
+        }
+
+        public bool IsLong()
+        {
+            return tag_ == Tag.LongValue;
+        }
+
+        public bool IsFloat()
+        {
+            return tag_ == Tag.FloatValue;
+        }
+
+        public bool IsDouble()
+        {
+            return tag_ == Tag.DoubleValue;
+        }
+
+        public bool IsBool()
+        {
+            return tag_ == Tag.BoolValue;
+        }
+
+        public string AsString()
+        {
+            return value_;
+        }
+
+
+        public int AsInt()
+        {
+            int value = 0;
+            int.TryParse(value_, out value);
+            return value;
+        }
+
+        public long AsLong()
+        {
+            long value = 0;
+            long.TryParse(value_, out value);
+            return value;
+        }
+
+        public float AsFloat()
+        {
+            float value = 0;
+            float.TryParse(value_, out value);
+            return value;
+        }
+
+        public double AsDouble()
+        {
+            double value = 0;
+            double.TryParse(value_, out value);
+            return value;
+        }
+
+        public bool AsBool()
+        {
+            bool value = false;
+            bool.TryParse(value_, out value);
+            return value;
+        }
+
+        public Any AsAny()
+        {
+            if(IsString())
+                return Any.FromString(AsString());
+            if(IsInt())
+                return Any.FromInt(AsInt());
+            if(IsLong())
+                return Any.FromLong(AsLong());
+            if(IsFloat())
+                return Any.FromFloat(AsFloat());
+            if(IsDouble())
+                return Any.FromDouble(AsDouble());
+            if(IsBool())
+                return Any.FromBool(AsBool());
+            return new Any();
+        }
+
+    }//class
 {{proto}}
 }
 """
@@ -1427,10 +1614,10 @@ for service in services.keys():
         private void handle{{service}}{{rpc}}(Model.Status _status, object _data)
         {
             var rsp = (Proto.{{rsp}})_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     """
     with open("./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8") as wf:
@@ -1493,7 +1680,7 @@ for service in services.keys():
                 field_type = type_dict[field_type]
                 args_block = args_block + str.format("{} _{}, ", field_type, field_name)
                 assign_block = assign_block + str.format(
-                        "            req.{} = _{};\n", field_name, field_name
+                        "            req.{} = Proto.Field.From{}(_{});\n", field_name, field_type.capitalize(), field_name
                         )
             # 移除末尾的 ', '
             if len(args_block) > 0:
@@ -1521,8 +1708,10 @@ for service in services.keys():
 {{assign}}
             post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply);
-                {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply, options);
+                {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/{{org}}/{{mod}}/{{service}}/{{rpc}}", rsp);
             }, (_err) =>
             {
@@ -1550,9 +1739,8 @@ for service in services.keys():
                 # 转换类型
                 field_type = type_dict[field_type]
                 assign_block = assign_block + str.format(
-                        '            paramMap["{}"] = Any.From{}(_request.{});\n',
+                        '            paramMap["{}"] = _request.{}.AsAny();\n',
                         field_name,
-                        field_type.capitalize(),
                         field_name,
                         )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
@@ -1569,12 +1757,17 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
     template_class = r"""
         public class {{message}}
         {
+            public {{message}}()
+            {
+{{assign}}
+            }
 {{field}}
         }
     """
     proto_block = ""
     for message_name in messages.keys():
         field_block = ""
+        assign_block = ""
         for field in messages[message_name]:
             field_name = field[0]
             field_type = field[1]
@@ -1583,12 +1776,23 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
                 field_type = "enum"
             # 转换类型
             if field_type in type_dict.keys():
-                field_type = type_dict[field_type]
+                #field_type = type_dict[field_type]
+                field_type = 'Field'
             field_block = field_block + str.format(
                     "            public {} {} {{get;set;}}\n", field_type, field_name
                     )
+            if field_type.endswith('[]'):
+                field_type = field_type[:-2]
+                assign_block = assign_block + str.format(
+                        "                {} = new {}[0];\n", field_name, field_type
+                        )
+            else:
+                assign_block = assign_block + str.format(
+                        "                {} = new {}();\n", field_name, field_type
+                        )
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)
+        message_block = message_block.replace("{{assign}}", assign_block)
         proto_block = proto_block + message_block
     code = template_module_Protocol_cs
     code = code.replace("{{org}}", org_name.upper())

@@ -59,73 +59,73 @@ namespace OGM.Module.File
         private void handleBucketMake(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketList(Model.Status _status, object _data)
         {
             var rsp = (Proto.BucketListResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketRemove(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketGet(Model.Status _status, object _data)
         {
             var rsp = (Proto.BucketGetResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketFind(Model.Status _status, object _data)
         {
             var rsp = (Proto.BucketFindResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketUpdateEngine(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketUpdateCapacity(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleBucketResetToken(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
     }

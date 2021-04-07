@@ -65,100 +65,100 @@ namespace OGM.Module.File
         private void handleObjectPrepare(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectPrepareResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectFlush(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectLink(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectGet(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectGetResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectFind(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectFindResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectRemove(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectList(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectListResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectSearch(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectSearchResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectPublish(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectPublishResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectPreview(Model.Status _status, object _data)
         {
             var rsp = (Proto.ObjectPreviewResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
         private void handleObjectRetract(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
-            if(rsp.status.code == 0)
+            if(rsp.status.code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code, rsp.status.message));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
         }
     
     }

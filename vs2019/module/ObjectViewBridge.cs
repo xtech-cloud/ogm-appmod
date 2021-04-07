@@ -11,9 +11,9 @@ namespace OGM.Module.File
         public void OnPrepareSubmit(string _bucket, string _uname, long _size)
         {
             Proto.ObjectPrepareRequest req = new Proto.ObjectPrepareRequest();
-            req.bucket = _bucket;
-            req.uname = _uname;
-            req.size = _size;
+            req.bucket = Proto.Field.FromString(_bucket);
+            req.uname = Proto.Field.FromString(_uname);
+            req.size = Proto.Field.FromLong(_size);
 
             service.PostPrepare(req);
         }
@@ -22,9 +22,9 @@ namespace OGM.Module.File
         public void OnFlushSubmit(string _bucket, string _uname, string _path)
         {
             Proto.ObjectFlushRequest req = new Proto.ObjectFlushRequest();
-            req.bucket = _bucket;
-            req.uname = _uname;
-            req.path = _path;
+            req.bucket = Proto.Field.FromString(_bucket);
+            req.uname = Proto.Field.FromString(_uname);
+            req.path = Proto.Field.FromString(_path);
 
             service.PostFlush(req);
         }
@@ -33,10 +33,10 @@ namespace OGM.Module.File
         public void OnLinkSubmit(string _bucket, string _filepath, string _url, bool _overwrite)
         {
             Proto.ObjectLinkRequest req = new Proto.ObjectLinkRequest();
-            req.bucket = _bucket;
-            req.filepath = _filepath;
-            req.url = _url;
-            req.overwrite = _overwrite;
+            req.bucket = Proto.Field.FromString(_bucket);
+            req.filepath = Proto.Field.FromString(_filepath);
+            req.url = Proto.Field.FromString(_url);
+            req.overwrite = Proto.Field.FromBool(_overwrite);
 
             service.PostLink(req);
         }
@@ -45,7 +45,7 @@ namespace OGM.Module.File
         public void OnGetSubmit(string _uuid)
         {
             Proto.ObjectGetRequest req = new Proto.ObjectGetRequest();
-            req.uuid = _uuid;
+            req.uuid = Proto.Field.FromString(_uuid);
 
             service.PostGet(req);
         }
@@ -54,8 +54,8 @@ namespace OGM.Module.File
         public void OnFindSubmit(string _bucket, string _filepath)
         {
             Proto.ObjectFindRequest req = new Proto.ObjectFindRequest();
-            req.bucket = _bucket;
-            req.filepath = _filepath;
+            req.bucket = Proto.Field.FromString(_bucket);
+            req.filepath = Proto.Field.FromString(_filepath);
 
             service.PostFind(req);
         }
@@ -64,7 +64,7 @@ namespace OGM.Module.File
         public void OnRemoveSubmit(string _uuid)
         {
             Proto.ObjectRemoveRequest req = new Proto.ObjectRemoveRequest();
-            req.uuid = _uuid;
+            req.uuid = Proto.Field.FromString(_uuid);
 
             service.PostRemove(req);
         }
@@ -73,9 +73,9 @@ namespace OGM.Module.File
         public void OnListSubmit(long _offset, long _count, string _bucket)
         {
             Proto.ObjectListRequest req = new Proto.ObjectListRequest();
-            req.offset = _offset;
-            req.count = _count;
-            req.bucket = _bucket;
+            req.offset = Proto.Field.FromLong(_offset);
+            req.count = Proto.Field.FromLong(_count);
+            req.bucket = Proto.Field.FromString(_bucket);
 
             service.PostList(req);
         }
@@ -84,10 +84,10 @@ namespace OGM.Module.File
         public void OnSearchSubmit(long _offset, long _count, string _bucket, string _prefix)
         {
             Proto.ObjectSearchRequest req = new Proto.ObjectSearchRequest();
-            req.offset = _offset;
-            req.count = _count;
-            req.bucket = _bucket;
-            req.prefix = _prefix;
+            req.offset = Proto.Field.FromLong(_offset);
+            req.count = Proto.Field.FromLong(_count);
+            req.bucket = Proto.Field.FromString(_bucket);
+            req.prefix = Proto.Field.FromString(_prefix);
 
             service.PostSearch(req);
         }
@@ -96,8 +96,8 @@ namespace OGM.Module.File
         public void OnPublishSubmit(string _uuid, long _expiry)
         {
             Proto.ObjectPublishRequest req = new Proto.ObjectPublishRequest();
-            req.uuid = _uuid;
-            req.expiry = _expiry;
+            req.uuid = Proto.Field.FromString(_uuid);
+            req.expiry = Proto.Field.FromLong(_expiry);
 
             service.PostPublish(req);
         }
@@ -106,7 +106,7 @@ namespace OGM.Module.File
         public void OnPreviewSubmit(string _uuid)
         {
             Proto.ObjectPreviewRequest req = new Proto.ObjectPreviewRequest();
-            req.uuid = _uuid;
+            req.uuid = Proto.Field.FromString(_uuid);
 
             service.PostPreview(req);
         }
@@ -115,7 +115,7 @@ namespace OGM.Module.File
         public void OnRetractSubmit(string _uuid)
         {
             Proto.ObjectRetractRequest req = new Proto.ObjectRetractRequest();
-            req.uuid = _uuid;
+            req.uuid = Proto.Field.FromString(_uuid);
 
             service.PostRetract(req);
         }

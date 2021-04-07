@@ -25,18 +25,20 @@ namespace OGM.Module.File
         public void PostMake(Proto.BucketMakeRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["name"] = Any.FromString(_request.name);
-            paramMap["capacity"] = Any.FromLong(_request.capacity);
-            paramMap["engine"] = Any.FromInt(_request.engine);
-            paramMap["address"] = Any.FromString(_request.address);
-            paramMap["scope"] = Any.FromString(_request.scope);
-            paramMap["accessKey"] = Any.FromString(_request.accessKey);
-            paramMap["accessSecret"] = Any.FromString(_request.accessSecret);
+            paramMap["name"] = _request.name.AsAny();
+            paramMap["capacity"] = _request.capacity.AsAny();
+            paramMap["engine"] = _request.engine.AsAny();
+            paramMap["address"] = _request.address.AsAny();
+            paramMap["scope"] = _request.scope.AsAny();
+            paramMap["accessKey"] = _request.accessKey.AsAny();
+            paramMap["accessSecret"] = _request.accessSecret.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/Make", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/Make", rsp);
             }, (_err) =>
             {
@@ -48,13 +50,15 @@ namespace OGM.Module.File
         public void PostList(Proto.BucketListRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = Any.FromLong(_request.offset);
-            paramMap["count"] = Any.FromLong(_request.count);
+            paramMap["offset"] = _request.offset.AsAny();
+            paramMap["count"] = _request.count.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BucketListResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BucketListResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/List", rsp);
             }, (_err) =>
             {
@@ -66,12 +70,14 @@ namespace OGM.Module.File
         public void PostRemove(Proto.BucketRemoveRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/Remove", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/Remove", rsp);
             }, (_err) =>
             {
@@ -83,12 +89,14 @@ namespace OGM.Module.File
         public void PostGet(Proto.BucketGetRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/Get", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BucketGetResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BucketGetResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/Get", rsp);
             }, (_err) =>
             {
@@ -100,12 +108,14 @@ namespace OGM.Module.File
         public void PostFind(Proto.BucketFindRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["name"] = Any.FromString(_request.name);
+            paramMap["name"] = _request.name.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/Find", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BucketFindResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BucketFindResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/Find", rsp);
             }, (_err) =>
             {
@@ -117,17 +127,19 @@ namespace OGM.Module.File
         public void PostUpdateEngine(Proto.BucketUpdateEngineRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
-            paramMap["engine"] = Any.FromInt(_request.engine);
-            paramMap["address"] = Any.FromString(_request.address);
-            paramMap["scope"] = Any.FromString(_request.scope);
-            paramMap["accessKey"] = Any.FromString(_request.accessKey);
-            paramMap["accessSecret"] = Any.FromString(_request.accessSecret);
+            paramMap["uuid"] = _request.uuid.AsAny();
+            paramMap["engine"] = _request.engine.AsAny();
+            paramMap["address"] = _request.address.AsAny();
+            paramMap["scope"] = _request.scope.AsAny();
+            paramMap["accessKey"] = _request.accessKey.AsAny();
+            paramMap["accessSecret"] = _request.accessSecret.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/UpdateEngine", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/UpdateEngine", rsp);
             }, (_err) =>
             {
@@ -139,13 +151,15 @@ namespace OGM.Module.File
         public void PostUpdateCapacity(Proto.BucketUpdateCapacityRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
-            paramMap["capacity"] = Any.FromLong(_request.capacity);
+            paramMap["uuid"] = _request.uuid.AsAny();
+            paramMap["capacity"] = _request.capacity.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/UpdateCapacity", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/UpdateCapacity", rsp);
             }, (_err) =>
             {
@@ -157,12 +171,14 @@ namespace OGM.Module.File
         public void PostResetToken(Proto.BucketResetTokenRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Bucket/ResetToken", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                BucketModel.BucketStatus status = Model.Status.New<BucketModel.BucketStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Bucket/ResetToken", rsp);
             }, (_err) =>
             {

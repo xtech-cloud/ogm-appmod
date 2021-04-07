@@ -25,14 +25,16 @@ namespace OGM.Module.File
         public void PostPrepare(Proto.ObjectPrepareRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["bucket"] = Any.FromString(_request.bucket);
-            paramMap["uname"] = Any.FromString(_request.uname);
-            paramMap["size"] = Any.FromLong(_request.size);
+            paramMap["bucket"] = _request.bucket.AsAny();
+            paramMap["uname"] = _request.uname.AsAny();
+            paramMap["size"] = _request.size.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Prepare", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectPrepareResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPrepareResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Prepare", rsp);
             }, (_err) =>
             {
@@ -44,14 +46,16 @@ namespace OGM.Module.File
         public void PostFlush(Proto.ObjectFlushRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["bucket"] = Any.FromString(_request.bucket);
-            paramMap["uname"] = Any.FromString(_request.uname);
-            paramMap["path"] = Any.FromString(_request.path);
+            paramMap["bucket"] = _request.bucket.AsAny();
+            paramMap["uname"] = _request.uname.AsAny();
+            paramMap["path"] = _request.path.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Flush", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Flush", rsp);
             }, (_err) =>
             {
@@ -63,15 +67,17 @@ namespace OGM.Module.File
         public void PostLink(Proto.ObjectLinkRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["bucket"] = Any.FromString(_request.bucket);
-            paramMap["filepath"] = Any.FromString(_request.filepath);
-            paramMap["url"] = Any.FromString(_request.url);
-            paramMap["overwrite"] = Any.FromBool(_request.overwrite);
+            paramMap["bucket"] = _request.bucket.AsAny();
+            paramMap["filepath"] = _request.filepath.AsAny();
+            paramMap["url"] = _request.url.AsAny();
+            paramMap["overwrite"] = _request.overwrite.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Link", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Link", rsp);
             }, (_err) =>
             {
@@ -83,12 +89,14 @@ namespace OGM.Module.File
         public void PostGet(Proto.ObjectGetRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Get", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectGetResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectGetResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Get", rsp);
             }, (_err) =>
             {
@@ -100,13 +108,15 @@ namespace OGM.Module.File
         public void PostFind(Proto.ObjectFindRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["bucket"] = Any.FromString(_request.bucket);
-            paramMap["filepath"] = Any.FromString(_request.filepath);
+            paramMap["bucket"] = _request.bucket.AsAny();
+            paramMap["filepath"] = _request.filepath.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Find", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectFindResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectFindResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Find", rsp);
             }, (_err) =>
             {
@@ -118,12 +128,14 @@ namespace OGM.Module.File
         public void PostRemove(Proto.ObjectRemoveRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Remove", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Remove", rsp);
             }, (_err) =>
             {
@@ -135,14 +147,16 @@ namespace OGM.Module.File
         public void PostList(Proto.ObjectListRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = Any.FromLong(_request.offset);
-            paramMap["count"] = Any.FromLong(_request.count);
-            paramMap["bucket"] = Any.FromString(_request.bucket);
+            paramMap["offset"] = _request.offset.AsAny();
+            paramMap["count"] = _request.count.AsAny();
+            paramMap["bucket"] = _request.bucket.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectListResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectListResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/List", rsp);
             }, (_err) =>
             {
@@ -154,15 +168,17 @@ namespace OGM.Module.File
         public void PostSearch(Proto.ObjectSearchRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["offset"] = Any.FromLong(_request.offset);
-            paramMap["count"] = Any.FromLong(_request.count);
-            paramMap["bucket"] = Any.FromString(_request.bucket);
-            paramMap["prefix"] = Any.FromString(_request.prefix);
+            paramMap["offset"] = _request.offset.AsAny();
+            paramMap["count"] = _request.count.AsAny();
+            paramMap["bucket"] = _request.bucket.AsAny();
+            paramMap["prefix"] = _request.prefix.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Search", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectSearchResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectSearchResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Search", rsp);
             }, (_err) =>
             {
@@ -174,13 +190,15 @@ namespace OGM.Module.File
         public void PostPublish(Proto.ObjectPublishRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
-            paramMap["expiry"] = Any.FromLong(_request.expiry);
+            paramMap["uuid"] = _request.uuid.AsAny();
+            paramMap["expiry"] = _request.expiry.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Publish", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectPublishResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPublishResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Publish", rsp);
             }, (_err) =>
             {
@@ -192,12 +210,14 @@ namespace OGM.Module.File
         public void PostPreview(Proto.ObjectPreviewRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Preview", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.ObjectPreviewResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPreviewResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Preview", rsp);
             }, (_err) =>
             {
@@ -209,12 +229,14 @@ namespace OGM.Module.File
         public void PostRetract(Proto.ObjectRetractRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-            paramMap["uuid"] = Any.FromString(_request.uuid);
+            paramMap["uuid"] = _request.uuid.AsAny();
 
             post(string.Format("{0}/ogm/file/Object/Retract", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
-                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply);
-                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code, rsp.status.message);
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new FieldConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                ObjectModel.ObjectStatus status = Model.Status.New<ObjectModel.ObjectStatus>(rsp.status.code.AsInt(), rsp.status.message.AsString());
                 model.Broadcast("/ogm/file/Object/Retract", rsp);
             }, (_err) =>
             {
