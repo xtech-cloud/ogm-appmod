@@ -38,10 +38,12 @@ namespace app
             framework.getStaticPipe().RegisterView(AppView.NAME, appView);
 
             // 注册模块窗体
-            FormRoot formRoot = new FormRoot(framework);
+            FormRoot formRoot = new FormRoot();
+            formRoot.Inject(framework);
             formRoot.Register();
             // 注册模块逻辑
-            ModuleRoot moduleRoot = new ModuleRoot(framework);
+            ModuleRoot moduleRoot = new ModuleRoot();
+            moduleRoot.Inject(framework);
             moduleRoot.Register();
 
             framework.Setup();

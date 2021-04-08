@@ -5,7 +5,11 @@ namespace OGM.Module.File
 {
     public class FormRoot
     {
-        public FormRoot(Framework _framework)
+        public FormRoot()
+        {
+        }
+
+        public void Inject(Framework _framework)
         {
             framework_ = _framework;
         }

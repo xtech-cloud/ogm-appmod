@@ -6,7 +6,11 @@ namespace OGM.Module.File
 {
     public class ModuleRoot
     {
-        public ModuleRoot(Framework _framework)
+        public ModuleRoot()
+        {
+        }
+
+        public void Inject(Framework _framework)
         {
             framework_ = _framework;
         }
