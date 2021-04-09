@@ -81,7 +81,7 @@ template_proj_app = r"""
 
   <ItemGroup>
     <Reference Include="oelMVCS">
-      <HintPath>..\..\3rd\oelMVCS.dll</HintPath>
+      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -98,7 +98,7 @@ template_proj_bridge = r"""
 
   <ItemGroup>
     <Reference Include="oelMVCS">
-      <HintPath>..\..\3rd\oelMVCS.dll</HintPath>
+      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -119,7 +119,7 @@ template_proj_module = r"""
 
   <ItemGroup>
     <Reference Include="oelMVCS">
-      <HintPath>..\..\3rd\oelMVCS.dll</HintPath>
+      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -141,7 +141,7 @@ template_proj_winform = r"""
 
   <ItemGroup>
     <Reference Include="oelMVCS">
-      <HintPath>..\..\3rd\oelMVCS.dll</HintPath>
+      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -288,7 +288,7 @@ template_app_Program_cs = r"""
 
 using System;
 using System.Windows.Forms;
-using OGM.Module.File;
+using OGM.Module.{{mod}};
 using XTC.oelMVCS;
 
 namespace app
@@ -877,6 +877,7 @@ namespace {{org}}.Module.{{mod}}
 template_module_Protocol_cs = r"""
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 using XTC.oelMVCS;
 
 namespace {{org}}.Module.{{mod}}.Proto
@@ -1291,7 +1292,7 @@ if '' == mod_name:
     print('mod is empty')
     sys.exit(0)
 
-proto_dir = os.path.join("../{}-msp-{}/proto".format(org_name, mod_name), mod_name)
+proto_dir = os.path.join("../../{}-msp-{}/proto".format(org_name, mod_name), mod_name)
 
 
 services: Dict[str, Dict[str, Tuple]] = {}
@@ -1415,12 +1416,14 @@ for entry in os.listdir(proto_dir):
                     isRepeated = True
                     line = line.replace("repeated", "")
                 # 提取字段类型
-                match = re.findall(r"\s*(\w+)\s+\w+", line, re.S)
+                match = re.findall(r"\s*(.*)\s+\w+\s+=", line, re.S)
                 field_type = ""
                 if len(match) > 0:
                     field_type = match[0]
                 if isRepeated:
                     field_type = field_type + "[]"
+                if field_type.startswith('map'):
+                    field_type = 'System.Collections.Generic.Dictionary' + field_type[3:]
                 # 提取字段名
                 match = re.findall(r"\s+(\w+)\s+=", line, re.S)
                 field_name = ""
@@ -1525,7 +1528,8 @@ for service in services.keys():
                 if field_type in enums:
                     field_type = "enum"
                 # 转换类型
-                field_type = type_dict[field_type]
+                if field_type in type_dict.keys():
+                    field_type = type_dict[field_type]
                 args_block = args_block + str.format("{} _{}, ", field_type, field_name)
             # 移除末尾的 ', '
             if len(args_block) > 0:
@@ -1624,10 +1628,10 @@ for service in services.keys():
         private void handle{{service}}{{rpc}}(Model.Status _status, object _data)
         {
             var rsp = (Proto.{{rsp}})_data;
-            if(rsp.status.code.AsInt() == 0)
+            if(rsp._status._code.AsInt() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp.status.code.AsInt(), rsp.status.message.AsString()));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt(), rsp._status._message.AsString()));
         }
     """
     with open("./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8") as wf:
@@ -1667,17 +1671,17 @@ for service in services.keys():
         template_method = r"""
         public void On{{rpc}}Submit({{args}})
         {
-            Proto.{{service}}{{rpc}}Request req = new Proto.{{service}}{{rpc}}Request();
+            Proto.{{req}} req = new Proto.{{req}}();
 {{assign}}
             service.Post{{rpc}}(req);
         }
         """
         rpc_block = ""
         for rpc_name in services[service].keys():
-            rpc = template_method.replace("{{rpc}}", rpc_name)
-            rpc = rpc.replace("{{service}}", service)
-            rpc_block = rpc_block + str.format("{}\n", rpc)
             req_name = services[service][rpc_name][0]
+            rpc = template_method.replace("{{rpc}}", rpc_name)
+            rpc = rpc.replace("{{req}}", req_name)
+            rpc_block = rpc_block + str.format("{}\n", rpc)
             args_block = ""
             assign_block = ""
             for field in messages[req_name]:
@@ -1687,11 +1691,16 @@ for service in services.keys():
                 if field_type in enums:
                     field_type = "enum"
                 # 转换类型
-                field_type = type_dict[field_type]
+                if field_type in type_dict.keys():
+                    field_type = type_dict[field_type]
                 args_block = args_block + str.format("{} _{}, ", field_type, field_name)
-                assign_block = assign_block + str.format(
-                        "            req.{} = Proto.Field.From{}(_{});\n", field_name, field_type.capitalize(), field_name
+
+                if field_type in type_dict.values():
+                    assign_block = assign_block + str.format(
+                        "            req._{} = Proto.Field.From{}(_{});\n", field_name, field_type.capitalize(), field_name
                         )
+                else:
+                    assign_block = assign_block + '            //TODO 未实现的字段赋值 {} {}\n'.format(field_type, field_name)
             # 移除末尾的 ', '
             if len(args_block) > 0:
                 args_block = args_block[0:-2]
@@ -1721,7 +1730,7 @@ for service in services.keys():
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new FieldConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply, options);
-                {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp.status.code.AsInt(), rsp.status.message.AsString());
+                {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
                 model.Broadcast("/{{org}}/{{mod}}/{{service}}/{{rpc}}", rsp);
             }, (_err) =>
             {
@@ -1747,10 +1756,19 @@ for service in services.keys():
                 if field_type in enums:
                     field_type = "enum"
                 # 转换类型
-                field_type = type_dict[field_type]
-                assign_block = assign_block + str.format(
-                        '            paramMap["{}"] = _request.{}.AsAny();\n',
+                if field_type in type_dict.keys():
+                    field_type = type_dict[field_type]
+
+                if field_type in type_dict.values():
+                    assign_block = assign_block + str.format(
+                        '            paramMap["{}"] = _request._{}.AsAny();\n',
                         field_name,
+                        field_name,
+                        )
+                else:
+                    assign_block = assign_block + str.format(
+                        '            //TODO 未实现的字段 {} {}\n',
+                        field_type,
                         field_name,
                         )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
@@ -1789,16 +1807,16 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
                 #field_type = type_dict[field_type]
                 field_type = 'Field'
             field_block = field_block + str.format(
-                    "            public {} {} {{get;set;}}\n", field_type, field_name
+                    "            [JsonPropertyName(\"{}\")]\n            public {} _{} {{get;set;}}\n", field_name, field_type, field_name
                     )
             if field_type.endswith('[]'):
                 field_type = field_type[:-2]
                 assign_block = assign_block + str.format(
-                        "                {} = new {}[0];\n", field_name, field_type
+                        "                _{} = new {}[0];\n", field_name, field_type
                         )
             else:
                 assign_block = assign_block + str.format(
-                        "                {} = new {}();\n", field_name, field_type
+                        "                _{} = new {}();\n", field_name, field_type
                         )
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)
@@ -2036,11 +2054,11 @@ for service in services.keys():
             this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
     """
     template_type_parse = r"""
-            {{field_type}} {{field_name}};
-            {{field_type}}.TryParse({{value}}, out {{field_name}});
+            {{field_type}} _{{field_name}};
+            {{field_type}}.TryParse({{value}}, out _{{field_name}});
     """
     template_assign = r"""
-            {{type}} {{name}} = {{value}};
+            {{type}} _{{name}} = {{value}};
     """
     with open(
             "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
@@ -2082,12 +2100,16 @@ for service in services.keys():
                         # 构建参数列表
                         if field_type in enums:
                             field_type = 'enum'
-                        field_type = type_dict[field_type]
+                        if field_type in type_dict.keys():
+                            field_type = type_dict[field_type]
                         if 'string' == field_type:
                             type_parse_block = type_parse_block + template_assign.replace('{{type}}', field_type).replace("{{name}}", field_name).replace("{{value}}",'this.tb_{}_{}.Text'.format(rpc_name, field_name))
                         else:
-                            type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}_{}.Text'.format(rpc_name, field_name))
-                        args_exp = args_exp + '{}, '.format(field_name)
+                            if field_type in type_dict.values():
+                                type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}_{}.Text'.format(rpc_name, field_name))
+                            else:
+                                type_parse_block = type_parse_block + str.format('            {} _{} = null;\n            //TODO 未实现的字段 \n', field_type, field_name)
+                        args_exp = args_exp + '_{}, '.format(field_name)
                         row=row+1
                     # 移除末尾得', '
                     if len(messages[req_name]) > 0:

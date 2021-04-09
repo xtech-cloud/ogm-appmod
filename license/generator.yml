@@ -1,0 +1,61 @@
+#组织名
+org: ogm
+#模块名
+mod: license
+#布局
+layouts:
+-
+  #方法
+  method: Certificate.Fetch
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Certificate.Pull
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Certificate.List
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Key.Generate
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Key.Query
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Key.Activate
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Key.Suspend
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Key.List
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Space.Create
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Space.Query
+  #页面
+  page: PostForm
+-
+  #方法
+  method: Space.List
+  #页面
+  page: PostForm
