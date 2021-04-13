@@ -634,7 +634,9 @@ template_module_Json_Convert_cs = r"""
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
 using XTC.oelMVCS;
+
 namespace {{org}}.Module.{{mod}}
 {
     /// <summary>
@@ -725,6 +727,20 @@ namespace {{org}}.Module.{{mod}}
     {
         public override Proto.Field Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                List<string> ary = new List<string>();
+                while (reader.Read())
+                {
+                   if(reader.TokenType == JsonTokenType.EndArray)
+                    {
+                        break;
+                    }
+                    string s = reader.GetString();
+                    ary.Add(s);
+                }
+                return Proto.Field.FromStringAry(ary.ToArray());
+            }
             return Proto.Field.FromString(reader.GetString());
         }
 
@@ -979,7 +995,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.DoubleValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -987,7 +1003,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.BoolValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -995,7 +1011,7 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.IntValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
 
@@ -1003,21 +1019,21 @@ public class Field
         {
             Field any = new Field();
             any.tag_ = Tag.LongValue;
-            any.value_ = _value.ToString(); ;
+            any.value_ = _value.ToString();
             return any;
         }
         public static Field FromStringAry(string[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.StringAryValue;
             string ary = "";
             foreach(string v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if(!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
@@ -1026,15 +1042,15 @@ public class Field
         public static Field FromFloatAry(float[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.FloatAryValue;
             string ary = "";
             foreach (float v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if (!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
@@ -1043,15 +1059,15 @@ public class Field
         public static Field FromDoubleAry(double[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.DoubleAryValue;
             string ary = "";
             foreach (double v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if (!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
@@ -1060,15 +1076,15 @@ public class Field
         public static Field FromBoolAry(bool[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.BoolAryValue;
             string ary = "";
             foreach (bool v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if (!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
@@ -1077,15 +1093,15 @@ public class Field
         public static Field FromIntAry(int[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.IntAryValue;
             string ary = "";
             foreach (int v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if (!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
@@ -1094,15 +1110,15 @@ public class Field
         public static Field FromLongAry(long[] _value)
         {
             Field any = new Field();
-            any.tag_ = Tag.StringValue;
+            any.tag_ = Tag.LongAryValue;
             string ary = "";
             foreach (long v in _value)
             {
-                ary += string.Format("{0},");
+                ary += string.Format("{0},", v);
             }
             if (!string.IsNullOrEmpty(ary))
             {
-                ary.Remove(ary.Length - 1, 1);
+                ary = ary.Remove(ary.Length - 1, 1);
             }
             any.value_ = string.Format("[{0}]", ary);
             return any;
