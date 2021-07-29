@@ -1,0 +1,13 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>ogm.account.bridge</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="oelMVCS" Version="1.9.3" />
+  </ItemGroup>
+
+</Project>

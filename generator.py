@@ -4,6 +4,10 @@ import re
 import yaml
 from typing import Dict, List, Tuple
 
+"""
+ver 1.5.1
+"""
+
 
 
 template_gitignore = r"""
@@ -14,8 +18,8 @@ bridge/bin/
 bridge/obj/
 module/bin/
 module/obj/
-winform/bin/
-winform/obj/
+wpf/bin/
+wpf/obj/
 *.user
 """
 
@@ -28,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "app", "app\app.csproj", "{F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "module", "module\module.csproj", "{124ACB03-D1AC-479D-B95A-DE9F13C266FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "winform", "winform\winform.csproj", "{ECEBC9A0-5079-470A-A380-5B80756DEA61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wpf", "wpf\wpf.csproj", "{ECEBC9A0-5079-470A-A380-5B80756DEA61}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bridge", "bridge\bridge.csproj", "{8DF06770-ADA4-407D-ABAF-6C222C73962E}"
 EndProject
@@ -66,23 +70,21 @@ EndGlobal
 """
 
 template_proj_app = r"""
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\module\module.csproj" />
-    <ProjectReference Include="..\winform\winform.csproj" />
+    <PackageReference Include="oelMVCS" Version="1.9.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="oelMVCS">
-      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\module\module.csproj" />
+    <ProjectReference Include="..\wpf\wpf.csproj" />
   </ItemGroup>
 
 </Project>
@@ -93,13 +95,11 @@ template_proj_bridge = r"""
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>{{org}}-{{mod}}-bridge</AssemblyName>
+    <AssemblyName>{{org}}.{{mod}}.bridge</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="oelMVCS">
-      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
-    </Reference>
+    <PackageReference Include="oelMVCS" Version="1.9.3" />
   </ItemGroup>
 
 </Project>
@@ -110,7 +110,7 @@ template_proj_module = r"""
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>{{org}}-{{mod}}-module</AssemblyName>
+    <AssemblyName>{{org}}.{{mod}}.module</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -118,21 +118,19 @@ template_proj_module = r"""
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="oelMVCS">
-      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
-    </Reference>
+    <PackageReference Include="oelMVCS" Version="1.9.3" />
   </ItemGroup>
 
 </Project>
 """
 
-template_proj_winform = r"""
+template_proj_wpf = r"""
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyName>{{org}}-{{mod}}-winform</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>{{org}}.{{mod}}.wpf</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -140,25 +138,11 @@ template_proj_winform = r"""
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="oelMVCS">
-      <HintPath>..\..\..\3rd\oelMVCS.dll</HintPath>
-    </Reference>
+    <PackageReference Include="HandyControl" Version="3.2.0" />
+    <PackageReference Include="oelMVCS" Version="1.9.3" />
   </ItemGroup>
 
 </Project>
-"""
-
-template_app_AppFacade_cs = r"""
-using XTC.oelMVCS;
-
-namespace app
-{
-    class AppFacade : View.Facade
-    {
-        public const string NAME = "AppFacade";
-        public RootForm rootForm { get; set; }
-    }//class
-}//namespace
 """
 
 template_app_AppView_cs = r"""
@@ -171,25 +155,23 @@ namespace app
     {
         public const string NAME = "AppView";
 
-        private AppFacade appFacade = null;
-
         protected override void preSetup()
         {
-            appFacade = findFacade(AppFacade.NAME) as AppFacade;
         }
 
         protected override void setup()
         {
-            route("/module/view/attach", this.handleAttachView);
+            addRouter("/module/view/attach", this.handleAttachView);
         }
 
         private void handleAttachView(Model.Status _status, object _data)
         {
+            MainWindow mainWindow = App.Current.MainWindow as MainWindow;
             getLogger().Trace("attach view");
             Dictionary<string, object> data = _data as Dictionary<string, object>;
-            foreach(string path in data.Keys)
+            foreach(string key in data.Keys)
             {
-                appFacade.rootForm.AddPath(path, data[path]);
+                mainWindow.AddPage(key, data[key]);
             }
         }
     }//class
@@ -218,365 +200,246 @@ namespace app
 """
 
 template_app_ConsoleLogger_cs = r"""
-
-
-
 using System;
-using System.Drawing;
+using System.Windows.Documents;
+using System.Windows.Media;
 using XTC.oelMVCS;
 
 namespace app
 {
     class ConsoleLogger : Logger
     {
-        public System.Windows.Forms.RichTextBox rtbLog { get; set; }
+        public System.Windows.Controls.RichTextBox rtbLog { get; set; }
         protected override void trace(string _categoray, string _message)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("TRACE | {0} > {1}", _categoray, _message), Color.Gray);
+            this.appendTextColorful(string.Format("TRACE | {0} > {1}", _categoray, _message), Colors.Gray);
         }
 
         protected override void debug(string _categoray, string _message)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("DEBUG | {0} > {1}", _categoray, _message), Color.Blue);
+            this.appendTextColorful(string.Format("DEBUG | {0} > {1}", _categoray, _message), Colors.Blue);
         }
 
         protected override void info(string _categoray, string _message)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("INFO | {0} > {1}", _categoray, _message), Color.Green);
+            this.appendTextColorful(string.Format("INFO | {0} > {1}", _categoray, _message), Colors.Green);
         }
 
         protected override void warning(string _categoray, string _message)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("WARN | {0} > {1}", _categoray, _message), Color.Orange);
+            this.appendTextColorful(string.Format("WARN | {0} > {1}", _categoray, _message), Colors.Orange);
         }
 
         protected override void error(string _categoray, string _message)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("ERROR | {0} > {1}", _categoray, _message), Color.Red);
+            this.appendTextColorful(string.Format("ERROR | {0} > {1}", _categoray, _message), Colors.Red);
         }
 
         protected override void exception(Exception _exception)
         {
-            if (rtbLog.IsDisposed)
-                return;
-            this.appendTextColorful(string.Format("EXCEPT | > {0}", _exception.ToString()), Color.Purple);
+            this.appendTextColorful(string.Format("EXCEPT | > {0}", _exception.ToString()), Colors.Purple);
         }
 
         private void appendTextColorful(string addtext, Color color)
         {
-            addtext += Environment.NewLine;
-            rtbLog.SelectionStart = rtbLog.TextLength;
-            rtbLog.SelectionLength = 0;
-            rtbLog.SelectionColor = color;
-            rtbLog.AppendText(addtext);
+            var p = new Paragraph();
+            var r = new Run(addtext);
+            p.Inlines.Add(r);
+            p.Foreground = new SolidColorBrush(color);
+            rtbLog.Document.Blocks.Add(p);
         }
     }//class
 }//namespace
+
 """
 
-template_app_Program_cs = r"""
+template_app_app_xaml_cs = r"""
+using System.Windows;
+using XTC.oelMVCS;
+using {{org}}.{{mod}};
 
-using System;
-using System.Windows.Forms;
-using {{org}}.Module.{{mod}};
+namespace app
+{
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : Application
+    {
+        private Framework framework_ { get; set; }
+        private ConsoleLogger logger_ { get; set; }
+        private Config config_ { get; set; }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            // 静态管线注册组件
+            registerMVCS();
+
+            ModuleRoot moduleRoot = new ModuleRoot();
+            moduleRoot.Inject(framework_);
+            moduleRoot.Register();
+            ControlRoot controlRoot = new ControlRoot();
+            controlRoot.Inject(framework_);
+            controlRoot.Register();
+            framework_.Setup();
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            logger_ = new ConsoleLogger();
+            config_ = new AppConfig();
+
+            MainWindow mainWindow = new MainWindow();
+            this.MainWindow = mainWindow;
+            logger_.rtbLog = mainWindow.rtbLog;
+            mainWindow.Show();
+
+            framework_ = new Framework();
+            framework_.setLogger(logger_);
+            framework_.setConfig(config_);
+            framework_.Initialize();
+
+            base.OnStartup(e);
+
+            
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            framework_.Release();
+            framework_ = null;
+        }
+
+        private void registerMVCS()
+        {
+            BlankModel blankModel = new BlankModel();
+            framework_.getStaticPipe().RegisterModel(BlankModel.NAME, blankModel);
+
+            AppView appView = new AppView();
+            framework_.getStaticPipe().RegisterView(AppView.NAME, appView);
+        }
+    }
+}
+
+"""
+
+template_app_app_xaml = r"""
+<Application x:Class="app.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:app" 
+             Startup="Application_Startup" ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>
+
+"""
+
+template_app_mainwindow_xaml_cs = r"""
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+
+
+namespace app
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public RichTextBox log { get; private set; }
+
+        public static readonly DependencyProperty SubContentProperty = DependencyProperty.Register("SubContent", typeof(object), typeof(MainWindow));
+        public object SubContent
+        {
+            get
+            {
+                return GetValue(MainWindow.SubContentProperty);
+            }
+            set
+            {
+                SetValue(MainWindow.SubContentProperty, value);
+            }
+        }
+
+        private Dictionary<string, object> pages = new Dictionary<string, object>();
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            log = this.rtbLog;
+        }
+
+        public void AddPage(string _key, object _page)
+        {
+            pages[_key] = _page;
+            lbPages.Items.Add(_key);
+        }
+
+        private void lbPages_Selected(object sender, RoutedEventArgs e)
+        {
+            string lbi = lbPages.SelectedItem as string;
+            SubContent = pages[lbi];
+        }
+    }
+}
+
+"""
+
+template_app_mainwindow_xaml = r"""
+<Window x:Class="app.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:app"
+        mc:Ignorable="d"
+        DataContext="{Binding RelativeSource={RelativeSource self}}"
+        Title="MainWindow" Height="450" Width="800">
+
+    <DockPanel>
+        <ListBox x:Name="lbPages" Margin="12" Width="200" DockPanel.Dock="Left" SelectionChanged="lbPages_Selected">
+        </ListBox>
+        <RichTextBox Name="rtbLog" Margin="12" Height="120" IsReadOnly="True"  DockPanel.Dock="Bottom"></RichTextBox>
+        <UserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="12">
+            <ContentPresenter Name="PresenterMain" Content="{Binding SubContent}"/>
+        </UserControl>
+    </DockPanel>
+</Window>
+"""
+
+
+template_app_AssemblyInfo_cs = r"""
+using System.Windows;
+
+[assembly: ThemeInfo(
+    ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
+                                     //(used if a resource is not found in the page,
+                                     // or application resource dictionaries)
+    ResourceDictionaryLocation.SourceAssembly //where the generic resource dictionary is located
+                                              //(used if a resource is not found in the page,
+                                              // app, or any theme specific resource dictionaries)
+)]
+"""
+
+template_app_blankmodel_cs = r"""
 using XTC.oelMVCS;
 
 namespace app
 {
-    static class Program
+    public class BlankModel : Model
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            RootForm rootForm = new RootForm();
-
-            ConsoleLogger logger = new ConsoleLogger();
-            logger.rtbLog = rootForm.getLoggerUi();
-            Config config = new AppConfig();
-            ConfigSchema schema = new ConfigSchema();
-            schema.domain = rootForm.getDomainUi().Text;
-            config.Merge(System.Text.Json.JsonSerializer.Serialize(schema));
-            Framework framework = new Framework();
-            framework.setLogger(logger);
-            framework.setConfig(config);
-            framework.Initialize();
-
-            AppFacade appFacade = new AppFacade();
-            appFacade.rootForm = rootForm;
-            framework.getStaticPipe().RegisterFacade(AppFacade.NAME, appFacade);
-            AppView appView = new AppView();
-            framework.getStaticPipe().RegisterView(AppView.NAME, appView);
-
-            // 注册模块窗体
-            FormRoot formRoot = new FormRoot();
-            formRoot.Inject(framework);
-            formRoot.Register();
-            // 注册模块逻辑
-            ModuleRoot moduleRoot = new ModuleRoot();
-            moduleRoot.Inject(framework);
-            moduleRoot.Register();
-
-            framework.Setup();
-
-            Application.Run(rootForm);
-
-            moduleRoot.Cancel();
-            formRoot.Cancel();
-
-            framework.Dismantle();
-            framework.Release();
-        }
+        public const string NAME = "BlankModel";
     }
 }
-"""
-
-template_app_RootForm_cs = r"""
-using System.Collections.Generic;
-using System.Windows.Forms;
-
-namespace app
-{
-    public class RootForm: Form
-    {
-        public RootForm()
-        {
-            InitializeComponent();
-        }
-
-        public RichTextBox getLoggerUi()
-        {
-            return this.rtbLog;
-        }
-
-        public TextBox getDomainUi()
-        {
-            return this.tbDomain;
-        }
-
-        private TabControl tcPages;
-        private TreeView tvPages;
-        private Dictionary<string, TabPage> pages = new Dictionary<string, TabPage>();
-        private RichTextBox rtbLog;
-        private TextBox tbDomain;
-
-        /// <summary>
-        /// 必需的设计器变量。
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// 清理所有正在使用的资源。
-        /// </summary>
-        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        public void AddPath(string _path, object _page)
-        {
-            ContainerControl page = _page as ContainerControl;
-            //this.Controls.Add(panel);
-            string[] sections = _path.Split("/");
-            var nodes = this.tvPages.Nodes;
-            foreach(string section in sections)
-            {
-                if(string.IsNullOrEmpty(section))
-                    continue;
-                var found = nodes.Find(section, false);
-                if(found.Length == 0)
-                {
-                    TreeNode newNode = new TreeNode();
-                    newNode.Name = section;
-                    newNode.Text = section;
-                    nodes.Add(newNode);
-                    found = new TreeNode[]{newNode};
-                }
-                nodes = found[0].Nodes;
-            }
-            TabPage tabPage = new TabPage();
-            tabPage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            tabPage.Location = new System.Drawing.Point(10, 10);
-            tabPage.Name = _path;
-            tabPage.Padding = new System.Windows.Forms.Padding(3);
-            tabPage.Size = new System.Drawing.Size(760, 660);
-            tabPage.TabIndex = 0;
-            tabPage.Text = _path;
-            tabPage.UseVisualStyleBackColor = true;
-            tabPage.Controls.Add(page);
-            this.tcPages.Controls.Add(tabPage);
-            this.pages[_path] = tabPage;
-            this.tvPages.ExpandAll();
-        }
-
-        private void InitializeComponent()
-        {
-            this.tcPages = new System.Windows.Forms.TabControl();
-            this.tvPages = new System.Windows.Forms.TreeView();
-            this.rtbLog = new System.Windows.Forms.RichTextBox();
-            this.tbDomain = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
-            // 
-            // tcPages
-            // 
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tcPages.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
-            this.tcPages.ItemSize = new System.Drawing.Size(0, 1);
-            this.tcPages.Location = new System.Drawing.Point(216, 61);
-            this.tcPages.Name = "tcPages";
-            this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(780, 468);
-            this.tcPages.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
-            this.tcPages.TabIndex = 1;
-            // 
-            // tvPages
-            // 
-            this.tvPages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.tvPages.Location = new System.Drawing.Point(13, 20);
-            this.tvPages.Name = "tvPages";
-            this.tvPages.PathSeparator = "/";
-            this.tvPages.Size = new System.Drawing.Size(188, 509);
-            this.tvPages.TabIndex = 2;
-            this.tvPages.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPages_AfterSelect);
-            // 
-            // rtbLog
-            // 
-            this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtbLog.Location = new System.Drawing.Point(13, 547);
-            this.rtbLog.Name = "rtbLog";
-            this.rtbLog.Size = new System.Drawing.Size(983, 170);
-            this.rtbLog.TabIndex = 3;
-            this.rtbLog.Text = "";
-            // 
-            // tbDomain
-            // 
-            this.tbDomain.Location = new System.Drawing.Point(231, 20);
-            this.tbDomain.Name = "tbDomain";
-            this.tbDomain.Size = new System.Drawing.Size(416, 23);
-            this.tbDomain.TabIndex = 4;
-            this.tbDomain.Text = "http://localhost:8080";
-            // 
-            // RootForm
-            // 
-            this.ClientSize = new System.Drawing.Size(1008, 729);
-            this.Controls.Add(this.tbDomain);
-            this.Controls.Add(this.rtbLog);
-            this.Controls.Add(this.tvPages);
-            this.Controls.Add(this.tcPages);
-            this.Name = "RootForm";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
-        }
-
-        private void tvPages_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            TreeNode node = e.Node;
-            if (node.Nodes.Count > 0)
-                return;
-            string fullpath = "/" + node.FullPath;
-            TabPage page;
-            if (!this.pages.TryGetValue(fullpath, out page))
-                return;
-            this.tcPages.SelectedTab = page;
-        }
-    }
-
-}
-"""
-
-template_app_RootForm_resx = r"""
-<root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-</root>
 """
 
 templete_bridge_view_cs = r"""
+using System.Collections.Generic;
 using XTC.oelMVCS;
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public interface I{{service}}ViewBridge : View.Facade.Bridge
     {
@@ -587,7 +450,7 @@ namespace {{org}}.Module.{{mod}}
 
 templete_bridge_ui_cs = r"""
 using XTC.oelMVCS;
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public interface I{{service}}UiBridge : View.Facade.Bridge
     {
@@ -601,7 +464,7 @@ template_module_ModuleRoot_cs = r"""
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class ModuleRoot
     {
@@ -629,6 +492,30 @@ namespace {{org}}.Module.{{mod}}
 }
 """
 
+template_module_Json_Options_cs = r"""
+using System.Text.Encodings.Web;
+using System.Text.Json;
+
+namespace {{org}}.{{mod}}
+{
+    public class JsonOptions
+    {
+        public static JsonSerializerOptions DefaultSerializerOptions
+        {
+            get
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                options.WriteIndented = true;
+                options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+                return options;
+            }
+        }
+
+    }
+}
+"""
+
 template_module_Json_Convert_cs = r"""
 
 using System;
@@ -637,32 +524,78 @@ using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     /// <summary>
     /// 用于将请求数据序列化为json
     /// </summary>
-    class AnyConverter : JsonConverter<Any>
+    class AnyProtoConverter : JsonConverter<Any>
     {
         public override Any Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                return Any.FromString(reader.GetString());
+            }
+            else if (reader.TokenType == JsonTokenType.Number)
+            {
+                return Any.FromFloat64(reader.GetDouble());
+            }
+            else if (reader.TokenType == JsonTokenType.True)
+            {
+                return Any.FromBool(reader.GetBoolean());
+            }
+            else if (reader.TokenType == JsonTokenType.False)
+            {
+                return Any.FromBool(reader.GetBoolean());
+            }
+            else if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                List<string> ary = new List<string>();
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.EndArray)
+                    {
+                        break;
+                    }
+                    if (reader.TokenType == JsonTokenType.String)
+                    {
+                        ary.Add(Any.FromString(reader.GetString()).AsString());
+                    }
+                    else if (reader.TokenType == JsonTokenType.Number)
+                    {
+                        ary.Add(Any.FromFloat64(reader.GetDouble()).AsString());
+                    }
+                    else if (reader.TokenType == JsonTokenType.True)
+                    {
+                        ary.Add(Any.FromBool(reader.GetBoolean()).AsString());
+                    }
+                    else if (reader.TokenType == JsonTokenType.False)
+                    {
+                        ary.Add(Any.FromBool(reader.GetBoolean()).AsString());
+                    }
+                }
+                return Any.FromStringAry(ary.ToArray());
+            }
+            return new Any();
         }
 
         public override void Write(Utf8JsonWriter writer, Any _value, JsonSerializerOptions options)
         {
             if(_value.IsString())
                 writer.WriteStringValue(_value.AsString());
-            else if (_value.IsInt())
-                writer.WriteNumberValue(_value.AsInt());
-            else if (_value.IsLong())
-                writer.WriteNumberValue(_value.AsLong());
-            else if (_value.IsFloat())
-                writer.WriteNumberValue(_value.AsFloat());
-            else if (_value.IsDouble())
-                writer.WriteNumberValue(_value.AsDouble());
+            else if (_value.IsInt32())
+                writer.WriteNumberValue(_value.AsInt32());
+            else if (_value.IsInt64())
+                writer.WriteNumberValue(_value.AsInt64());
+            else if (_value.IsFloat32())
+                writer.WriteNumberValue(_value.AsFloat32());
+            else if (_value.IsFloat64())
+                writer.WriteNumberValue(_value.AsFloat64());
             else if (_value.IsBool())
                 writer.WriteBooleanValue(_value.AsBool());
+            else if (_value.IsBytes())
+                writer.WriteStringValue(_value.AsString());
             else if(_value.IsStringAry())
             {
                 writer.WriteStartArray();
@@ -672,37 +605,37 @@ namespace {{org}}.Module.{{mod}}
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsIntAry())
+            else if (_value.IsInt32Ary())
             {
                 writer.WriteStartArray();
-                foreach (int v in _value.AsIntAry())
+                foreach (int v in _value.AsInt32Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsLongAry())
+            else if (_value.IsInt64Ary())
             {
                 writer.WriteStartArray();
-                foreach (long v in _value.AsLongAry())
+                foreach (long v in _value.AsInt64Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsFloatAry())
+            else if (_value.IsFloat32Ary())
             {
                 writer.WriteStartArray();
-                foreach (float v in _value.AsFloatAry())
+                foreach (float v in _value.AsFloat32Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
                 writer.WriteEndArray();
             }
-            else if (_value.IsDoubleAry())
+            else if (_value.IsFloat64Ary())
             {
                 writer.WriteStartArray();
-                foreach (double v in _value.AsDoubleAry())
+                foreach (double v in _value.AsFloat64Ary())
                 {
                     writer.WriteNumberValue(v);
                 }
@@ -717,38 +650,63 @@ namespace {{org}}.Module.{{mod}}
                 }
                 writer.WriteEndArray();
             }
-        }
-    }//class
-
-    /// <summary>
-    /// 用于将json反序列化为回复数据
-    /// </summary>
-    class FieldConverter : JsonConverter<Proto.Field>
-    {
-        public override Proto.Field Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType == JsonTokenType.StartArray)
+            else if (_value.IsStringMap())
             {
-                List<string> ary = new List<string>();
-                while (reader.Read())
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsStringMap())
                 {
-                   if(reader.TokenType == JsonTokenType.EndArray)
-                    {
-                        break;
-                    }
-                    string s = reader.GetString();
-                    ary.Add(s);
+                    writer.WriteString(pair.Key, pair.Value);
                 }
-                return Proto.Field.FromStringAry(ary.ToArray());
+                writer.WriteEndObject();
             }
-            return Proto.Field.FromString(reader.GetString());
-        }
-
-        public override void Write(Utf8JsonWriter writer, Proto.Field _value, JsonSerializerOptions options)
-        {
-            throw new NotImplementedException();
+            else if (_value.IsInt32Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsInt32Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsInt64Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsInt64Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsFloat32Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsFloat32Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsFloat64Map())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsFloat64Map())
+                {
+                    writer.WriteNumber(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else if (_value.IsBoolMap())
+            {
+                writer.WriteStartObject();
+                foreach (var pair in _value.AsBoolMap())
+                {
+                    writer.WriteBoolean(pair.Key, pair.Value);
+                }
+                writer.WriteEndObject();
+            }
         }
     }//class
+
 }//namespace
 """
 
@@ -756,32 +714,47 @@ template_module_Model_cs = r"""
 using System;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class {{service}}Model : Model
     {
-        public const string NAME = "{{mod}}.{{service}}Model";
+        public const string NAME = "{{org}}.{{mod}}.{{service}}Model";
 
         public class {{service}}Status : Model.Status
         {
-            public const string NAME = "{{mod}}.{{service}}Status";
+            public const string NAME = "{{org}}.{{mod}}.{{service}}Status";
         }
+
+        private {{service}}Controller controller {get;set;}
 
         protected override void preSetup()
         {
+            controller = findController({{service}}Controller.NAME) as {{service}}Controller;
             Error err;
             status_ = spawnStatus<{{service}}Status>({{service}}Status.NAME, out err);
+            if(0 != err.getCode())
+            {
+                getLogger().Error(err.getMessage());
+            }
+            else
+            {
+                getLogger().Trace("setup {{org}}.{{mod}}.{{service}}Status");
+            }
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup {{service}}Model");
+            getLogger().Trace("setup {{org}}.{{mod}}.{{service}}Model");
         }
 
         protected override void preDismantle()
         {
             Error err;
             killStatus({{service}}Status.NAME, out err);
+            if(0 != err.getCode())
+            {
+                getLogger().Error(err.getMessage());
+            }
         }
 
         private {{service}}Status status
@@ -800,11 +773,11 @@ using System;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class {{service}}View: View
     {
-        public const string NAME = "{{mod}}.{{service}}View";
+        public const string NAME = "{{org}}.{{mod}}.{{service}}View";
 
         private Facade facade = null;
         private {{service}}Model model = null;
@@ -814,7 +787,7 @@ namespace {{org}}.Module.{{mod}}
         {
             model = findModel({{service}}Model.NAME) as {{service}}Model;
             var service = findService({{service}}Service.NAME) as {{service}}Service;
-            facade = findFacade("{{mod}}.{{service}}Facade");
+            facade = findFacade("{{org}}.{{mod}}.{{service}}Facade");
             {{service}}ViewBridge vb = new {{service}}ViewBridge();
             vb.view = this;
             vb.service = service;
@@ -823,7 +796,7 @@ namespace {{org}}.Module.{{mod}}
 
         protected override void setup()
         {
-            getLogger().Trace("setup {{service}}View");
+            getLogger().Trace("setup {{org}}.{{mod}}.{{service}}View");
 {{routers}}
         }
 
@@ -833,8 +806,13 @@ namespace {{org}}.Module.{{mod}}
             object rootPanel = bridge.getRootPanel();
             // 通知主程序挂载界面
             Dictionary<string, object> data = new Dictionary<string, object>();
-            data["/{{org}}/{{mod}}/{{service}}"] = rootPanel;
+            data["{{org}}.{{mod}}.{{service}}"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+        }
+
+        public void Alert(string _message)
+        {
+            bridge.Alert(_message);
         }
 {{handlers}}
     }
@@ -845,23 +823,32 @@ template_module_Controller_cs = r"""
 using System;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class {{service}}Controller: Controller
     {
-        public const string NAME = "{{mod}}.{{service}}Controller";
+        public const string NAME = "{{org}}.{{mod}}.{{service}}Controller";
+
+        private {{service}}View view {get;set;}
+
+        protected override void preSetup()
+        {
+            view = findView({{service}}View.NAME) as {{service}}View;
+        }
 
         protected override void setup()
         {
-            getLogger().Trace("setup {{service}}Controller");
+            getLogger().Trace("setup {{org}}.{{mod}}.{{service}}Controller");
         }
     }
 }
 """
 
 template_module_ViewBridge_cs = r"""
+using System.Collections.Generic;
 using XTC.oelMVCS;
-namespace {{org}}.Module.{{mod}}
+
+namespace {{org}}.{{mod}}
 {
     public class {{service}}ViewBridge : I{{service}}ViewBridge
     {
@@ -881,11 +868,11 @@ using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class {{service}}Service: Service
     {
-        public const string NAME = "{{mod}}.{{service}}Service";
+        public const string NAME = "{{org}}.{{mod}}.{{service}}Service";
         private {{service}}Model model = null;
 
         protected override void preSetup()
@@ -895,46 +882,57 @@ namespace {{org}}.Module.{{mod}}
 
         protected override void setup()
         {
-            getLogger().Trace("setup {{service}}Service");
+            getLogger().Trace("setup {{org}}.{{mod}}.{{service}}Service");
         }
 {{rpc}}
 
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(_url); 
-            req.Method = _method;
-            req.ContentType =
-            "application/json;charset=utf-8";
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new AnyConverter());
-            string json = System.Text.Json.JsonSerializer.Serialize(_params, options);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-            req.ContentLength = data.Length;
-            using (Stream reqStream = req.GetRequestStream())
-            {
-                reqStream.Write(data, 0, data.Length);
-            }
-            HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-            if(rsp == null)
-            {
-                _onError(Error.NewNullErr("HttpWebResponse is null"));
-                return;
-            }
-            if(rsp.StatusCode != HttpStatusCode.OK)
-            {
-                rsp.Close();
-                _onError(new Error(rsp.StatusCode.GetHashCode(), "HttpStatusCode != 200"));
-                return;
-            }
+            doAsyncRequest(_url, _method, _params, _onReply, _onError, _options);    
+        }
+
+        protected async void doAsyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        {
             string reply = "";
-            StreamReader sr;
-            using (sr = new StreamReader(rsp.GetResponseStream()))
+            try
             {
-                reply = sr.ReadToEnd();
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(_url);
+                req.Method = _method;
+                req.ContentType =
+                "application/json;charset=utf-8";
+                byte[] data = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(_params, JsonOptions.DefaultSerializerOptions);
+                req.ContentLength = data.Length;
+                using (Stream reqStream = req.GetRequestStream())
+                {
+                    reqStream.Write(data, 0, data.Length);
+                }
+                HttpWebResponse rsp = await req.GetResponseAsync() as HttpWebResponse;
+                if (rsp == null)
+                {
+                    _onError(Error.NewNullErr("HttpWebResponse is null"));
+                    return;
+                }
+                if (rsp.StatusCode != HttpStatusCode.OK)
+                {
+                    rsp.Close();
+                    _onError(new Error(rsp.StatusCode.GetHashCode(), "HttpStatusCode != 200"));
+                    return;
+                }
+                StreamReader sr;
+                using (sr = new StreamReader(rsp.GetResponseStream()))
+                {
+                    reply = sr.ReadToEnd();
+                }
+                sr.Close();
             }
-            sr.Close();
+            catch (System.Exception ex)
+            {
+                _onError(Error.NewException(ex));
+                return;
+            }
             _onReply(reply);
         }
+
     }
 }
 """
@@ -947,442 +945,24 @@ using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}.Proto
+namespace {{org}}.{{mod}}.Proto
 {
-public class Field
-    {
-        public enum Tag
-        {
-            NULL = 0,
-            StringValue = 1,
-            IntValue = 2,
-            LongValue = 3,
-            FloatValue = 4,
-            DoubleValue = 5,
-            BoolValue = 6,
-            StringAryValue = 11,
-            IntAryValue = 12,
-            LongAryValue = 13,
-            FloatAryValue = 14,
-            DoubleAryValue = 15,
-            BoolAryValue = 16
-        }
-
-        private string value_ = "";
-        private Tag tag_ = Tag.NULL;
-
-        public Field()
-        {
-        }
-
-        public static Field FromString(string _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.StringValue;
-            any.value_ = _value;
-            return any;
-        }
-
-        public static Field FromFloat(float _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.FloatValue;
-            any.value_ = _value.ToString();
-            return any;
-        }
-
-        public static Field FromDouble(double _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.DoubleValue;
-            any.value_ = _value.ToString();
-            return any;
-        }
-
-        public static Field FromBool(bool _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.BoolValue;
-            any.value_ = _value.ToString();
-            return any;
-        }
-
-        public static Field FromInt(int _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.IntValue;
-            any.value_ = _value.ToString();
-            return any;
-        }
-
-        public static Field FromLong(long _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.LongValue;
-            any.value_ = _value.ToString();
-            return any;
-        }
-        public static Field FromStringAry(string[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.StringAryValue;
-            string ary = "";
-            foreach(string v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if(!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public static Field FromFloatAry(float[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.FloatAryValue;
-            string ary = "";
-            foreach (float v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if (!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public static Field FromDoubleAry(double[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.DoubleAryValue;
-            string ary = "";
-            foreach (double v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if (!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public static Field FromBoolAry(bool[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.BoolAryValue;
-            string ary = "";
-            foreach (bool v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if (!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public static Field FromIntAry(int[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.IntAryValue;
-            string ary = "";
-            foreach (int v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if (!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public static Field FromLongAry(long[] _value)
-        {
-            Field any = new Field();
-            any.tag_ = Tag.LongAryValue;
-            string ary = "";
-            foreach (long v in _value)
-            {
-                ary += string.Format("{0},", v);
-            }
-            if (!string.IsNullOrEmpty(ary))
-            {
-                ary = ary.Remove(ary.Length - 1, 1);
-            }
-            any.value_ = string.Format("[{0}]", ary);
-            return any;
-        }
-
-        public bool IsNull()
-        {
-            return tag_ == Tag.NULL;
-        }
-
-        public bool IsString()
-        {
-            return tag_ == Tag.StringValue;
-        }
-
-        public bool IsInt()
-        {
-            return tag_ == Tag.IntValue;
-        }
-
-        public bool IsLong()
-        {
-            return tag_ == Tag.LongValue;
-        }
-
-        public bool IsFloat()
-        {
-            return tag_ == Tag.FloatValue;
-        }
-
-        public bool IsDouble()
-        {
-            return tag_ == Tag.DoubleValue;
-        }
-
-        public bool IsBool()
-        {
-            return tag_ == Tag.BoolValue;
-        }
-
-        public bool IsStringAry()
-        {
-            return tag_ == Tag.StringAryValue;
-        }
-
-        public bool IsIntAry()
-        {
-            return tag_ == Tag.IntAryValue;
-        }
-
-        public bool IsLongAry()
-        {
-            return tag_ == Tag.LongAryValue;
-        }
-
-        public bool IsFloatAry()
-        {
-            return tag_ == Tag.FloatAryValue;
-        }
-
-        public bool IsDoubleAry()
-        {
-            return tag_ == Tag.DoubleAryValue;
-        }
-
-        public bool IsBoolAry()
-        {
-            return tag_ == Tag.BoolAryValue;
-        }
-
-
-
-        public string AsString()
-        {
-            return value_;
-        }
-
-        public int AsInt()
-        {
-            int value = 0;
-            int.TryParse(value_, out value);
-            return value;
-        }
-
-        public long AsLong()
-        {
-            long value = 0;
-            long.TryParse(value_, out value);
-            return value;
-        }
-
-        public float AsFloat()
-        {
-            float value = 0;
-            float.TryParse(value_, out value);
-            return value;
-        }
-
-        public double AsDouble()
-        {
-            double value = 0;
-            double.TryParse(value_, out value);
-            return value;
-        }
-
-        public bool AsBool()
-        {
-            bool value = false;
-            bool.TryParse(value_, out value);
-            return value;
-        }
-
-        public string[] AsStringAry()
-        {
-            List<string> v = new List<string>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    string value = e.Trim();
-                    v.Add(value);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public int[] AsIntAry()
-        {
-            List<int> v = new List<int>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    int value;
-                    if(int.TryParse(e.Trim(), out value))
-                        v.Add(value);
-                    else
-                        v.Add(0);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public long[] AsLongAry()
-        {
-            List<long> v = new List<long>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    long value;
-                    if (long.TryParse(e.Trim(), out value))
-                        v.Add(value);
-                    else
-                        v.Add(0);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public float[] AsFloatAry()
-        {
-            List<float> v = new List<float>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    float value;
-                    if (float.TryParse(e.Trim(), out value))
-                        v.Add(value);
-                    else
-                        v.Add(0);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public double[] AsDoubleAry()
-        {
-            List<double> v = new List<double>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    double value;
-                    if (double.TryParse(e.Trim(), out value))
-                        v.Add(value);
-                    else
-                        v.Add(0);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public bool[] AsBoolAry()
-        {
-            List<bool> v = new List<bool>();
-            if (value_.StartsWith("[") && value_.EndsWith("]"))
-            {
-                string ary = value_.Remove(0, 1);
-                ary = ary.Remove(ary.Length - 1, 1);
-                foreach (string e in ary.Split(","))
-                {
-                    bool value;
-                    if (bool.TryParse(e.Trim(), out value))
-                        v.Add(value);
-                    else
-                        v.Add(false);
-                }
-            }
-            return v.ToArray();
-        }
-
-        public Any AsAny()
-        {
-            if(IsString())
-                return Any.FromString(AsString());
-            if(IsInt())
-                return Any.FromInt(AsInt());
-            if(IsLong())
-                return Any.FromLong(AsLong());
-            if(IsFloat())
-                return Any.FromFloat(AsFloat());
-            if(IsDouble())
-                return Any.FromDouble(AsDouble());
-            if(IsBool())
-                return Any.FromBool(AsBool());
-            if (IsStringAry())
-                return Any.FromStringAry(AsStringAry());
-            if (IsIntAry())
-                return Any.FromIntAry(AsIntAry());
-            if (IsLongAry())
-                return Any.FromLongAry(AsLongAry());
-            if (IsFloatAry())
-                return Any.FromFloatAry(AsFloatAry());
-            if (IsDoubleAry())
-                return Any.FromDoubleAry(AsDoubleAry());
-            if (IsBoolAry())
-                return Any.FromBoolAry(AsBoolAry());
-            return new Any();
-        }
-    }//class
 {{proto}}
 }
 """
 
-template_winform_FormRoot_cs = r"""
+template_wpf_ControlRoot_cs = r"""
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace wpf
 {
-    public class FormRoot
+}
+
+namespace {{org}}.{{mod}}
+{
+    public class ControlRoot
     {
-        public FormRoot()
+        public ControlRoot()
         {
         }
 
@@ -1406,191 +986,61 @@ namespace {{org}}.Module.{{mod}}
 }
 """
 
-template_winform_Facade_cs = r"""
+template_wpf_Facade_cs = r"""
 using XTC.oelMVCS;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
     public class {{service}}Facade : View.Facade
     {
-        public const string NAME = "{{mod}}.{{service}}Facade";
+        public const string NAME = "{{org}}.{{mod}}.{{service}}Facade";
     }
 }
 """
 
-template_winform_Panel_cs = r"""
-using System;
-using System.Windows.Forms;
-using XTC.oelMVCS;
+template_wpf_Control_cs = r"""
+using System.Windows.Controls;
 
-namespace {{org}}.Module.{{mod}}
+namespace {{org}}.{{mod}}
 {
-    public partial class {{service}}Panel : UserControl
+    public partial class {{service}}Control: UserControl
     {
         public class {{service}}UiBridge : I{{service}}UiBridge
         {
-            public {{service}}Panel panel { get; set; }
+            public {{service}}Control control { get; set; }
 
             public object getRootPanel()
             {
-                return panel;
+                return control;
             }
 
             public void Alert(string _message)
             {
-                MessageBox.Show(_message);
             }
         }
 
         public {{service}}Facade facade { get; set; }
 
-        public {{service}}Panel()
+        public {{service}}Control()
         {
             InitializeComponent();
-
-            this.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.Location = new System.Drawing.Point(10, 10);
-            this.Name = "rootPanel";
-            this.TabIndex = 0;
         }
     }
 }
 """
 
-template_winform_Panel_resx = r"""
-<root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-</root>
-"""
-
-template_winform_Panel_Designer_cs = r"""
-
-namespace {{org}}.Module.{{mod}}
-{
-    partial class {{service}}Panel
-    {
-        /// <summary>
-        /// 必需的设计器变量。
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// 清理所有正在使用的资源。
-        /// </summary>
-        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region 组件设计器生成的代码
-
-        /// <summary>
-        /// 设计器支持所需的方法 - 不要修改
-        /// 使用代码编辑器修改此方法的内容。
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.tcPages = new System.Windows.Forms.TabControl();
-            this.tcPages.SuspendLayout();
-            this.SuspendLayout();
-            //
-            // tcPages
-            //
-            this.tcPages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tcPages.Location = new System.Drawing.Point(10, 10);
-            this.tcPages.Multiline = true;
-            this.tcPages.Name = "tcPages";
-            this.tcPages.SelectedIndex = 0;
-            this.tcPages.Size = new System.Drawing.Size(720, 620);
-            this.tcPages.TabIndex = 0;
-
-{{tabPage_block}}
-
-            //
-            // {{service}}Panel
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tcPages);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.Name = "{{Service}}Panel";
-            this.Size = new System.Drawing.Size(740, 640);
-            this.tcPages.ResumeLayout(false);
-            this.ResumeLayout(false);
-        }
-
-        #endregion
-
-        private System.Windows.Forms.TabControl tcPages;
-{{tabPage_define}}
-    }
-}
+template_wpf_Control_xaml = r"""
+<UserControl x:Class="{{org}}.{{mod}}.{{service}}Control"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:{{org}}.{{mod}}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel Background="Black">
+    </StackPanel>
+</UserControl>
 """
 
 ##############################################################################
@@ -1619,7 +1069,7 @@ if '' == mod_name:
     print('mod is empty')
     sys.exit(0)
 
-proto_dir = os.path.join("../../{}-msp-{}/proto".format(org_name, mod_name), mod_name)
+proto_dir = "./"
 
 
 services: Dict[str, Dict[str, Tuple]] = {}
@@ -1627,7 +1077,7 @@ services: Dict[str, Dict[str, Tuple]] = {}
 service Healthy {
   rpc Echo(EchoRequest) returns (EchoResponse) {}
 }
-转换为
+转换格式为
 {
     startkit:
     {
@@ -1652,12 +1102,13 @@ message EchoRequest {
 
 enums: List[str] = []
 
+# protobuf 到 C# 类型的转换
 type_dict = {
         "string": "string",
         "int32": "int",
-        "uint32": "int",
+        "uint32": "uint",
         "int64": "long",
-        "uint64": "long",
+        "uint64": "ulong",
         "bool": "bool",
         "float32": "float",
         "float64": "double",
@@ -1665,13 +1116,39 @@ type_dict = {
         "enum": "int",
         }
 
+# C# 类型到Any的转换
+type_to_any = {
+        "string": "string",
+        "int": "int32",
+        "uint": "int32",
+        "long": "int64",
+        "ulong": "int64",
+        "bool": "bool",
+        "float": "float32",
+        "double": "float64",
+        "byte[]": "bytes",
+        }
+
+type_default_value = {
+        "string": "\"\"",
+        "int32": "0",
+        "uint32": "0",
+        "int64": "0",
+        "uint64": "0",
+        "bool": "false",
+        "float32": "0",
+        "float64": "0",
+        "bytes": "new byte[0]",
+        "enum": "0",
+        }
+
 # 解析协议文件
 for entry in os.listdir(proto_dir):
     # 跳过不是.proto的文件
     if not entry.endswith(".proto"):
         continue
-    # 跳过Healthy.proto
-    if entry.lower().find("healthy") >= 0:
+    # 跳过health
+    if entry == "healthy.proto":
         continue
     proto_name = os.path.splitext(entry)[0]
     with open(os.path.join(proto_dir, entry), "r", encoding="utf-8") as rf:
@@ -1750,7 +1227,9 @@ for entry in os.listdir(proto_dir):
                 if isRepeated:
                     field_type = field_type + "[]"
                 if field_type.startswith('map'):
-                    field_type = 'System.Collections.Generic.Dictionary' + field_type[3:]
+                    #field_type = 'System.Collections.Generic.Dictionary' + field_type[3:]
+                    match = re.findall(r",\s+(\w*?)\>", field_type, re.S)
+                    field_type = match[0]+ "<>"
                 # 提取字段名
                 match = re.findall(r"\s+(\w+)\s+=", line, re.S)
                 field_name = ""
@@ -1785,19 +1264,17 @@ with open("./vs2019/app/app.csproj", "w", encoding="utf-8") as wf:
     wf.write(template_proj_app)
     wf.close()
 
-# 生成AppFacade.cs
-with open("./vs2019/app/AppFacade.cs", "w", encoding="utf-8") as wf:
-    wf.write(template_app_AppFacade_cs)
+# 生成App.xaml
+with open("./vs2019/app/App.xaml", "w", encoding="utf-8") as wf:
+    wf.write(template_app_app_xaml)
     wf.close()
 
-# 生成AppView.cs
-with open("./vs2019/app/AppView.cs", "w", encoding="utf-8") as wf:
-    wf.write(template_app_AppView_cs)
-    wf.close()
-
-# 生成ConsoleLogger.cs
-with open("./vs2019/app/ConsoleLogger.cs", "w", encoding="utf-8") as wf:
-    wf.write(template_app_ConsoleLogger_cs)
+# 生成App.xaml.cs
+with open("./vs2019/app/App.xaml.cs", "w", encoding="utf-8") as wf:
+    code = template_app_app_xaml_cs
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
+    wf.write(code)
     wf.close()
 
 # 生成AppConfig.cs
@@ -1805,24 +1282,34 @@ with open("./vs2019/app/AppConfig.cs", "w", encoding="utf-8") as wf:
     wf.write(template_app_AppConfig_cs)
     wf.close()
 
-
-# 生成Program.cs
-with open("./vs2019/app/Program.cs", "w", encoding="utf-8") as wf:
-    wf.write(
-            template_app_Program_cs.replace("{{org}}", org_name.upper()).replace(
-                "{{mod}}", mod_name.capitalize()
-                )
-            )
+# 生成AppView.cs
+with open("./vs2019/app/AppView.cs", "w", encoding="utf-8") as wf:
+    wf.write(template_app_AppView_cs)
     wf.close()
 
-# 生成RootForm.cs
-with open("./vs2019/app/RootForm.cs", "w", encoding="utf-8") as wf:
-    wf.write(template_app_RootForm_cs)
+# 生成AssemblyInfo.cs
+with open("./vs2019/app/AssemblyInfo", "w", encoding="utf-8") as wf:
+    wf.write(template_app_AssemblyInfo_cs)
     wf.close()
 
-# 生成RootForm.resx
-with open("./vs2019/app/RootForm.resx", "w", encoding="utf-8") as wf:
-    wf.write(template_app_RootForm_resx)
+# 生成BlankModel.cs
+with open("./vs2019/app/BlankModel.cs", "w", encoding="utf-8") as wf:
+    wf.write(template_app_blankmodel_cs)
+    wf.close()
+
+# 生成ConsoleLogger.cs
+with open("./vs2019/app/ConsoleLogger.cs", "w", encoding="utf-8") as wf:
+    wf.write(template_app_ConsoleLogger_cs)
+    wf.close()
+
+# 生成MainWindow.xaml
+with open("./vs2019/app/MainWindow.xaml", "w", encoding="utf-8") as wf:
+    wf.write(template_app_mainwindow_xaml)
+    wf.close()
+
+# 生成MainWindow.xaml.cs
+with open("./vs2019/app/MainWindow.xaml.cs", "w", encoding="utf-8") as wf:
+    wf.write(template_app_mainwindow_xaml_cs)
     wf.close()
 
 # -----------------------------------------------------------------------------
@@ -1855,6 +1342,8 @@ for service in services.keys():
                 if field_type in enums:
                     field_type = "enum"
                 # 转换类型
+                if field_type.endswith('<>'):
+                    field_type =  str.format('Dictionary<string,{}>', field_type[:-2])
                 if field_type in type_dict.keys():
                     field_type = type_dict[field_type]
                 args_block = args_block + str.format("{} _{}, ", field_type, field_name)
@@ -1863,8 +1352,8 @@ for service in services.keys():
                 args_block = args_block[0:-2]
             rpc_block = rpc_block.replace("{{args}}", args_block)
         code = templete_bridge_view_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         code = code.replace("{{rpc}}", rpc_block)
         wf.write(code)
@@ -1876,8 +1365,8 @@ for service in services.keys():
             "./vs2019/bridge/I{}UiBridge.cs".format(service), "w", encoding="utf-8"
             ) as wf:
         code = templete_bridge_ui_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         wf.write(code)
         wf.close()
@@ -1927,8 +1416,8 @@ with open("./vs2019/module/ModuleRoot.cs", "w", encoding="utf-8") as wf:
                 "{{service}}", service
                 )
     code = template_module_ModuleRoot_cs
-    code = code.replace("{{org}}", org_name.upper())
-    code = code.replace("{{mod}}", mod_name.capitalize())
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
     code = code.replace("{{register}}", register_block)
     code = code.replace("{{cancel}}", cancel_block)
     wf.write(code)
@@ -1940,8 +1429,8 @@ for service in services.keys():
             "./vs2019/module/{}Model.cs".format(service), "w", encoding="utf-8"
             ) as wf:
         code = template_module_Model_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         wf.write(code)
         wf.close()
@@ -1949,16 +1438,16 @@ for service in services.keys():
 # 生成View.cs文件
 for service in services.keys():
     template_router = r"""
-           route("/{{org}}/{{mod}}/{{service}}/{{rpc}}", this.handle{{service}}{{rpc}});
+           addRouter("/{{org}}/{{mod}}/{{service}}/{{rpc}}", this.handle{{service}}{{rpc}});
     """
     template_handler = r"""
         private void handle{{service}}{{rpc}}(Model.Status _status, object _data)
         {
             var rsp = (Proto.{{rsp}})_data;
-            if(rsp._status._code.AsInt() == 0)
+            if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt(), rsp._status._message.AsString()));
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
         }
     """
     with open("./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8") as wf:
@@ -1970,8 +1459,8 @@ for service in services.keys():
             handler_block = handler_block + template_handler.replace("{{service}}", service).replace("{{rpc}}", rpc_name).replace("{{rsp}}", rsp_name)
 
         code = template_module_View_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         code = code.replace("{{routers}}", router_block)
         code = code.replace("{{handlers}}", handler_block)
@@ -1984,8 +1473,8 @@ for service in services.keys():
             "./vs2019/module/{}Controller.cs".format(service), "w", encoding="utf-8"
             ) as wf:
         code = template_module_Controller_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         wf.write(code)
         wf.close()
@@ -2020,15 +1509,22 @@ for service in services.keys():
                 # 转换类型
                 if field_type in type_dict.keys():
                     field_type = type_dict[field_type]
-                args_block = args_block + str.format("{} _{}, ", field_type, field_name)
+                if field_type.endswith('<>'):
+                    args_block = args_block + str.format("Dictionary<string, {}> _{}, ", field_type[:-2], field_name)
+                else:
+                    args_block = args_block + str.format("{} _{}, ", field_type, field_name)
 
-                if field_type in type_dict.values():
+                if field_type.endswith('<>'):
                     assign_block = assign_block + str.format(
-                        "            req._{} = Proto.Field.From{}(_{});\n", field_name, field_type.capitalize(), field_name
+                            "            req._{} = Any.From{}Map(_{});\n", field_name, field_type[:-2].title(), field_name
                         )
                 elif field_type.endswith('[]'):
                     assign_block = assign_block + str.format(
-                            "            req._{} = Proto.Field.From{}Ary(_{});\n", field_name, field_type[:-2].capitalize(), field_name
+                            "            req._{} = Any.From{}Ary(_{});\n", field_name, field_type[:-2].title(), field_name
+                        )
+                elif field_type in type_dict.values():
+                    assign_block = assign_block + str.format(
+                        "            req._{} = Any.From{}(_{});\n", field_name, type_to_any[field_type].title(), field_name
                         )
             # 移除末尾的 ', '
             if len(args_block) > 0:
@@ -2036,8 +1532,8 @@ for service in services.keys():
             rpc_block = rpc_block.replace("{{args}}", args_block)
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
         code = template_module_ViewBridge_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         code = code.replace("{{rpc}}", rpc_block)
         wf.write(code)
@@ -2057,10 +1553,10 @@ for service in services.keys():
             post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
-                options.Converters.Add(new FieldConverter());
+                options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply, options);
-                {{service}}Model.{{service}}Status status = Model.Status.New<{{service}}Model.{{service}}Status>(rsp._status._code.AsInt(), rsp._status._message.AsString());
-                model.Broadcast("/{{org}}/{{mod}}/{{service}}/{{rpc}}", rsp);
+                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
+                model.Broadcast("/{{org}}/{{mod}}/{{service}}/{{rpc}}", reply);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -2088,22 +1584,16 @@ for service in services.keys():
                 if field_type in type_dict.keys():
                     field_type = type_dict[field_type]
 
-                if field_type in type_dict.values():
+                if field_type in type_dict.values() or field_type.endswith('[]') or field_type.endswith('{}'):
                     assign_block = assign_block + str.format(
-                        '            paramMap["{}"] = _request._{}.AsAny();\n',
-                        field_name,
-                        field_name,
-                        )
-                elif field_type.endswith('[]'):
-                    assign_block = assign_block + str.format(
-                        '            paramMap["{}"] = _request._{}.AsAny();\n',
+                        '            paramMap["{}"] = _request._{};\n',
                         field_name,
                         field_name,
                         )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
         code = template_module_Service_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         code = code.replace("{{rpc}}", rpc_block)
         wf.write(code)
@@ -2123,47 +1613,74 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
     """
     proto_block = ""
     for message_name in messages.keys():
+        # 成员声明
         field_block = ""
+        # 构造函数中赋初值
         assign_block = ""
+        # 遍历所有字段
         for field in messages[message_name]:
+            # 字段名
             field_name = field[0]
+            # 字段类型
             field_type = field[1]
             # 转换枚举类型
             if field_type in enums:
                 field_type = "enum"
-            # 转换类型
-            isArray = False
+
             if field_type.endswith('[]'):
                 field_type = field_type[:-2]
-                isArray = True
                 if field_type in type_dict.keys():
-                    field_type = 'Field'
-
-            else:
-                if field_type in type_dict.keys():
-                    field_type = 'Field'
-
-            if isArray and field_type != 'Field':
-                assign_block = assign_block + str.format(
+                    """可转换类型的数组, 使用Any转换"""
+                    assign_block = assign_block + str.format(
+                        "                _{} = Any.From{}Ary(new {}[0]);\n", field_name, field_type.title(), field_type
+                        )
+                    field_block = field_block + str.format(
+                        "            [JsonPropertyName(\"{}\")]\n            public Any _{} {{get;set;}}\n", field_name, field_name
+                        )
+                else:
+                    """不可转换类型的数组, 使用直接实例化的方式"""
+                    assign_block = assign_block + str.format(
                         "                _{} = new {}[0];\n", field_name, field_type
                         )
-                field_block = field_block + str.format(
+                    field_block = field_block + str.format(
                         "            [JsonPropertyName(\"{}\")]\n            public {}[] _{} {{get;set;}}\n", field_name, field_type, field_name
                         )
-            else:
+            elif field_type.endswith('<>'):
+                field_type = field_type[:-2]
+                """字典使用直接实例化的方式"""
                 assign_block = assign_block + str.format(
+                    "                _{} = new Dictionary<string, {}>();\n", field_name, field_type
+                    )
+                field_block = field_block + str.format(
+                    "            [JsonPropertyName(\"{}\")]\n            public Dictionary<string, {}> _{} {{get;set;}}\n", field_name, field_type, field_name
+                    )
+            else:
+                if field_type in type_dict.keys():
+                    """可转换类型的数组, 使用Any转换"""
+                    csharp_type = type_dict[field_type]
+                    any_type = type_to_any[csharp_type]
+                    assign_block = assign_block + str.format(
+                        "                _{} = Any.From{}({});\n", field_name, any_type.title(), type_default_value[field_type]
+                        )
+                    field_block = field_block + str.format(
+                        "            [JsonPropertyName(\"{}\")]\n            public Any _{} {{get;set;}}\n", field_name, field_name
+                        )
+                else:
+                    """不可转换类型, 使用直接实例化的方式"""
+                    assign_block = assign_block + str.format(
                         "                _{} = new {}();\n", field_name, field_type
                         )
-                field_block = field_block + str.format(
+                    field_block = field_block + str.format(
                         "            [JsonPropertyName(\"{}\")]\n            public {} _{} {{get;set;}}\n", field_name, field_type, field_name
                         )
+
         message_block = template_class.replace("{{message}}", message_name)
         message_block = message_block.replace("{{field}}", field_block)
         message_block = message_block.replace("{{assign}}", assign_block)
         proto_block = proto_block + message_block
     code = template_module_Protocol_cs
-    code = code.replace("{{org}}", org_name.upper())
-    code = code.replace("{{mod}}", mod_name.capitalize())
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
     code = code.replace("{{proto}}", proto_block)
     wf.write(code)
     wf.close()
@@ -2171,34 +1688,42 @@ with open("./vs2019/module/Protocol.cs", "w", encoding="utf-8") as wf:
 # 生成JsonConvert.cs文件
 with open("./vs2019/module/JsonConvert.cs", "w", encoding="utf-8") as wf:
     code = template_module_Json_Convert_cs
-    code = code.replace("{{org}}", org_name.upper())
-    code = code.replace("{{mod}}", mod_name.capitalize())
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
+    wf.write(code)
+    wf.close()
+
+# 生成JsonOptions.cs文件
+with open("./vs2019/module/JsonOptions.cs", "w", encoding="utf-8") as wf:
+    code = template_module_Json_Options_cs
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
     wf.write(code)
     wf.close()
 
 
 
 # -----------------------------------------------------------------------------
-# 生成 winform 解决方案
+# 生成 wpf 解决方案
 # -----------------------------------------------------------------------------
-os.makedirs("vs2019/winform", exist_ok=True)
+os.makedirs("vs2019/wpf", exist_ok=True)
 # 生成.proj文件
-with open("./vs2019/winform/winform.csproj", "w", encoding="utf-8") as wf:
+with open("./vs2019/wpf/wpf.csproj", "w", encoding="utf-8") as wf:
     wf.write(
-            template_proj_winform.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
+            template_proj_wpf.replace("{{org}}", org_name).replace("{{mod}}", mod_name)
             )
     wf.close()
 
-# 生成FormRoot.cs文件
-with open("./vs2019/winform/FormRoot.cs", "w", encoding="utf-8") as wf:
+# 生成ControlRoot.cs文件
+with open("./vs2019/wpf/ControlRoot.cs", "w", encoding="utf-8") as wf:
     template_register_block = r"""
             // 注册UI装饰
             {{service}}Facade facade{{service}} = new {{service}}Facade();
             framework_.getStaticPipe().RegisterFacade({{service}}Facade.NAME, facade{{service}});
-            {{service}}Panel panel{{service}} = new {{service}}Panel();
-            panel{{service}}.facade = facade{{service}};
-            {{service}}Panel.{{service}}UiBridge ui{{service}}Bridge = new {{service}}Panel.{{service}}UiBridge();
-            ui{{service}}Bridge.panel = panel{{service}};
+            {{service}}Control control{{service}} = new {{service}}Control();
+            control{{service}}.facade = facade{{service}};
+            {{service}}Control.{{service}}UiBridge ui{{service}}Bridge = new {{service}}Control.{{service}}UiBridge();
+            ui{{service}}Bridge.control = control{{service}};
             facade{{service}}.setUiBridge(ui{{service}}Bridge);
         """
     template_cancel_block = r"""
@@ -2214,9 +1739,9 @@ with open("./vs2019/winform/FormRoot.cs", "w", encoding="utf-8") as wf:
         cancel_block = cancel_block + template_cancel_block.replace(
                 "{{service}}", service
                 )
-    code = template_winform_FormRoot_cs
-    code = code.replace("{{org}}", org_name.upper())
-    code = code.replace("{{mod}}", mod_name.capitalize())
+    code = template_wpf_ControlRoot_cs
+    code = code.replace("{{org}}", org_name)
+    code = code.replace("{{mod}}", mod_name)
     code = code.replace("{{register}}", register_block)
     code = code.replace("{{cancel}}", cancel_block)
     wf.write(code)
@@ -2225,244 +1750,36 @@ with open("./vs2019/winform/FormRoot.cs", "w", encoding="utf-8") as wf:
 # 生成Facade.cs文件
 for service in services.keys():
     with open(
-            "./vs2019/winform/{}Facade.cs".format(service), "w", encoding="utf-8"
+            "./vs2019/wpf/{}Facade.cs".format(service), "w", encoding="utf-8"
             ) as wf:
-        code = template_winform_Facade_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = template_wpf_Facade_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         wf.write(code)
         wf.close()
 
-# 生成Panel.cs文件
+# 生成Control.cs文件
 for service in services.keys():
     with open(
-            "./vs2019/winform/{}Panel.cs".format(service), "w", encoding="utf-8"
+            "./vs2019/wpf/{}Control.xaml.cs".format(service), "w", encoding="utf-8"
             ) as wf:
-        code = template_winform_Panel_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = template_wpf_Control_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
         wf.write(code)
         wf.close()
 
-# 生成Panel.resx文件
+# 生成Control.xaml文件
 for service in services.keys():
     with open(
-            "./vs2019/winform/{}Panel.resx".format(service), "w", encoding="utf-8"
+            "./vs2019/wpf/{}Control.xaml".format(service), "w", encoding="utf-8"
             ) as wf:
-        code = template_winform_Panel_resx
-        wf.write(code)
-        wf.close()
-
-# 生成Panel.Designer.cs文件
-for service in services.keys():
-    template_tabpage_define = r"""
-        private System.Windows.Forms.TabPage tabPage{{rpc}};
-    """
-    template_submit_button_define = r"""
-        private System.Windows.Forms.Button btnSubmit{{rpc}};
-        private void btnSubmit{{rpc}}_Click(object sender, System.EventArgs e)
-        {
-            I{{service}}ViewBridge bridge =  facade.getViewBridge() as I{{service}}ViewBridge;
-            {{type_parse}}
-            bridge.On{{rpc}}Submit({{args}});
-        }
-    """
-    template_page_define ={
-            "PostForm": r"""
-        private System.Windows.Forms.TableLayoutPanel tlp{{rpc}};
-        private System.Windows.Forms.Label label_{{rpc}}_name;
-        private System.Windows.Forms.Label label_{{rpc}}_value;
-        private System.Windows.Forms.Label label_{{rpc}}_remark;
-    """,
-    }
-    template_postform_label = r"""
-        private System.Windows.Forms.Label label_{{rpc}}_{{field}}_{{type}};
-    """
-    template_postform_textbox = r"""
-        private System.Windows.Forms.TextBox tb_{{rpc}}_{{field}};
-    """
-    template_tabpage_block = r"""
-            //
-            // tabPage{{rpc}}
-            //
-            this.tabPage{{rpc}} = new System.Windows.Forms.TabPage();
-            this.tabPage{{rpc}}.Location = new System.Drawing.Point(4, 48);
-            this.tabPage{{rpc}}.Name = "{{rpc}}";
-            this.tabPage{{rpc}}.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage{{rpc}}.Size = new System.Drawing.Size(459, 373);
-            this.tabPage{{rpc}}.TabIndex = 0;
-            this.tabPage{{rpc}}.Text = "{{rpc}}";
-            this.tabPage{{rpc}}.UseVisualStyleBackColor = true;
-            this.tcPages.Controls.Add(tabPage{{rpc}});
-    """
-    template_submit_button_block = r"""
-            //
-            // btnSubmit{{rpc}}
-            //
-            this.btnSubmit{{rpc}} = new System.Windows.Forms.Button();
-            this.btnSubmit{{rpc}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSubmit{{rpc}}.Location = new System.Drawing.Point(17, 300);
-            this.btnSubmit{{rpc}}.Name = "btnSubmit{{rpc}}";
-            this.btnSubmit{{rpc}}.Size = new System.Drawing.Size(120, 29);
-            this.btnSubmit{{rpc}}.TabIndex = 0;
-            this.btnSubmit{{rpc}}.Text = "Submit";
-            this.btnSubmit{{rpc}}.UseVisualStyleBackColor = true;
-            this.btnSubmit{{rpc}}.Click += new System.EventHandler(this.btnSubmit{{rpc}}_Click);
-            this.tabPage{{rpc}}.Controls.Add(this.btnSubmit{{rpc}});
-    """
-    template_page_block = {
-            "PostForm": r"""
-            //
-            // tlp{{rpc}}
-            //
-            this.tlp{{rpc}} = new System.Windows.Forms.TableLayoutPanel();
-            this.tlp{{rpc}}.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tlp{{rpc}}.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
-            this.tlp{{rpc}}.ColumnCount = 3;
-            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
-            this.tlp{{rpc}}.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
-            this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
-            this.tlp{{rpc}}.Location = new System.Drawing.Point(17, 15);
-            this.tlp{{rpc}}.Name = "tlp";
-            this.tlp{{rpc}}.RowCount = {{field_count}};
-            this.tlp{{rpc}}.Size = new System.Drawing.Size(400, 260);
-            this.tlp{{rpc}}.TabIndex = 1;
-            this.tabPage{{rpc}}.Controls.Add(this.tlp{{rpc}});
-
-            this.label_{{rpc}}_name = new System.Windows.Forms.Label();
-            this.label_{{rpc}}_name.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label_{{rpc}}_name.AutoSize = true;
-            this.label_{{rpc}}_name.Location = new System.Drawing.Point(3, 113);
-            this.label_{{rpc}}_name.Name = "label_{{rpc}}_name";
-            this.label_{{rpc}}_name.Size = new System.Drawing.Size(43, 17);
-            this.label_{{rpc}}_name.TabIndex = 0;
-            this.label_{{rpc}}_name.Text = "参数名";
-            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_name, 0, 0);
-
-            this.label_{{rpc}}_value = new System.Windows.Forms.Label();
-            this.label_{{rpc}}_value.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label_{{rpc}}_value.AutoSize = true;
-            this.label_{{rpc}}_value.Location = new System.Drawing.Point(3, 113);
-            this.label_{{rpc}}_value.Name = "label_{{rpc}}_value";
-            this.label_{{rpc}}_value.Size = new System.Drawing.Size(43, 17);
-            this.label_{{rpc}}_value.TabIndex = 0;
-            this.label_{{rpc}}_value.Text = "参数值";
-            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_value, 1, 0);
-
-            this.label_{{rpc}}_remark= new System.Windows.Forms.Label();
-            this.label_{{rpc}}_remark.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label_{{rpc}}_remark.AutoSize = true;
-            this.label_{{rpc}}_remark.Location = new System.Drawing.Point(3, 113);
-            this.label_{{rpc}}_remark.Name = "label_{{rpc}}_name";
-            this.label_{{rpc}}_remark.Size = new System.Drawing.Size(43, 17);
-            this.label_{{rpc}}_remark.TabIndex = 0;
-            this.label_{{rpc}}_remark.Text = "说明";
-            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_remark, 2, 0);
-            """
-            }
-    template_label_block = r"""
-            //
-            // label_{{rpc}}_{{field}}
-            //
-            this.label_{{rpc}}_{{field}}_{{type}} = new System.Windows.Forms.Label();
-            this.label_{{rpc}}_{{field}}_{{type}}.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label_{{rpc}}_{{field}}_{{type}}.AutoSize = true;
-            this.label_{{rpc}}_{{field}}_{{type}}.Location = new System.Drawing.Point(3, 113);
-            this.label_{{rpc}}_{{field}}_{{type}}.Name = "label_{{rpc}}_{{field}}";
-            this.label_{{rpc}}_{{field}}_{{type}}.Size = new System.Drawing.Size(43, 17);
-            this.label_{{rpc}}_{{field}}_{{type}}.TabIndex = 0;
-            this.label_{{rpc}}_{{field}}_{{type}}.Text = "{{text}}";
-            this.tlp{{rpc}}.Controls.Add(this.label_{{rpc}}_{{field}}_{{type}}, {{column}}, {{row}});
-    """
-    template_textbox_block = r"""
-            //
-            // tb_{{rpc}}_{{field}}
-            //
-            this.tb_{{rpc}}_{{field}} = new System.Windows.Forms.TextBox();
-            this.tb_{{rpc}}_{{field}}.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tb_{{rpc}}_{{field}}.Location = new System.Drawing.Point(189, 50);
-            this.tb_{{rpc}}_{{field}}.Name = "tb_{{rpc}}_{{field}}";
-            this.tb_{{rpc}}_{{field}}.Size = new System.Drawing.Size(363, 23);
-            this.tb_{{rpc}}_{{field}}.TabIndex = 1;
-            this.tlp{{rpc}}.Controls.Add(this.tb_{{rpc}}_{{field}}, 1, {{row}});
-            this.tlp{{rpc}}.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-    """
-    template_type_parse = r"""
-            {{field_type}} _{{field_name}};
-            {{field_type}}.TryParse({{value}}, out _{{field_name}});
-    """
-    template_assign = r"""
-            {{type}} _{{name}} = {{value}};
-    """
-    with open(
-            "./vs2019/winform/{}Panel.Designer.cs".format(service), "w", encoding="utf-8"
-            ) as wf:
-        tabPage_define = ''
-        tabPage_block = ''
-        for rpc_name in services[service]:
-            req_name = services[service][rpc_name][0]
-            rsp_name = services[service][rpc_name][0]
-            tabPage_define = tabPage_define + template_tabpage_define.replace('{{rpc}}', rpc_name)
-            tabPage_block = tabPage_block + template_tabpage_block.replace('{{rpc}}', rpc_name)
-            #生成页面
-            rpc_method = '{}.{}'.format(service, rpc_name)
-            if rpc_method in layouts.keys():
-                page = layouts[rpc_method]
-                if page == 'PostForm':
-                    tabPage_define = tabPage_define + template_page_define[page].replace('{{rpc}}', rpc_name)
-                    # 多添加一个空位尾行
-                    tabPage_block = tabPage_block + template_page_block[page].replace('{{rpc}}', rpc_name).replace("{{field_count}}", str(len(messages[req_name])+2))
-                    row = 0
-                    args_exp = ''
-                    type_parse_block = ''
-                    for field in messages[req_name]:
-                        field_name = field[0]
-                        field_type = field[1]
-                        field_remark = field[2]
-                        # 字段名声明
-                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "name").replace("{{rpc}}", rpc_name)
-                        # 字段注释声明
-                        tabPage_define = tabPage_define + template_postform_label.replace('{{field}}', field_name).replace("{{type}}", "remark").replace("{{rpc}}", rpc_name)
-                        # 字段输入声明
-                        tabPage_define = tabPage_define + template_postform_textbox.replace('{{field}}', field_name).replace("{{rpc}}", rpc_name)
-                        # 字段名代码
-                        tabPage_block = tabPage_block + template_label_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1)).replace("{{column}}", str(0)).replace("{{type}}", "name").replace("{{text}}", field_name)
-                        # 字段注释代码
-                        tabPage_block = tabPage_block + template_label_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1)).replace("{{column}}", str(2)).replace("{{type}}", "remark").replace("{{text}}", field_remark)
-                        # 字段输入代码
-                        tabPage_block = tabPage_block + template_textbox_block.replace('{{rpc}}', rpc_name).replace("{{field}}", field_name).replace("{{row}}", str(row+1))
-                        # 构建参数列表
-                        if field_type in enums:
-                            field_type = 'enum'
-                        if field_type in type_dict.keys():
-                            field_type = type_dict[field_type]
-                        if 'string' == field_type:
-                            type_parse_block = type_parse_block + template_assign.replace('{{type}}', field_type).replace("{{name}}", field_name).replace("{{value}}",'this.tb_{}_{}.Text'.format(rpc_name, field_name))
-                        else:
-                            if field_type in type_dict.values():
-                                type_parse_block = type_parse_block +template_type_parse.replace('{{field_type}}', field_type).replace('{{field_name}}', field_name).replace('{{value}}', 'this.tb_{}_{}.Text'.format(rpc_name, field_name))
-                            else:
-                                type_parse_block = type_parse_block + str.format('            {} _{} = null;\n            //TODO 未实现的字段 \n', field_type, field_name)
-                        args_exp = args_exp + '_{}, '.format(field_name)
-                        row=row+1
-                    # 移除末尾得', '
-                    if len(messages[req_name]) > 0:
-                        args_exp = args_exp[:-2]
-                    # 提交按钮声明
-                    tabPage_define = tabPage_define + template_submit_button_define.replace('{{rpc}}', rpc_name).replace("{{service}}", service).replace("{{args}}", args_exp).replace("{{type_parse}}", type_parse_block)
-                    # 提交按钮代码
-                    tabPage_block = tabPage_block + template_submit_button_block.replace('{{rpc}}', rpc_name)
-
-        code = template_winform_Panel_Designer_cs
-        code = code.replace("{{org}}", org_name.upper())
-        code = code.replace("{{mod}}", mod_name.capitalize())
+        code = template_wpf_Control_xaml
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
-        code = code.replace("{{tabPage_define}}", tabPage_define)
-        code = code.replace("{{tabPage_block}}", tabPage_block)
         wf.write(code)
         wf.close()
+
