@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Tuple
 
 """
-ver 1.5.1
+ver 1.6.0
 """
 
 
