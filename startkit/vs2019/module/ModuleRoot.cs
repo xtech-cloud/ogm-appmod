@@ -19,13 +19,13 @@ namespace ogm.startkit
         {
 
             // 注册数据层
-            framework_.getStaticPipe().RegisterModel(MyHealthyModel.NAME, new MyHealthyModel());
+            framework_.getStaticPipe().RegisterModel(HealthyModel.NAME, new HealthyModel());
             // 注册视图层
-            framework_.getStaticPipe().RegisterView(MyHealthyView.NAME, new MyHealthyView());
+            framework_.getStaticPipe().RegisterView(HealthyView.NAME, new HealthyView());
             // 注册控制层
-            framework_.getStaticPipe().RegisterController(MyHealthyController.NAME, new MyHealthyController());
+            framework_.getStaticPipe().RegisterController(HealthyController.NAME, new HealthyController());
             // 注册服务层
-            framework_.getStaticPipe().RegisterService(MyHealthyService.NAME, new MyHealthyService());
+            framework_.getStaticPipe().RegisterService(HealthyService.NAME, new HealthyService());
     
         }
 
@@ -33,13 +33,13 @@ namespace ogm.startkit
         {
 
             // 注销服务层
-            framework_.getStaticPipe().CancelService(MyHealthyService.NAME);
+            framework_.getStaticPipe().CancelService(HealthyService.NAME);
             // 注销控制层
-            framework_.getStaticPipe().CancelController(MyHealthyController.NAME);
+            framework_.getStaticPipe().CancelController(HealthyController.NAME);
             // 注销视图层
-            framework_.getStaticPipe().CancelView(MyHealthyView.NAME);
+            framework_.getStaticPipe().CancelView(HealthyView.NAME);
             // 注销数据层
-            framework_.getStaticPipe().CancelModel(MyHealthyModel.NAME);
+            framework_.getStaticPipe().CancelModel(HealthyModel.NAME);
     
         }
 

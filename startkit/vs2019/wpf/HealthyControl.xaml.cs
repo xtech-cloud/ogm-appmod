@@ -3,11 +3,11 @@ using System.Windows.Controls;
 
 namespace ogm.startkit
 {
-    public partial class MyHealthyControl: UserControl
+    public partial class HealthyControl: UserControl
     {
-        public class MyHealthyUiBridge : IMyHealthyUiBridge
+        public class HealthyUiBridge : IHealthyUiBridge
         {
-            public MyHealthyControl control { get; set; }
+            public HealthyControl control { get; set; }
 
             public object getRootPanel()
             {
@@ -19,9 +19,9 @@ namespace ogm.startkit
             }
         }
 
-        public MyHealthyFacade facade { get; set; }
+        public HealthyFacade facade { get; set; }
 
-        public MyHealthyControl()
+        public HealthyControl()
         {
             InitializeComponent();
         }

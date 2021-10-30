@@ -5,40 +5,38 @@ using XTC.oelMVCS;
 
 namespace ogm.startkit
 {
-    public class MyHealthyView: View
+    public class HealthyBaseView: View
     {
-        public const string NAME = "ogm.startkit.MyHealthyView";
-
-        private Facade facade = null;
-        private MyHealthyModel model = null;
-        private IMyHealthyUiBridge bridge = null;
+        protected Facade facade = null;
+        protected HealthyModel model = null;
+        protected IHealthyUiBridge bridge = null;
 
         protected override void preSetup()
         {
-            model = findModel(MyHealthyModel.NAME) as MyHealthyModel;
-            var service = findService(MyHealthyService.NAME) as MyHealthyService;
-            facade = findFacade("ogm.startkit.MyHealthyFacade");
-            MyHealthyViewBridge vb = new MyHealthyViewBridge();
-            vb.view = this;
+            model = findModel(HealthyModel.NAME) as HealthyModel;
+            var service = findService(HealthyService.NAME) as HealthyService;
+            facade = findFacade("ogm.startkit.HealthyFacade");
+            HealthyViewBridge vb = new HealthyViewBridge();
+            vb.view = this as HealthyView;
             vb.service = service;
             facade.setViewBridge(vb);
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup ogm.startkit.MyHealthyView");
+            getLogger().Trace("setup ogm.startkit.HealthyView");
 
-           addRouter("/ogm/startkit/MyHealthy/Echo", this.handleMyHealthyEcho);
+           addRouter("/ogm/startkit/Healthy/Echo", this.handleHealthyEcho);
     
         }
 
         protected override void postSetup()
         {
-            bridge = facade.getUiBridge() as IMyHealthyUiBridge;
+            bridge = facade.getUiBridge() as IHealthyUiBridge;
             object rootPanel = bridge.getRootPanel();
             // 通知主程序挂载界面
             Dictionary<string, object> data = new Dictionary<string, object>();
-            data["ogm.startkit.MyHealthy"] = rootPanel;
+            data["ogm.startkit.Healthy"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
         }
 
@@ -47,7 +45,7 @@ namespace ogm.startkit
             bridge.Alert(_message);
         }
 
-        private void handleMyHealthyEcho(Model.Status _status, object _data)
+        private void handleHealthyEcho(Model.Status _status, object _data)
         {
             var rsp = (Proto.Response)_data;
             if(rsp._status._code.AsInt32() == 0)

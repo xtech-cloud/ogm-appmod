@@ -6,12 +6,7 @@ option go_package = "proto/startkit;startkit";
 service Healthy
 {
     rpc Echo(Request) returns (Response) { }
-}
-
-message Status
-{
-    int64 code = 1;
-    string message = 2;
+    rpc PingPong(stream Ping) returns (stream Pong) { }
 }
 
 message Request
@@ -21,6 +16,15 @@ message Request
 
 message Response
 {
-    Status status = 1;
-    string msg = 2;
+    string msg = 1;
+}
+
+message Ping
+{
+    int64 stroke = 1;
+}
+
+message Pong
+{
+    int64 stroke = 1;
 }

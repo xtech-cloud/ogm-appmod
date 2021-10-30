@@ -12,7 +12,7 @@ namespace ogm.startkit.Proto
         {
             public Status()
             {
-                _code = Any.FromInt32(0);
+                _code = Any.FromInt64(0);
                 _message = Any.FromString("");
 
             }

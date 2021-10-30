@@ -7,19 +7,18 @@ using XTC.oelMVCS;
 
 namespace ogm.startkit
 {
-    public class MyHealthyService: Service
+    public class HealthyBaseService: Service
     {
-        public const string NAME = "ogm.startkit.MyHealthyService";
-        private MyHealthyModel model = null;
+        protected HealthyModel model = null;
 
         protected override void preSetup()
         {
-            model = findModel(MyHealthyModel.NAME) as MyHealthyModel;
+            model = findModel(HealthyModel.NAME) as HealthyModel;
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup ogm.startkit.MyHealthyService");
+            getLogger().Trace("setup ogm.startkit.HealthyService");
         }
 
         public void PostEcho(Proto.Request _request)
@@ -27,13 +26,13 @@ namespace ogm.startkit
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["msg"] = _request._msg;
 
-            post(string.Format("{0}/ogm/startkit/MyHealthy/Echo", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/startkit/Healthy/Echo", getConfig()["domain"].AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.Response>(_reply, options);
                 Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/startkit/MyHealthy/Echo", reply);
+                model.Broadcast("/ogm/startkit/Healthy/Echo", reply);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -88,6 +87,5 @@ namespace ogm.startkit
             }
             _onReply(reply);
         }
-
     }
 }

@@ -22,13 +22,13 @@ namespace ogm.startkit
         {
 
             // 注册UI装饰
-            MyHealthyFacade facadeMyHealthy = new MyHealthyFacade();
-            framework_.getStaticPipe().RegisterFacade(MyHealthyFacade.NAME, facadeMyHealthy);
-            MyHealthyControl controlMyHealthy = new MyHealthyControl();
-            controlMyHealthy.facade = facadeMyHealthy;
-            MyHealthyControl.MyHealthyUiBridge uiMyHealthyBridge = new MyHealthyControl.MyHealthyUiBridge();
-            uiMyHealthyBridge.control = controlMyHealthy;
-            facadeMyHealthy.setUiBridge(uiMyHealthyBridge);
+            HealthyFacade facadeHealthy = new HealthyFacade();
+            framework_.getStaticPipe().RegisterFacade(HealthyFacade.NAME, facadeHealthy);
+            HealthyControl controlHealthy = new HealthyControl();
+            controlHealthy.facade = facadeHealthy;
+            HealthyControl.HealthyUiBridge uiHealthyBridge = new HealthyControl.HealthyUiBridge();
+            uiHealthyBridge.control = controlHealthy;
+            facadeHealthy.setUiBridge(uiHealthyBridge);
         
         }
 
@@ -36,7 +36,7 @@ namespace ogm.startkit
         {
 
             // 注销UI装饰
-            framework_.getStaticPipe().CancelFacade(MyHealthyFacade.NAME);
+            framework_.getStaticPipe().CancelFacade(HealthyFacade.NAME);
         
         }
 

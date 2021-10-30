@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Tuple
 
 """
-ver 1.6.0
+ver 1.7.0
 """
 
 
@@ -716,16 +716,28 @@ using XTC.oelMVCS;
 
 namespace {{org}}.{{mod}}
 {
-    public class {{service}}Model : Model
+    public class {{service}}Model : {{service}}BaseModel
     {
         public const string NAME = "{{org}}.{{mod}}.{{service}}Model";
+    }
+}
+"""
+
+template_module_BaseModel_cs = r"""
+using System;
+using XTC.oelMVCS;
+
+namespace {{org}}.{{mod}}
+{
+    public class {{service}}BaseModel : Model
+    {
 
         public class {{service}}Status : Model.Status
         {
             public const string NAME = "{{org}}.{{mod}}.{{service}}Status";
         }
 
-        private {{service}}Controller controller {get;set;}
+        protected {{service}}Controller controller {get;set;}
 
         protected override void preSetup()
         {
@@ -757,7 +769,7 @@ namespace {{org}}.{{mod}}
             }
         }
 
-        private {{service}}Status status
+        protected {{service}}Status status
         {
             get
             {
@@ -775,13 +787,26 @@ using XTC.oelMVCS;
 
 namespace {{org}}.{{mod}}
 {
-    public class {{service}}View: View
+    public class {{service}}View: {{service}}BaseView
     {
         public const string NAME = "{{org}}.{{mod}}.{{service}}View";
+    }
+}
+"""
 
-        private Facade facade = null;
-        private {{service}}Model model = null;
-        private I{{service}}UiBridge bridge = null;
+
+template_module_BaseView_cs = r"""
+using System;
+using System.Collections.Generic;
+using XTC.oelMVCS;
+
+namespace {{org}}.{{mod}}
+{
+    public class {{service}}BaseView: View
+    {
+        protected Facade facade = null;
+        protected {{service}}Model model = null;
+        protected I{{service}}UiBridge bridge = null;
 
         protected override void preSetup()
         {
@@ -789,7 +814,7 @@ namespace {{org}}.{{mod}}
             var service = findService({{service}}Service.NAME) as {{service}}Service;
             facade = findFacade("{{org}}.{{mod}}.{{service}}Facade");
             {{service}}ViewBridge vb = new {{service}}ViewBridge();
-            vb.view = this;
+            vb.view = this as {{service}}View;
             vb.service = service;
             facade.setViewBridge(vb);
         }
@@ -825,11 +850,23 @@ using XTC.oelMVCS;
 
 namespace {{org}}.{{mod}}
 {
-    public class {{service}}Controller: Controller
+    public class {{service}}Controller: {{service}}BaseController
     {
         public const string NAME = "{{org}}.{{mod}}.{{service}}Controller";
+    }
+}
+"""
 
-        private {{service}}View view {get;set;}
+template_module_BaseController_cs = r"""
+using System;
+using XTC.oelMVCS;
+
+namespace {{org}}.{{mod}}
+{
+    public class {{service}}BaseController: Controller
+    {
+
+        protected {{service}}View view {get;set;}
 
         protected override void preSetup()
         {
@@ -870,10 +907,26 @@ using XTC.oelMVCS;
 
 namespace {{org}}.{{mod}}
 {
-    public class {{service}}Service: Service
+    public class {{service}}Service: {{service}}BaseService
     {
         public const string NAME = "{{org}}.{{mod}}.{{service}}Service";
-        private {{service}}Model model = null;
+    }
+}
+"""
+
+
+template_module_BaseService_cs = r"""
+using System.IO;
+using System.Net;
+using System.Text.Json;
+using System.Collections.Generic;
+using XTC.oelMVCS;
+
+namespace {{org}}.{{mod}}
+{
+    public class {{service}}BaseService: Service
+    {
+        protected {{service}}Model model = null;
 
         protected override void preSetup()
         {
@@ -932,7 +985,6 @@ namespace {{org}}.{{mod}}
             }
             _onReply(reply);
         }
-
     }
 }
 """
@@ -1147,7 +1199,7 @@ for entry in os.listdir(proto_dir):
     # 跳过不是.proto的文件
     if not entry.endswith(".proto"):
         continue
-    # 跳过health
+    # 跳过healthy.proto
     if entry == "healthy.proto":
         continue
     proto_name = os.path.splitext(entry)[0]
@@ -1435,7 +1487,31 @@ for service in services.keys():
         wf.write(code)
         wf.close()
 
+# 生成BaseModel.cs文件
+for service in services.keys():
+    with open(
+            "./vs2019/module/{}BaseModel.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
+        code = template_module_BaseModel_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
+        code = code.replace("{{service}}", service)
+        wf.write(code)
+        wf.close()
+
 # 生成View.cs文件
+for service in services.keys():
+    with open(
+            "./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
+        code = template_module_View_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
+        code = code.replace("{{service}}", service)
+        wf.write(code)
+        wf.close()
+
+# 生成BaseView.cs文件
 for service in services.keys():
     template_router = r"""
            addRouter("/{{org}}/{{mod}}/{{service}}/{{rpc}}", this.handle{{service}}{{rpc}});
@@ -1450,7 +1526,7 @@ for service in services.keys():
                 bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
         }
     """
-    with open("./vs2019/module/{}View.cs".format(service), "w", encoding="utf-8") as wf:
+    with open("./vs2019/module/{}BaseView.cs".format(service), "w", encoding="utf-8") as wf:
         router_block = ''
         handler_block = ''
         for rpc_name in services[service].keys():
@@ -1458,7 +1534,7 @@ for service in services.keys():
             router_block = router_block + template_router.replace("{{org}}", org_name).replace("{{mod}}", mod_name).replace("{{service}}", service).replace("{{rpc}}", rpc_name)
             handler_block = handler_block + template_handler.replace("{{service}}", service).replace("{{rpc}}", rpc_name).replace("{{rsp}}", rsp_name)
 
-        code = template_module_View_cs
+        code = template_module_BaseView_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
@@ -1473,6 +1549,18 @@ for service in services.keys():
             "./vs2019/module/{}Controller.cs".format(service), "w", encoding="utf-8"
             ) as wf:
         code = template_module_Controller_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
+        code = code.replace("{{service}}", service)
+        wf.write(code)
+        wf.close()
+
+# 生成BaseController.cs文件
+for service in services.keys():
+    with open(
+            "./vs2019/module/{}BaseController.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
+        code = template_module_BaseController_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
@@ -1545,6 +1633,18 @@ for service in services.keys():
     with open(
             "./vs2019/module/{}Service.cs".format(service), "w", encoding="utf-8"
             ) as wf:
+        code = template_module_Service_cs
+        code = code.replace("{{org}}", org_name)
+        code = code.replace("{{mod}}", mod_name)
+        code = code.replace("{{service}}", service)
+        wf.write(code)
+        wf.close()
+
+# 生成BaseService.cs文件
+for service in services.keys():
+    with open(
+            "./vs2019/module/{}BaseService.cs".format(service), "w", encoding="utf-8"
+            ) as wf:
         template_method = r"""
         public void Post{{rpc}}(Proto.{{req}} _request)
         {
@@ -1591,7 +1691,7 @@ for service in services.keys():
                         field_name,
                         )
             rpc_block = rpc_block.replace("{{assign}}", assign_block)
-        code = template_module_Service_cs
+        code = template_module_BaseService_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)

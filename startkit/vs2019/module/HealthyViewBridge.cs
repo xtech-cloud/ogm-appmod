@@ -4,10 +4,10 @@ using XTC.oelMVCS;
 
 namespace ogm.startkit
 {
-    public class MyHealthyViewBridge : IMyHealthyViewBridge
+    public class HealthyViewBridge : IHealthyViewBridge
     {
-        public MyHealthyView view{ get; set; }
-        public MyHealthyService service{ get; set; }
+        public HealthyView view{ get; set; }
+        public HealthyService service{ get; set; }
 
 
         public void OnEchoSubmit(string _msg)
