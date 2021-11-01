@@ -6,5 +6,7 @@ namespace ogm.actor
     {
         object getRootPanel();
         void Alert(string _message);
+
+        void RefreshList(string _reply);
     }
 }

@@ -1,4 +1,3 @@
-
 <UserControl x:Class="ogm.actor.DeviceControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -19,17 +18,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel>
-        <ListView ItemsSource="{Binding DeviceList}" Margin="24">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="80" Header="名称" DisplayMemberBinding="{Binding name}"/>
-                    <GridViewColumn Width="80" Header="序列号" DisplayMemberBinding="{Binding serialNumber}"/>
-                    <GridViewColumn Width="100" Header="操作系统" DisplayMemberBinding="{Binding operatingSystem}"/>
-                    <GridViewColumn Width="200" Header="系统版本" DisplayMemberBinding="{Binding systemVersion}"/>
-                    <GridViewColumn Width="200" Header="形态" DisplayMemberBinding="{Binding shape}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-    </StackPanel>
+    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+        <StackPanel>
+            <ListView ItemsSource="{Binding DeviceList}" Margin="24">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="80" Header="名称" DisplayMemberBinding="{Binding name}"/>
+                        <GridViewColumn Width="80" Header="序列号" DisplayMemberBinding="{Binding serialNumber}"/>
+                        <GridViewColumn Width="100" Header="操作系统" DisplayMemberBinding="{Binding operatingSystem}"/>
+                        <GridViewColumn Width="200" Header="系统版本" DisplayMemberBinding="{Binding systemVersion}"/>
+                        <GridViewColumn Width="200" Header="形态" DisplayMemberBinding="{Binding shape}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Border>
 </UserControl>

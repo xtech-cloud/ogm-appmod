@@ -12,14 +12,6 @@ namespace ogm.actor
         }
         public const string NAME = "ogm.actor.DeviceModel";
 
-        private DeviceController controller_ { get; set; }
-
-        protected override void setup()
-        {
-            base.setup();
-            controller_ = findController(DeviceController.NAME) as DeviceController;
-        }
-
         public void SaveList(Proto.DeviceListResponse _rsp) 
         {
             if(_rsp._status._code.AsInt32() != 0)
