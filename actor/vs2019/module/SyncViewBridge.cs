@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace ogm.actor
@@ -10,22 +11,20 @@ namespace ogm.actor
         public SyncService service{ get; set; }
 
 
-        public void OnPushSubmit(string _domain, DeviceEntity _device, Dictionary<string, string> _upProperty, Dictionary<string, string> _downProperty)
+        public void OnPushSubmit(string _json)
         {
-            Proto.SyncPushRequest req = new Proto.SyncPushRequest();
-            req._domain = Any.FromString(_domain);
-            req._upProperty = Any.FromStringMap(_upProperty);
-            req._downProperty = Any.FromStringMap(_downProperty);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.SyncPushRequest>(_json, options);
             service.PostPush(req);
         }
         
 
-        public void OnPullSubmit(string _domain)
+        public void OnPullSubmit(string _json)
         {
-            Proto.SyncPullRequest req = new Proto.SyncPullRequest();
-            req._domain = Any.FromString(_domain);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.SyncPullRequest>(_json, options);
             service.PostPull(req);
         }
         

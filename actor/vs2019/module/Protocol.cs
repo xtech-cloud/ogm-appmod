@@ -213,7 +213,7 @@ namespace ogm.actor.Proto
                 _domain = Any.FromString("");
                 _device = new DeviceEntity();
                 _upProperty = new Dictionary<string, string>();
-                _downProperty = new Dictionary<string, string>();
+                _downProperty = Any.FromStringAry(new string[0]);
 
             }
             [JsonPropertyName("domain")]
@@ -223,7 +223,7 @@ namespace ogm.actor.Proto
             [JsonPropertyName("upProperty")]
             public Dictionary<string, string> _upProperty {get;set;}
             [JsonPropertyName("downProperty")]
-            public Dictionary<string, string> _downProperty {get;set;}
+            public Any _downProperty {get;set;}
 
         }
     
@@ -253,10 +253,13 @@ namespace ogm.actor.Proto
             public SyncPullRequest()
             {
                 _domain = Any.FromString("");
+                _downProperty = Any.FromStringAry(new string[0]);
 
             }
             [JsonPropertyName("domain")]
             public Any _domain {get;set;}
+            [JsonPropertyName("downProperty")]
+            public Any _downProperty {get;set;}
 
         }
     
@@ -265,14 +268,14 @@ namespace ogm.actor.Proto
             public SyncPullResponse()
             {
                 _status = new Status();
-                _device = Any.FromStringAry(new string[0]);
+                _device = new DeviceEntity[0];
                 _property = new Dictionary<string, string>();
 
             }
             [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("device")]
-            public Any _device {get;set;}
+            public DeviceEntity[] _device {get;set;}
             [JsonPropertyName("property")]
             public Dictionary<string, string> _property {get;set;}
 

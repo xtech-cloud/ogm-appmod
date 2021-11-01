@@ -7,7 +7,7 @@ namespace ogm.actor
     public class DomainBaseModel : Model
     {
 
-        public class DomainStatus : Model.Status
+        public class DomainBaseStatus : Model.Status
         {
             public const string NAME = "ogm.actor.DomainStatus";
         }
@@ -18,7 +18,7 @@ namespace ogm.actor
         {
             controller = findController(DomainController.NAME) as DomainController;
             Error err;
-            status_ = spawnStatus<DomainStatus>(DomainStatus.NAME, out err);
+            status_ = spawnStatus<DomainModel.DomainStatus>(DomainModel.DomainStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
@@ -37,18 +37,18 @@ namespace ogm.actor
         protected override void preDismantle()
         {
             Error err;
-            killStatus(DomainStatus.NAME, out err);
+            killStatus(DomainModel.DomainStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
         }
 
-        protected DomainStatus status
+        protected DomainModel.DomainStatus status
         {
             get
             {
-                return status_ as DomainStatus;
+                return status_ as DomainModel.DomainStatus;
             }
         }
     }

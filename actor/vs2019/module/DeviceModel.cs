@@ -6,6 +6,13 @@ namespace ogm.actor
 {
     public class DeviceModel : DeviceBaseModel
     {
+        public class DeviceStatus : DeviceBaseStatus
+        {
+        }
         public const string NAME = "ogm.actor.DeviceModel";
+
+        public void SaveList(Proto.DeviceListResponse _rsp) { }
+
+
     }
 }

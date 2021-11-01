@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace ogm.actor
@@ -10,42 +11,38 @@ namespace ogm.actor
         public DomainService service{ get; set; }
 
 
-        public void OnCreateSubmit(string _name)
+        public void OnCreateSubmit(string _json)
         {
-            Proto.DomainCreateRequest req = new Proto.DomainCreateRequest();
-            req._name = Any.FromString(_name);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainCreateRequest>(_json, options);
             service.PostCreate(req);
         }
         
 
-        public void OnDeleteSubmit(string _uuid)
+        public void OnDeleteSubmit(string _json)
         {
-            Proto.DomainDeleteRequest req = new Proto.DomainDeleteRequest();
-            req._uuid = Any.FromString(_uuid);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainDeleteRequest>(_json, options);
             service.PostDelete(req);
         }
         
 
-        public void OnListSubmit(long _offset, long _count)
+        public void OnListSubmit(string _json)
         {
-            Proto.ListRequest req = new Proto.ListRequest();
-            req._offset = Any.FromInt64(_offset);
-            req._count = Any.FromInt64(_count);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.ListRequest>(_json, options);
             service.PostList(req);
         }
         
 
-        public void OnExecuteSubmit(string _uuid, string _command, string[] _device, string _parameter)
+        public void OnExecuteSubmit(string _json)
         {
-            Proto.DomainExecuteRequest req = new Proto.DomainExecuteRequest();
-            req._uuid = Any.FromString(_uuid);
-            req._command = Any.FromString(_command);
-            req._device = Any.FromStringAry(_device);
-            req._parameter = Any.FromString(_parameter);
-
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainExecuteRequest>(_json, options);
             service.PostExecute(req);
         }
         

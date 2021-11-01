@@ -7,7 +7,7 @@ namespace ogm.actor
     public class DeviceBaseModel : Model
     {
 
-        public class DeviceStatus : Model.Status
+        public class DeviceBaseStatus : Model.Status
         {
             public const string NAME = "ogm.actor.DeviceStatus";
         }
@@ -18,7 +18,7 @@ namespace ogm.actor
         {
             controller = findController(DeviceController.NAME) as DeviceController;
             Error err;
-            status_ = spawnStatus<DeviceStatus>(DeviceStatus.NAME, out err);
+            status_ = spawnStatus<DeviceModel.DeviceStatus>(DeviceModel.DeviceStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
@@ -37,18 +37,18 @@ namespace ogm.actor
         protected override void preDismantle()
         {
             Error err;
-            killStatus(DeviceStatus.NAME, out err);
+            killStatus(DeviceModel.DeviceStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
         }
 
-        protected DeviceStatus status
+        protected DeviceModel.DeviceStatus status
         {
             get
             {
-                return status_ as DeviceStatus;
+                return status_ as DeviceModel.DeviceStatus;
             }
         }
     }

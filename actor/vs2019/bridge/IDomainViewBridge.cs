@@ -5,10 +5,10 @@ namespace ogm.actor
 {
     public interface IDomainViewBridge : View.Facade.Bridge
     {
-        void OnCreateSubmit(string _name);
-        void OnDeleteSubmit(string _uuid);
-        void OnListSubmit(long _offset, long _count);
-        void OnExecuteSubmit(string _uuid, string _command, string[] _device, string _parameter);
+        void OnCreateSubmit(string _json);
+        void OnDeleteSubmit(string _json);
+        void OnListSubmit(string _json);
+        void OnExecuteSubmit(string _json);
 
     }
 }

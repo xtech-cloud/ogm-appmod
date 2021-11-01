@@ -5,8 +5,8 @@ namespace ogm.actor
 {
     public interface ISyncViewBridge : View.Facade.Bridge
     {
-        void OnPushSubmit(string _domain, DeviceEntity _device, Dictionary<string,string> _upProperty, Dictionary<string,string> _downProperty);
-        void OnPullSubmit(string _domain);
+        void OnPushSubmit(string _json);
+        void OnPullSubmit(string _json);
 
     }
 }

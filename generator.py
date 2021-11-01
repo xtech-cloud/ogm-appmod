@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Tuple
 
 """
-ver 1.7.1
+ver 1.10.0
 """
 
 
@@ -718,7 +718,13 @@ namespace {{org}}.{{mod}}
 {
     public class {{service}}Model : {{service}}BaseModel
     {
+        public class {{service}}Status : {{service}}BaseStatus
+        {
+        }
         public const string NAME = "{{org}}.{{mod}}.{{service}}Model";
+
+{{rpc}}
+
     }
 }
 """
@@ -732,7 +738,7 @@ namespace {{org}}.{{mod}}
     public class {{service}}BaseModel : Model
     {
 
-        public class {{service}}Status : Model.Status
+        public class {{service}}BaseStatus : Model.Status
         {
             public const string NAME = "{{org}}.{{mod}}.{{service}}Status";
         }
@@ -743,7 +749,7 @@ namespace {{org}}.{{mod}}
         {
             controller = findController({{service}}Controller.NAME) as {{service}}Controller;
             Error err;
-            status_ = spawnStatus<{{service}}Status>({{service}}Status.NAME, out err);
+            status_ = spawnStatus<{{service}}Model.{{service}}Status>({{service}}Model.{{service}}Status.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
@@ -762,18 +768,18 @@ namespace {{org}}.{{mod}}
         protected override void preDismantle()
         {
             Error err;
-            killStatus({{service}}Status.NAME, out err);
+            killStatus({{service}}Model.{{service}}Status.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
         }
 
-        protected {{service}}Status status
+        protected {{service}}Model.{{service}}Status status
         {
             get
             {
-                return status_ as {{service}}Status;
+                return status_ as {{service}}Model.{{service}}Status;
             }
         }
     }
@@ -883,6 +889,7 @@ namespace {{org}}.{{mod}}
 
 template_module_ViewBridge_cs = r"""
 using System.Collections.Generic;
+using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace {{org}}.{{mod}}
@@ -1380,29 +1387,11 @@ for service in services.keys():
     with open(
             "./vs2019/bridge/I{}ViewBridge.cs".format(service), "w", encoding="utf-8"
             ) as wf:
-        template_method = r"        void On{{rpc}}Submit({{args}});"
+        template_method = r"        void On{{rpc}}Submit(string _json);"
         rpc_block = ""
         for rpc_name in services[service].keys():
             rpc = template_method.replace("{{rpc}}", rpc_name)
             rpc_block = rpc_block + str.format("{}\n", rpc)
-            req_name = services[service][rpc_name][0]
-            args_block = ""
-            for field in messages[req_name]:
-                field_name = field[0]
-                field_type = field[1]
-                # 转换枚举类型
-                if field_type in enums:
-                    field_type = "enum"
-                # 转换类型
-                if field_type.endswith('<>'):
-                    field_type =  str.format('Dictionary<string,{}>', field_type[:-2])
-                if field_type in type_dict.keys():
-                    field_type = type_dict[field_type]
-                args_block = args_block + str.format("{} _{}, ", field_type, field_name)
-            # 移除末尾的 ', '
-            if len(args_block) > 0:
-                args_block = args_block[0:-2]
-            rpc_block = rpc_block.replace("{{args}}", args_block)
         code = templete_bridge_view_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
@@ -1480,10 +1469,17 @@ for service in services.keys():
     with open(
             "./vs2019/module/{}Model.cs".format(service), "w", encoding="utf-8"
             ) as wf:
+        template_method = r"        public void Save{{rpc}}(Proto.{{rsp}} _rsp) { }"
+        rpc_block = ""
+        for rpc_name in services[service].keys():
+            rpc = template_method.replace("{{rpc}}", rpc_name)
+            rpc = rpc.replace("{{rsp}}", services[service][rpc_name][1])
+            rpc_block = rpc_block + str.format("{}\n", rpc)
         code = template_module_Model_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
         code = code.replace("{{service}}", service)
+        code = code.replace("{{rpc}}", rpc_block)
         wf.write(code)
         wf.close()
 
@@ -1573,10 +1569,11 @@ for service in services.keys():
             "./vs2019/module/{}ViewBridge.cs".format(service), "w", encoding="utf-8"
             ) as wf:
         template_method = r"""
-        public void On{{rpc}}Submit({{args}})
+        public void On{{rpc}}Submit(string _json)
         {
-            Proto.{{req}} req = new Proto.{{req}}();
-{{assign}}
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.{{req}}>(_json, options);
             service.Post{{rpc}}(req);
         }
         """
@@ -1586,39 +1583,6 @@ for service in services.keys():
             rpc = template_method.replace("{{rpc}}", rpc_name)
             rpc = rpc.replace("{{req}}", req_name)
             rpc_block = rpc_block + str.format("{}\n", rpc)
-            args_block = ""
-            assign_block = ""
-            for field in messages[req_name]:
-                field_name = field[0]
-                field_type = field[1]
-                # 转换枚举类型
-                if field_type in enums:
-                    field_type = "enum"
-                # 转换类型
-                if field_type in type_dict.keys():
-                    field_type = type_dict[field_type]
-                if field_type.endswith('<>'):
-                    args_block = args_block + str.format("Dictionary<string, {}> _{}, ", field_type[:-2], field_name)
-                else:
-                    args_block = args_block + str.format("{} _{}, ", field_type, field_name)
-
-                if field_type.endswith('<>'):
-                    assign_block = assign_block + str.format(
-                            "            req._{} = Any.From{}Map(_{});\n", field_name, field_type[:-2].title(), field_name
-                        )
-                elif field_type.endswith('[]'):
-                    assign_block = assign_block + str.format(
-                            "            req._{} = Any.From{}Ary(_{});\n", field_name, field_type[:-2].title(), field_name
-                        )
-                elif field_type in type_dict.values():
-                    assign_block = assign_block + str.format(
-                        "            req._{} = Any.From{}(_{});\n", field_name, type_to_any[field_type].title(), field_name
-                        )
-            # 移除末尾的 ', '
-            if len(args_block) > 0:
-                args_block = args_block[0:-2]
-            rpc_block = rpc_block.replace("{{args}}", args_block)
-            rpc_block = rpc_block.replace("{{assign}}", assign_block)
         code = template_module_ViewBridge_cs
         code = code.replace("{{org}}", org_name)
         code = code.replace("{{mod}}", mod_name)
@@ -1650,13 +1614,12 @@ for service in services.keys():
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
 {{assign}}
-            post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/{{org}}/{{mod}}/{{service}}/{{rpc}}", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.{{rsp}}>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/{{org}}/{{mod}}/{{service}}/{{rpc}}", reply);
+                model.Save{{rpc}}(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

@@ -25,14 +25,14 @@ namespace ogm.actor
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["domain"] = _request._domain;
+            paramMap["downProperty"] = _request._downProperty;
 
-            post(string.Format("{0}/ogm/actor/Sync/Push", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Sync/Push", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.SyncPushResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Sync/Push", reply);
+                model.SavePush(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -44,14 +44,14 @@ namespace ogm.actor
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["domain"] = _request._domain;
+            paramMap["downProperty"] = _request._downProperty;
 
-            post(string.Format("{0}/ogm/actor/Sync/Pull", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Sync/Pull", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.SyncPullResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Sync/Pull", reply);
+                model.SavePull(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

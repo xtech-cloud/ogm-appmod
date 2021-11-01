@@ -26,13 +26,12 @@ namespace ogm.actor
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["name"] = _request._name;
 
-            post(string.Format("{0}/ogm/actor/Domain/Create", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Domain/Create", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Domain/Create", reply);
+                model.SaveCreate(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -45,13 +44,12 @@ namespace ogm.actor
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = _request._uuid;
 
-            post(string.Format("{0}/ogm/actor/Domain/Delete", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Domain/Delete", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Domain/Delete", reply);
+                model.SaveDelete(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -65,13 +63,12 @@ namespace ogm.actor
             paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
 
-            post(string.Format("{0}/ogm/actor/Domain/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Domain/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.DomainListResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Domain/List", reply);
+                model.SaveList(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
@@ -87,13 +84,12 @@ namespace ogm.actor
             paramMap["device"] = _request._device;
             paramMap["parameter"] = _request._parameter;
 
-            post(string.Format("{0}/ogm/actor/Domain/Execute", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Domain/Execute", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Domain/Execute", reply);
+                model.SaveExecute(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

@@ -27,13 +27,12 @@ namespace ogm.actor
             paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
 
-            post(string.Format("{0}/ogm/actor/Device/List", getConfig()["domain"].AsString()), paramMap, (_reply) =>
+            post(string.Format("{0}/ogm/actor/Device/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.DeviceListResponse>(_reply, options);
-                Model.Status reply = Model.Status.New<Model.Status>(rsp._status._code.AsInt32(), rsp._status._message.AsString());
-                model.Broadcast("/ogm/actor/Device/List", reply);
+                model.SaveList(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

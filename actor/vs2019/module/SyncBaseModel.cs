@@ -7,7 +7,7 @@ namespace ogm.actor
     public class SyncBaseModel : Model
     {
 
-        public class SyncStatus : Model.Status
+        public class SyncBaseStatus : Model.Status
         {
             public const string NAME = "ogm.actor.SyncStatus";
         }
@@ -18,7 +18,7 @@ namespace ogm.actor
         {
             controller = findController(SyncController.NAME) as SyncController;
             Error err;
-            status_ = spawnStatus<SyncStatus>(SyncStatus.NAME, out err);
+            status_ = spawnStatus<SyncModel.SyncStatus>(SyncModel.SyncStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
@@ -37,18 +37,18 @@ namespace ogm.actor
         protected override void preDismantle()
         {
             Error err;
-            killStatus(SyncStatus.NAME, out err);
+            killStatus(SyncModel.SyncStatus.NAME, out err);
             if(0 != err.getCode())
             {
                 getLogger().Error(err.getMessage());
             }
         }
 
-        protected SyncStatus status
+        protected SyncModel.SyncStatus status
         {
             get
             {
-                return status_ as SyncStatus;
+                return status_ as SyncModel.SyncStatus;
             }
         }
     }
