@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "proto/actor/shared.proto";
+
+package actor;
+option go_package = "proto/actor;actor";
+
+// 设备
+service Device
+{
+    // 列举
+    rpc List(ListRequest) returns (DeviceListResponse) { }
+}
+
+// 列举的回复
+message DeviceListResponse
+{
+    Status status = 1;                // 状态
+    int64 total = 2;                  // 总数
+    repeated DeviceEntity device = 3; // 设备实体
+}
