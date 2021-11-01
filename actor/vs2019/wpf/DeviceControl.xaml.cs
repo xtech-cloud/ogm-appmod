@@ -1,10 +1,11 @@
 
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Windows.Controls;
 
 namespace ogm.actor
 {
-    public partial class DeviceControl: UserControl
+    public partial class DeviceControl : UserControl
     {
         public class DeviceUiBridge : IDeviceUiBridge
         {
@@ -18,16 +19,27 @@ namespace ogm.actor
             public void Alert(string _message)
             {
             }
+
+            public void RefreshList(string _reply)
+            {
+                control.DeviceList.Clear();
+                DeviceEntity[] deviceList = JsonSerializer.Deserialize<DeviceEntity[]>(_reply);
+                foreach (var entity in deviceList)
+                {
+                    control.DeviceList.Add(entity);
+                }
+            }
         }
 
         public DeviceFacade facade { get; set; }
 
         public class DeviceEntity
         {
-            public string Name { get; set; }
-            public string OS { get; set; }
-            public string Ver { get; set; }
-            public string Shape { get; set; }
+            public string serialNumber{ get; set; }
+            public string name { get; set; }
+            public string operatingSystem{ get; set; }
+            public string systemVersion{ get; set; }
+            public string shape{ get; set; }
         }
         public ObservableCollection<DeviceEntity> DeviceList { get; set; }
 
@@ -35,9 +47,6 @@ namespace ogm.actor
         {
             DeviceList = new ObservableCollection<DeviceEntity>();
             InitializeComponent();
-            DeviceEntity entity = new DeviceEntity();
-            entity.Name = "sdsd";
-            DeviceList.Add(entity);
         }
     }
 }
