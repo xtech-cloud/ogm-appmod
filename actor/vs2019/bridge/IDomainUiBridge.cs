@@ -8,5 +8,6 @@ namespace ogm.actor
         void Alert(string _message);
 
         void RefreshList(string _reply);
+        void RefreshFetchDevice(string _reply);
     }
 }

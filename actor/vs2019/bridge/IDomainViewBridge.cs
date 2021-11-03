@@ -9,6 +9,8 @@ namespace ogm.actor
         void OnDeleteSubmit(string _json);
         void OnListSubmit(string _json);
         void OnExecuteSubmit(string _json);
+        void OnFetchDeviceSubmit(string _json);
+        void OnEditDeviceSubmit(string _json);
 
     }
 }

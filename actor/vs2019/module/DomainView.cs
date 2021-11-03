@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json;
 using XTC.oelMVCS;
 
@@ -12,7 +13,8 @@ namespace ogm.actor
             base.setup();
 
             addRouter("/sidemenu/tab/activated", this.handleTabActivated);
-            addObserver(DomainModel.NAME, "/reply/domain/list", this.receiveDomainList);
+            addObserver(DomainModel.NAME, "/reply/Domain/List", this.receiveList);
+            addObserver(DomainModel.NAME, "/reply/Domain/FetchDevice", this.receiveFetchDevice);
         }
 
         private void handleTabActivated(Model.Status _status, object _data)
@@ -28,7 +30,7 @@ namespace ogm.actor
             bridge.service.PostList(req);
         }
 
-        private void receiveDomainList(Model.Status _status, object _data)
+        private void receiveList(Model.Status _status, object _data)
         {
             DomainModel.DomainStatus status = _status as DomainModel.DomainStatus;
             if(null == status)
@@ -41,6 +43,25 @@ namespace ogm.actor
             options.Converters.Add(new AnyProtoConverter());
             var json = JsonSerializer.Serialize(status.domainList, options);
             bridge.RefreshList(json);
+        }
+
+        private void receiveFetchDevice(Model.Status _status, object _data)
+        {
+            DomainModel.DomainStatus status = _status as DomainModel.DomainStatus;
+            if (null == status)
+            {
+                getLogger().Error("status [DomainModel.DomainStatus] is null");
+                return;
+            }
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["device"] = status.deviceList;
+            param["access"] = status.accessList;
+            param["alias"] = status.aliasListt;
+            var bridge = facade.getUiBridge() as IDomainUiBridge;
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var json = JsonSerializer.Serialize(param, options);
+            bridge.RefreshFetchDevice(json);
         }
     }
 }

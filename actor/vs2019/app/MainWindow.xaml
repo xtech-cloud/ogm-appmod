@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:app"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource self}}"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="900" Width="1440">
 
     <DockPanel>
         <ListBox x:Name="lbPages" Margin="12" Width="200" DockPanel.Dock="Left" SelectionChanged="lbPages_Selected">

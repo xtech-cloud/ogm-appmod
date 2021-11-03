@@ -47,6 +47,24 @@ namespace ogm.actor
         }
         
 
+        public void OnFetchDeviceSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainFetchDeviceRequest>(_json, options);
+            service.PostFetchDevice(req);
+        }
+        
+
+        public void OnEditDeviceSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainEditDeviceRequest>(_json, options);
+            service.PostEditDevice(req);
+        }
+        
+
 
     }
 }

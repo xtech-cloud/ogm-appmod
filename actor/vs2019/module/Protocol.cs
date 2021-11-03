@@ -89,6 +89,72 @@ namespace ogm.actor.Proto
 
         }
     
+        public class DomainFetchDeviceRequest
+        {
+            public DomainFetchDeviceRequest()
+            {
+                _uuid = Any.FromString("");
+                _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _filter = new Dictionary<string, string>();
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("filter")]
+            public Dictionary<string, string> _filter {get;set;}
+
+        }
+    
+        public class DomainFetchDeviceResponse
+        {
+            public DomainFetchDeviceResponse()
+            {
+                _status = new Status();
+                _total = Any.FromInt64(0);
+                _device = new DeviceEntity[0];
+                _access = new Dictionary<string, int>();
+                _alias = new Dictionary<string, string>();
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("device")]
+            public DeviceEntity[] _device {get;set;}
+            [JsonPropertyName("access")]
+            public Dictionary<string, int> _access {get;set;}
+            [JsonPropertyName("alias")]
+            public Dictionary<string, string> _alias {get;set;}
+
+        }
+    
+        public class DomainEditDeviceRequest
+        {
+            public DomainEditDeviceRequest()
+            {
+                _uuid = Any.FromString("");
+                _device = Any.FromString("");
+                _access = Any.FromInt32(0);
+                _alias = Any.FromString("");
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("device")]
+            public Any _device {get;set;}
+            [JsonPropertyName("access")]
+            public Any _access {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
+
+        }
+    
         public class Status
         {
             public Status()
@@ -131,12 +197,15 @@ namespace ogm.actor.Proto
             {
                 _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
+                _filter = new Dictionary<string, string>();
 
             }
             [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
+            [JsonPropertyName("filter")]
+            public Dictionary<string, string> _filter {get;set;}
 
         }
     
@@ -159,6 +228,7 @@ namespace ogm.actor.Proto
         {
             public DeviceEntity()
             {
+                _uuid = Any.FromString("");
                 _serialNumber = Any.FromString("");
                 _name = Any.FromString("");
                 _operatingSystem = Any.FromString("");
@@ -175,6 +245,8 @@ namespace ogm.actor.Proto
                 _program = new Dictionary<string, string>();
 
             }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
             [JsonPropertyName("serialNumber")]
             public Any _serialNumber {get;set;}
             [JsonPropertyName("name")]

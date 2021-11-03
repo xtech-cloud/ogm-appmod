@@ -19,12 +19,92 @@
     </UserControl.Resources>
 
     <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-        <StackPanel Margin="24">
-            <hc:SimplePanel>
-                <ComboBox Name="cbDomainList" Width="380" hc:InfoElement.TitleWidth="32" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="域" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Left"/>
+        <DockPanel Margin="24">
+            <hc:SimplePanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox Name="cbDomainList" Width="380" hc:InfoElement.TitleWidth="32" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="域" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Left" SelectionChanged="onDomainSelectionChanged"/>
+                    <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource RefreshGeometry}" Click="onRefreshCliked"/>
+                </StackPanel>
                 <Button Content="创建"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onCreateClicked" />
             </hc:SimplePanel>
-            <hc:Divider/>
-        </StackPanel>
+            <hc:Divider DockPanel.Dock="Top"/>
+            <TabControl Style="{StaticResource TabControlInLine}">
+                <TabItem Header="设备列表">
+                    <DockPanel Margin="0,24,0,0">
+                        <hc:UniformSpacingPanel Name="formEditDevice" Spacing="24" Orientation="Vertical" Width="240" Margin="0,0,24,0">
+                            <Border Style="{StaticResource BorderTipPrimary}">
+                                <TextBlock Text="编辑设备"/>
+                            </Border>
+                            <TextBox Name="tbEditAlias" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="别名" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                            <ComboBox Name="cbEditAccess" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="访问权限" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch">
+                                <ComboBoxItem Content="未处理"></ComboBoxItem>
+                                <ComboBoxItem Content="允许"></ComboBoxItem>
+                                <ComboBoxItem Content="拒绝"></ComboBoxItem>
+                            </ComboBox>
+                            <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                                <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onEditSubmitClicked" />
+                                <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onEditCancelClicked" />
+                            </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
+
+                        <DataGrid Name="dgDeviceList" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onDeviceSelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDeviceClicked"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding alias}" Header="别名" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding serialNumber}" Header="序列号" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding battery}" Header="电量" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding storageAvailable}" Header="存储" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding networkStrength}" Header="网络" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding shape}" Header="形态" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Width="80" CanUserResize="False" Header="访问权限">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="未处理" Style="{StaticResource LabelWarning}" Visibility="{Binding _waitVisibility}"/>
+                                                <Label Content="允许" Style="{StaticResource LabelSuccess}" Visibility="{Binding _acceptVisibility}"/>
+                                                <Label Content="拒绝" Style="{StaticResource LabelDanger}" Visibility="{Binding _rejectVisibility}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--/
+                            <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
+                            -->
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="设备画面">
+                    <ListBox BorderThickness="0" Style="{StaticResource WrapPanelHorizontalListBox}" ItemsSource="{Binding DeviceList}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="local:DeviceEntity">
+                                <hc:Card MaxWidth="240" BorderThickness="0" Effect="{StaticResource EffectShadow2}" Margin="8" Footer="{Binding}">
+                                    <Border CornerRadius="4,4,0,0" Style="{StaticResource BorderClip}">
+                                        <hc:SimplePanel Width="240" Height="240">
+                                            <Image Width="240" Height="240" Source="" Stretch="Uniform"/>
+                                        </hc:SimplePanel>
+                                    </Border>
+                                    <hc:Card.FooterTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="10">
+                                                <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockLargeBold}" Text="{Binding alias}" HorizontalAlignment="Left"/>
+                                                <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockDefault}" Text="{Binding serialNumber}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </hc:Card.FooterTemplate>
+                                </hc:Card>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
     </Border>
 </UserControl>

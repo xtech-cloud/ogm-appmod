@@ -2,6 +2,7 @@
 using System.Windows;
 using XTC.oelMVCS;
 using ogm.actor;
+using System.IO;
 
 namespace app
 {
@@ -32,6 +33,10 @@ namespace app
         {
             logger_ = new ConsoleLogger();
             config_ = new AppConfig();
+            if(File.Exists("config.json"))
+            {
+                config_.Merge(File.ReadAllText("config.json"));
+            }
 
             MainWindow mainWindow = new MainWindow();
             this.MainWindow = mainWindow;

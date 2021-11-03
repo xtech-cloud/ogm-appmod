@@ -97,6 +97,47 @@ namespace ogm.actor
         }
         
 
+        public void PostFetchDevice(Proto.DomainFetchDeviceRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+            //paramMap["offset"] = _request._offset;
+            //paramMap["count"] = _request._count;
+
+            post(string.Format("{0}/ogm/actor/Domain/FetchDevice", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DomainFetchDeviceResponse>(_reply, options);
+                model.SaveFetchDevice(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
+        public void PostEditDevice(Proto.DomainEditDeviceRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+            paramMap["device"] = _request._device;
+            paramMap["access"] = _request._access;
+            paramMap["alias"] = _request._alias;
+
+            post(string.Format("{0}/ogm/actor/Domain/EditDevice", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                model.SaveEditDevice(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
 
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
