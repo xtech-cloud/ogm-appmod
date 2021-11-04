@@ -1,20 +1,17 @@
-using System.Windows;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Controls;
-using HandyControl.Controls;
-using System.Linq;
 
 namespace ogm.actor
 {
     public partial class DomainControl : UserControl
     {
-        public class FetchDeviceReply
+        public class DomainEntity
         {
-            public DeviceEntity[] device { get; set; }
-            public Dictionary<string, string> alias { get; set; }
-            public Dictionary<string, int> access { get; set; }
+            public string uuid { get; set; }
+            public string name { get; set; }
         }
 
         public class DomainUiBridge : IDomainUiBridge
@@ -32,91 +29,78 @@ namespace ogm.actor
 
             public void RefreshList(string _reply)
             {
-                control.cbDomainList.Items.Clear();
-                DomainEntity[] domainList = JsonSerializer.Deserialize<DomainEntity[]>(_reply);
-                foreach (var entity in domainList)
+                control.DomainList.Clear();
+                var list = JsonSerializer.Deserialize<DomainEntity[]>(_reply);
+                foreach (var e in list)
                 {
-                    var item = new ComboBoxItem();
-                    item.Content = entity.name;
-                    item.Uid = entity.uuid;
-                    control.cbDomainList.Items.Add(item);
+                    control.DomainList.Add(e);
                 }
-                if (control.cbDomainList.Items.Count > 0)
-                    control.cbDomainList.SelectedIndex = 0;
             }
 
             public void RefreshFetchDevice(string _reply)
             {
-                FetchDeviceReply reply = JsonSerializer.Deserialize<FetchDeviceReply>(_reply);
-                foreach (var e in reply.device)
-                {
-                    DeviceEntity entity = e;
-                    int access;
-                    reply.access.TryGetValue(e.uuid, out access);
-                    entity.access = access;
-                    string alias;
-                    reply.alias.TryGetValue(e.uuid, out alias);
-                    entity.alias = alias;
-                    if (string.IsNullOrEmpty(entity.alias))
-                        entity.alias = entity.name;
-                    control.DeviceList.Add(entity);
-
-                    entity._waitVisibility = entity.access == 0 ? Visibility.Visible : Visibility.Collapsed;
-                    entity._acceptVisibility = entity.access == 1 ? Visibility.Visible : Visibility.Collapsed;
-                    entity._rejectVisibility = entity.access == 2 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
             }
         }
 
-        public class DeviceEntity
-        {
-            public string uuid { get; set; }
-            public string serialNumber { get; set; }
-            public string name { get; set; }
-            public string operationSystem { get; set; }
-            public string systemVersion { get; set; }
-            public string shape { get; set; }
-            public int battery { get; set; }
-            public int volume { get; set; }
-            public int brightness { get; set; }
-            public string storage { get; set; }
-            public long storageBlocks { get; set; }
-            public long storageAvailable { get; set; }
-            public string network { get; set; }
-            public int networkStrength { get; set; }
-            public Dictionary<string, string> program { get; set; }
-            public int access { get; set; }
-            public string alias { get; set; }
-
-            public Visibility _acceptVisibility { get; set; }
-            public Visibility _rejectVisibility { get; set; }
-            public Visibility _waitVisibility { get; set; }
-        }
-
-        public class DomainEntity
-        {
-            public string uuid { get; set; }
-            public string name { get; set; }
-        }
-
-
         public DomainFacade facade { get; set; }
-        public ObservableCollection<DeviceEntity> DeviceList { get; set; }
+        public ObservableCollection<DomainEntity> DomainList { get; set; }
 
         public DomainControl()
         {
-            DeviceList = new ObservableCollection<DeviceEntity>();
+            DomainList = new ObservableCollection<DomainEntity>();
             InitializeComponent();
-            formEditDevice.Visibility = Visibility.Collapsed;
+            formEditDomain.Visibility = Visibility.Collapsed;
+            formNewDomain.Visibility = Visibility.Collapsed;
         }
 
-        private void onCreateClicked(object sender, System.Windows.RoutedEventArgs e)
+        private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
 
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            param["name"] = tbEditName.Text;
+
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            string json = JsonSerializer.Serialize(param);
+            //bridge.OnUp(json);
         }
 
-        private void onRefreshCliked(object sender, System.Windows.RoutedEventArgs e)
+        private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formEditDomain.Visibility = Visibility.Collapsed;
+        }
+
+        private void onDomainSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            formNewDomain.Visibility = Visibility.Collapsed;
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+
+            //tbEditName.Text = item.alias;
+        }
+
+        private void onEditDomainClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+            formEditDomain.Visibility = Visibility.Visible;
+            formNewDomain.Visibility = Visibility.Collapsed;
+
+            tbEditName.Text = item.name;
+        }
+
+        private void onCreateClicked(object sender, RoutedEventArgs e)
+        {
+            formNewDomain.Visibility = Visibility.Visible;
+            formEditDomain.Visibility = Visibility.Collapsed;
+        }
+
+        private void onRefreshCliked(object sender, RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDomainViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
@@ -126,65 +110,25 @@ namespace ogm.actor
             bridge.OnListSubmit(json);
         }
 
-        private void onDomainSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void onSearchClicked(object sender, RoutedEventArgs e)
         {
             var bridge = facade.getViewBridge() as IDomainViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
-            ComboBoxItem item = cbDomainList.SelectedItem as ComboBoxItem;
-            if (null == item)
-                return;
-            param["uuid"] = item.Uid;
             param["offset"] = 0;
             param["count"] = int.MaxValue;
             string json = JsonSerializer.Serialize(param);
-            bridge.OnFetchDeviceSubmit(json);
+            bridge.OnListSubmit(json);
         }
 
-        private void onEditDeviceClicked(object sender, RoutedEventArgs e)
+        private void onNewSubmitClicked(object sender, RoutedEventArgs e)
         {
-            var item = dgDeviceList.SelectedItem;
-            if (null == item)
-                return;
-            formEditDevice.Visibility = Visibility.Visible;
+            formEditDomain.Visibility = Visibility.Collapsed;
+            formNewDomain.Visibility = Visibility.Visible;
         }
 
-        private void onDeviceSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void onNewCancelClicked(object sender, RoutedEventArgs e)
         {
-            var item = dgDeviceList.SelectedItem as DeviceEntity;
-            if (null == item)
-                return;
-
-            tbEditAlias.Text = item.alias;
-            //0:Î´´¦Àí 1: ÔÊÐí£¬2£º¾Ü¾ø
-            cbEditAccess.SelectedIndex = item.access;
-        }
-
-        private void onEditSubmitClicked(object sender, RoutedEventArgs e)
-        {
-            var itemDomain = cbDomainList.SelectedItem as ComboBoxItem;
-            if (null == itemDomain)
-                return;
-            var itemDevice = dgDeviceList.SelectedItem as DeviceEntity;
-            if (null == itemDevice)
-                return;
-
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["uuid"] = itemDomain.Uid;
-            param["device"] = itemDevice.uuid;
-            param["alias"] = tbEditAlias.Text;
-            param["access"] = cbEditAccess.SelectedIndex;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnEditDeviceSubmit(json);
-        }
-
-        private void onEditCancelClicked(object sender, RoutedEventArgs e)
-        {
-            formEditDevice.Visibility = Visibility.Collapsed;
-        }
-
-        private void getGeometry(string _name)
-        {
+            formNewDomain.Visibility = Visibility.Collapsed;
         }
     }
 }

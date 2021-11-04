@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+//package file;
+option go_package="proto/file;file";
+
+// 状态
+message Status
+{
+    int32 code = 1;     // 状态码
+    string message = 2; // 状态信息
+}
+
+// 空白请求
+message BlankRequest
+{
+}
+
+// 空白回复
+message BlankResponse
+{
+    Status status = 1; // 状态
+}
+
+// 存储引擎
+enum Engine {
+    ENGINE_INVALID = 0;  // 无效
+    ENGINE_LOCAL = 1;    // 本地
+    ENGINE_MINIO = 2;    // MinIO
+    ENGINE_QINIU = 3;    // 七牛
+    ENGINE_CUSTOM = 100; // 自定义
+}
+
+// 存储桶实体
+message BucketEntity
+{
+    string uuid = 1;          // uuid
+    string name = 2;          // 名称
+    string token = 3;         // 访问令牌
+    uint64 totalSize = 4;     // 空间总容量, 单位byte
+    uint64 usedSize = 5;      // 空间已用容量, 单位byte
+    Engine engine = 6;        // 存储引擎
+    string address = 7;       // 存储引擎的地址
+    string scope = 8;         // 作用范围
+    string accessKey = 9;     // 存储引擎的访问Key
+    string accessSecret = 10; // 存储引擎的访问Secret
+}
+
+// 对象实体
+message ObjectEntity
+{
+    string uuid = 1;     // 唯一ID
+    string filepath = 2; // 文件路径
+    string url = 3;      // 地址
+    uint64 size = 4;     // 文件大小
+    string md5 = 5;      // MD5值
+}

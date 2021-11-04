@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+import "proto/file/shared.proto";
+
+//package file;
+option go_package="proto/file;file";
+
+// 存储桶
+service Bucket
+{
+    // 创建一个存储桶
+    rpc Make(BucketMakeRequest) returns (BlankResponse) {}
+    // 列举存储桶
+    rpc List(BucketListRequest) returns (BucketListResponse) {}
+    // 删除一个存储桶
+    rpc Remove(BucketRemoveRequest) returns (BlankResponse) {}
+    // 获取一个存储桶信息
+    rpc Get(BucketGetRequest) returns (BucketGetResponse) {}
+    // 查找一个存储桶信息
+    rpc Find(BucketFindRequest) returns (BucketFindResponse) {}
+    // 更新一个存储桶的引擎
+    rpc UpdateEngine(BucketUpdateEngineRequest) returns (BlankResponse) {}
+    // 更新一个存储桶的容量
+    rpc UpdateCapacity(BucketUpdateCapacityRequest) returns (BlankResponse) {}
+    // 重置一个存储桶的访问令牌
+    rpc ResetToken(BucketResetTokenRequest) returns (BlankResponse) {}
+}
+
+// 创建存储桶的请求
+message BucketMakeRequest
+{
+    string name = 1;         // 名称
+    uint64 capacity = 2;     // 初始容量
+    Engine engine = 3;       // 存储引擎
+    string address = 4;      // 存储引擎的地址
+    string scope = 5;        // 存储引擎的作用范围
+    string accessKey = 6;    // 存储引擎的访问key
+    string accessSecret = 7; // 存储引擎的访问secret
+}
+
+// 列举存储桶的回复
+message BucketListRequest
+{
+    int64 offset = 1; // 偏移值
+    int64 count = 2;  // 数量
+}
+
+// 列举存储桶的回复
+message BucketListResponse
+{
+    Status status = 1;                // 状态
+    uint64 total = 2;                 // 总数
+    repeated BucketEntity entity = 3; // 实体列表
+}
+
+// 删除存储桶的请求
+message BucketRemoveRequest
+{
+    string uuid = 1; // uuid
+}
+
+// 获取存储桶信息的请求
+message BucketGetRequest
+{
+    string uuid = 1; // uuid
+}
+
+// 获取存储桶信息的回复
+message BucketGetResponse
+{
+    Status status = 1;       // 状态
+    BucketEntity entity = 2; // 实体
+}
+
+// 查找一个存储桶信息的请求
+message BucketFindRequest
+{
+    string name = 1; // name
+}
+
+// 查找一个存储桶信息的回复
+message BucketFindResponse
+{
+    Status status = 1;       // 状态
+    BucketEntity entity = 2; // 实体
+}
+
+// 更新存储桶引擎的请求
+message BucketUpdateEngineRequest
+{
+    string uuid = 1;         // uuid
+    Engine engine = 2;       // 存储引擎
+    string address = 3;      // 存储引擎的地址
+    string scope = 4;        // 存储引擎的作用范围
+    string accessKey = 5;    // 存储引擎的访问key
+    string accessSecret = 6; // 存储引擎的访问secret
+}
+
+// 更新存储桶的容量的请求
+message BucketUpdateCapacityRequest
+{
+    string uuid = 1;     // uuid
+    uint64 capacity = 2; // 容量，单位byte
+}
+
+// 重置存储桶的访问令牌
+message BucketResetTokenRequest
+{
+    string uuid = 1; // uuid
+}
