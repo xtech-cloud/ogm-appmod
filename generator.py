@@ -5,7 +5,7 @@ import yaml
 from typing import Dict, List, Tuple
 
 """
-ver 1.10.0
+ver 1.11.0
 """
 
 
@@ -449,6 +449,7 @@ namespace {{org}}.{{mod}}
 """
 
 templete_bridge_ui_cs = r"""
+using System.Collections.Generic;
 using XTC.oelMVCS;
 namespace {{org}}.{{mod}}
 {
@@ -456,6 +457,7 @@ namespace {{org}}.{{mod}}
     {
         object getRootPanel();
         void Alert(string _message);
+        void UpdatePermission(Dictionary<string,string> _permission);
     }
 }
 """
@@ -839,7 +841,16 @@ namespace {{org}}.{{mod}}
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["{{org}}.{{mod}}.{{service}}"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+            // 监听权限更新
+            addRouter("/permission/updated", this.handlePermissionUpdated);
         }
+
+        protected void handlePermissionUpdated(Model.Status _status, object _data)
+        {
+            Dictionary<string, string> permission = (Dictionary<string,string>) _data;
+            bridge.UpdatePermission(permission);
+        }
+        
 
         public void Alert(string _message)
         {
@@ -1059,6 +1070,7 @@ namespace {{org}}.{{mod}}
 
 template_wpf_Control_cs = r"""
 using System.Windows.Controls;
+using System.Collections.Generic;
 
 namespace {{org}}.{{mod}}
 {
@@ -1074,6 +1086,10 @@ namespace {{org}}.{{mod}}
             }
 
             public void Alert(string _message)
+            {
+            }
+
+            public void UpdatePermission(Dictionary<string,string> _permission)
             {
             }
         }
