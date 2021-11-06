@@ -32,6 +32,10 @@ namespace ogm.actor
     
            addRouter("/ogm/actor/Domain/List", this.handleDomainList);
     
+           addRouter("/ogm/actor/Domain/Find", this.handleDomainFind);
+    
+           addRouter("/ogm/actor/Domain/Search", this.handleDomainSearch);
+    
            addRouter("/ogm/actor/Domain/Execute", this.handleDomainExecute);
     
            addRouter("/ogm/actor/Domain/FetchDevice", this.handleDomainFetchDevice);
@@ -48,7 +52,16 @@ namespace ogm.actor
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["ogm.actor.Domain"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+            // 监听权限更新
+            addRouter("/permission/updated", this.handlePermissionUpdated);
         }
+
+        protected void handlePermissionUpdated(Model.Status _status, object _data)
+        {
+            Dictionary<string, string> permission = (Dictionary<string,string>) _data;
+            bridge.UpdatePermission(permission);
+        }
+        
 
         public void Alert(string _message)
         {
@@ -76,6 +89,24 @@ namespace ogm.actor
         private void handleDomainList(Model.Status _status, object _data)
         {
             var rsp = (Proto.DomainListResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleDomainFind(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.DomainFindResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleDomainSearch(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.DomainSearchResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else

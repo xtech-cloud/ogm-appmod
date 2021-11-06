@@ -6,6 +6,7 @@ namespace ogm.actor
     public interface IDeviceViewBridge : View.Facade.Bridge
     {
         void OnListSubmit(string _json);
+        void OnSearchSubmit(string _json);
 
     }
 }

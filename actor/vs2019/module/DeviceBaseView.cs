@@ -28,6 +28,8 @@ namespace ogm.actor
 
            addRouter("/ogm/actor/Device/List", this.handleDeviceList);
     
+           addRouter("/ogm/actor/Device/Search", this.handleDeviceSearch);
+    
         }
 
         protected override void postSetup()
@@ -38,7 +40,16 @@ namespace ogm.actor
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["ogm.actor.Device"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+            // 监听权限更新
+            addRouter("/permission/updated", this.handlePermissionUpdated);
         }
+
+        protected void handlePermissionUpdated(Model.Status _status, object _data)
+        {
+            Dictionary<string, string> permission = (Dictionary<string,string>) _data;
+            bridge.UpdatePermission(permission);
+        }
+        
 
         public void Alert(string _message)
         {
@@ -48,6 +59,15 @@ namespace ogm.actor
         private void handleDeviceList(Model.Status _status, object _data)
         {
             var rsp = (Proto.DeviceListResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleDeviceSearch(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.DeviceSearchResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else

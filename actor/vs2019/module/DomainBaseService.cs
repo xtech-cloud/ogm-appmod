@@ -76,6 +76,44 @@ namespace ogm.actor
         }
         
 
+        public void PostFind(Proto.DomainFindRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["name"] = _request._name;
+
+            post(string.Format("{0}/ogm/actor/Domain/Find", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DomainFindResponse>(_reply, options);
+                model.SaveFind(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
+        public void PostSearch(Proto.DomainSearchRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
+            paramMap["name"] = _request._name;
+
+            post(string.Format("{0}/ogm/actor/Domain/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DomainSearchResponse>(_reply, options);
+                model.SaveSearch(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
         public void PostExecute(Proto.DomainExecuteRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
@@ -101,8 +139,8 @@ namespace ogm.actor
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["uuid"] = _request._uuid;
-            //paramMap["offset"] = _request._offset;
-            //paramMap["count"] = _request._count;
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
 
             post(string.Format("{0}/ogm/actor/Domain/FetchDevice", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {

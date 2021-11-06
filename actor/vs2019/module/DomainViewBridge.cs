@@ -63,8 +63,21 @@ namespace ogm.actor
             var req = JsonSerializer.Deserialize<Proto.DomainEditDeviceRequest>(_json, options);
             service.PostEditDevice(req);
         }
-        
 
+        public void OnSearchSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainSearchRequest>(_json, options);
+            service.PostSearch(req);
+        }
 
+        public void OnFindSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainFindRequest>(_json, options);
+            service.PostFind(req);
+        }
     }
 }

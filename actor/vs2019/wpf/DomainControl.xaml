@@ -22,10 +22,10 @@
         <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:SimplePanel Margin="24">
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBox Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onRefreshCliked" />
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
                     <Button Content="查询"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onSearchClicked" />
                 </hc:UniformSpacingPanel>
             </hc:SimplePanel>

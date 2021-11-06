@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:ogm.actor"
              mc:Ignorable="d" 
              DataContext="{Binding RelativeSource={RelativeSource self}}"
-             d:DesignHeight="768" d:DesignWidth="1024">
+             d:DesignHeight="900" d:DesignWidth="1440">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,19 +18,43 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-        <StackPanel>
-            <ListView ItemsSource="{Binding DeviceList}" Margin="24">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="80" Header="名称" DisplayMemberBinding="{Binding name}"/>
-                        <GridViewColumn Width="80" Header="序列号" DisplayMemberBinding="{Binding serialNumber}"/>
-                        <GridViewColumn Width="100" Header="操作系统" DisplayMemberBinding="{Binding operatingSystem}"/>
-                        <GridViewColumn Width="200" Header="系统版本" DisplayMemberBinding="{Binding systemVersion}"/>
-                        <GridViewColumn Width="200" Header="形态" DisplayMemberBinding="{Binding shape}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </StackPanel>
-    </Border>
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <hc:SimplePanel Margin="24">
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox Name="tbSN"  Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="序列号" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbName" Margin="24,0,0,0" Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="设备名" Style="{StaticResource TextBoxExtend}"/>
+                    <!--
+                    <TextBox Name="tbOS" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="操作系统" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbVer" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="系统版本" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbShape" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="设备形态" Style="{StaticResource TextBoxExtend}"/>
+                    -->
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
+                    <Button Content="查询"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onSearchClicked" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+
+        <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <DockPanel Margin="24">
+                <hc:SimplePanel>
+                    <DataGrid Name="dgDomainList" Margin="0,0,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Path=name}" Header="设备名" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Path=serialNumber}" Header="序列号" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Path=operatingSystem}" Header="操作系统" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Path=systemVersion}" Header="系统版本" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Path=shape}" Header="设备形态" IsReadOnly="True"/>
+                            <!--/
+                            <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
+                            -->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </hc:SimplePanel>
+            </DockPanel>
+        </Border>
+    </DockPanel>
 </UserControl>

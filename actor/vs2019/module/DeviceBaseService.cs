@@ -40,6 +40,30 @@ namespace ogm.actor
         }
         
 
+        public void PostSearch(Proto.DeviceSearchRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
+            paramMap["serialNumber"] = _request._serialNumber;
+            paramMap["name"] = _request._name;
+            paramMap["operatingSystem"] = _request._operatingSystem;
+            paramMap["systemVersion"] = _request._systemVersion;
+            paramMap["shape"] = _request._shape;
+
+            post(string.Format("{0}/ogm/actor/Device/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.DeviceSearchResponse>(_reply, options);
+                model.SaveSearch(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
 
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {

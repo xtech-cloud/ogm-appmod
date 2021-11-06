@@ -67,6 +67,10 @@ namespace ogm.actor
                 }
 
             }
+
+            public void UpdatePermission(Dictionary<string, string> _permission)
+            {
+            }
         }
 
         public class DeviceEntity
@@ -123,7 +127,7 @@ namespace ogm.actor
             param["offset"] = 0;
             param["count"] = int.MaxValue;
             string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
+            //bridge.OnListSubmit(json);
         }
 
         private void onDomainSelectionChanged(object sender, SelectionChangedEventArgs e)

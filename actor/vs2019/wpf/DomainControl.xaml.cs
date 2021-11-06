@@ -40,6 +40,10 @@ namespace ogm.actor
             public void RefreshFetchDevice(string _reply)
             {
             }
+
+            public void UpdatePermission(Dictionary<string, string> _permission)
+            {
+            }
         }
 
         public DomainFacade facade { get; set; }
@@ -100,14 +104,10 @@ namespace ogm.actor
             formEditDomain.Visibility = Visibility.Collapsed;
         }
 
-        private void onRefreshCliked(object sender, RoutedEventArgs e)
+        private void onResetCliked(object sender, RoutedEventArgs e)
         {
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
+            tbName.Text = "";
+            DomainList.Clear();
         }
 
         private void onSearchClicked(object sender, RoutedEventArgs e)
@@ -116,8 +116,17 @@ namespace ogm.actor
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["offset"] = 0;
             param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
+            if (string.IsNullOrEmpty(tbName.Text))
+            {
+                string json = JsonSerializer.Serialize(param);
+                bridge.OnListSubmit(json);
+            }
+            else
+            {
+                param["name"] = tbName.Text;
+                string json = JsonSerializer.Serialize(param);
+                bridge.OnSearchSubmit(json);
+            }
         }
 
         private void onNewSubmitClicked(object sender, RoutedEventArgs e)

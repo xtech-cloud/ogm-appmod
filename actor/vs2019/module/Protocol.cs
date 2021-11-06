@@ -26,6 +26,54 @@ namespace ogm.actor.Proto
 
         }
     
+        public class DeviceSearchRequest
+        {
+            public DeviceSearchRequest()
+            {
+                _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _serialNumber = Any.FromString("");
+                _name = Any.FromString("");
+                _operatingSystem = Any.FromString("");
+                _systemVersion = Any.FromString("");
+                _shape = Any.FromString("");
+
+            }
+            [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("serialNumber")]
+            public Any _serialNumber {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("operatingSystem")]
+            public Any _operatingSystem {get;set;}
+            [JsonPropertyName("systemVersion")]
+            public Any _systemVersion {get;set;}
+            [JsonPropertyName("shape")]
+            public Any _shape {get;set;}
+
+        }
+    
+        public class DeviceSearchResponse
+        {
+            public DeviceSearchResponse()
+            {
+                _status = new Status();
+                _total = Any.FromInt64(0);
+                _device = new DeviceEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("device")]
+            public DeviceEntity[] _device {get;set;}
+
+        }
+    
         public class DomainCreateRequest
         {
             public DomainCreateRequest()
@@ -53,6 +101,69 @@ namespace ogm.actor.Proto
         public class DomainListResponse
         {
             public DomainListResponse()
+            {
+                _status = new Status();
+                _total = Any.FromInt64(0);
+                _domain = new DomainEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("domain")]
+            public DomainEntity[] _domain {get;set;}
+
+        }
+    
+        public class DomainFindRequest
+        {
+            public DomainFindRequest()
+            {
+                _name = Any.FromString("");
+
+            }
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+        }
+    
+        public class DomainFindResponse
+        {
+            public DomainFindResponse()
+            {
+                _status = new Status();
+                _domain = new DomainEntity();
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("domain")]
+            public DomainEntity _domain {get;set;}
+
+        }
+    
+        public class DomainSearchRequest
+        {
+            public DomainSearchRequest()
+            {
+                _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _name = Any.FromString("");
+
+            }
+            [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+        }
+    
+        public class DomainSearchResponse
+        {
+            public DomainSearchResponse()
             {
                 _status = new Status();
                 _total = Any.FromInt64(0);

@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using XTC.oelMVCS;
 namespace ogm.actor
 {
@@ -6,8 +7,9 @@ namespace ogm.actor
     {
         object getRootPanel();
         void Alert(string _message);
+        void UpdatePermission(Dictionary<string,string> _permission);
 
-        void RefreshList(string _reply);
-        void RefreshFetchDevice(string _reply);
+        void RefreshList(string _json);
+        void RefreshFetchDevice(string _json);
     }
 }
