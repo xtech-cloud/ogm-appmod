@@ -10,7 +10,7 @@ namespace ogm.file
     {
         public const string NAME = "ogm.file.BucketView";
 
-        public void EnterBucket(string _uuid)
+        public void OpenBucketUi()
         {
             model.Broadcast("/sidemenu/active/tab", "ogm.file.Object");
         }
@@ -26,7 +26,7 @@ namespace ogm.file
         private void handleTabActivated(Model.Status _status, object _data)
         {
             string tab = (string)_data;
-            if (!tab.Equals("ogm.actor.Device"))
+            if (!tab.Equals("ogm.file.Bucket"))
                 return;
 
             var bridge = facade.getViewBridge() as BucketViewBridge;

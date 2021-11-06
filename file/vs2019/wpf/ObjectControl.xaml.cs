@@ -17,7 +17,7 @@ namespace ogm.file
     public partial class ObjectControl : UserControl
     {
         //页面参数，用于页面间跳转时传递数据
-        public static Dictionary<string, object> PageExtra = new Dictionary<string, object>();
+        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
         public class ObjectEntity
         {
             public string uuid { get; set; }
@@ -94,23 +94,23 @@ namespace ogm.file
             public void receivePrepare(string _json)
             {
                 object o_uuid;
-                if (!PageExtra.TryGetValue("bucket.uuid", out o_uuid))
+                if (!control.PageExtra.TryGetValue("bucket.uuid", out o_uuid))
                     return;
                 string uuid = (string)o_uuid;
                 object o_scope;
-                if (!PageExtra.TryGetValue("bucket.scope", out o_scope))
+                if (!control.PageExtra.TryGetValue("bucket.scope", out o_scope))
                     return;
                 string scope = (string)o_scope;
                 object o_md5;
-                if (!PageExtra.TryGetValue("object.md5", out o_md5))
+                if (!control.PageExtra.TryGetValue("object.md5", out o_md5))
                     return;
                 string md5 = (string)o_md5;
                 object o_filepath;
-                if (!PageExtra.TryGetValue("object.file", out o_filepath))
+                if (!control.PageExtra.TryGetValue("object.file", out o_filepath))
                     return;
                 string filepath = (string)o_filepath;
                 object o_size;
-                if (!PageExtra.TryGetValue("object.size", out o_size))
+                if (!control.PageExtra.TryGetValue("object.size", out o_size))
                     return;
                 long size = (long)o_size;
 
@@ -128,7 +128,8 @@ namespace ogm.file
                 if (param["engine"].Equals("ENGINE_MINIO"))
                 {
                     string[] token = accessToken.Split(' ');
-                    MinioClient minio = new MinioClient(param["url"], token[0], token[1]);
+                    Uri uri = new Uri(param["url"]);
+                    MinioClient minio = new MinioClient(uri.Authority, token[0], token[1]);
                     minio.SetTraceOn(new MinioLog()
                     {
                         Callback = number =>
@@ -168,8 +169,8 @@ namespace ogm.file
                 {
                     control.tbUploadFailury.Visibility = Visibility.Visible;
                 }
-                PageExtra.Remove("bucket.md5");
-                PageExtra.Remove("bucket.file");
+                control.PageExtra.Remove("bucket.md5");
+                control.PageExtra.Remove("bucket.file");
             }
 
             public void receiveList(string _json)
@@ -182,10 +183,54 @@ namespace ogm.file
                     control.ObjectList.Add(e);
                 }
             }
+
+            public void UpdatePermission(Dictionary<string, string> _permission)
+            {
+                control.PermissionUpload = _permission.ContainsKey("/ogm/file/Object/Upload");
+                control.PermissionPreview = _permission.ContainsKey("/ogm/file/Object/Perview");
+                control.PermissionPublish = _permission.ContainsKey("/ogm/file/Object/Publish");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/file/Object/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/file/Object/Delete");
+            }
         }
 
         public ObjectFacade facade { get; set; }
         public ObservableCollection<ObjectEntity> ObjectList { get; set; }
+
+        public static readonly DependencyProperty PermissionUploadProperty = DependencyProperty.Register("PermissionUpload", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionDeleteProperty = DependencyProperty.Register("PermissionDelete", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionPreviewProperty = DependencyProperty.Register("PermissionPreview", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionPublishProperty = DependencyProperty.Register("PermissionPublish", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
+
+        public bool PermissionUpload
+        {
+            get { return (bool)GetValue(PermissionUploadProperty); }
+            set { SetValue(PermissionUploadProperty, value); }
+        }
+
+        public bool PermissionEdit
+        {
+            get { return (bool)GetValue(PermissionEditProperty); }
+            set { SetValue(PermissionEditProperty, value); }
+        }
+
+        public bool PermissionDelete
+        {
+            get { return (bool)GetValue(PermissionDeleteProperty); }
+            set { SetValue(PermissionDeleteProperty, value); }
+        }
+        public bool PermissionPreview
+        {
+            get { return (bool)GetValue(PermissionPreviewProperty); }
+            set { SetValue(PermissionPreviewProperty, value); }
+        }
+        public bool PermissionPublish
+        {
+            get { return (bool)GetValue(PermissionPublishProperty); }
+            set { SetValue(PermissionPublishProperty, value); }
+        }
+
 
         public ObjectControl()
         {
@@ -197,6 +242,22 @@ namespace ogm.file
             tbFilename.Visibility = Visibility.Collapsed;
             tbUploadSuccess.Visibility = Visibility.Collapsed;
             tbUploadFailury.Visibility = Visibility.Collapsed;
+        }
+
+        public void RefreshWithExtra()
+        {
+            object o_uuid;
+            if (!PageExtra.TryGetValue("bucket.uuid", out o_uuid))
+                return;
+            object o_name;
+            if (!PageExtra.TryGetValue("bucket.name", out o_name))
+                return;
+            tbBucket.Uid = (string)o_uuid;
+            tbBucket.Text = (string)o_name;
+            tbBucket.IsEnabled = false;
+
+
+            listObject(tbBucket.Uid);
         }
 
         private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -246,35 +307,56 @@ namespace ogm.file
             formEditObject.Visibility = Visibility.Collapsed;
         }
 
-        private void onRefreshCliked(object sender, RoutedEventArgs e)
+        private void onResetCliked(object sender, RoutedEventArgs e)
         {
-            object o_uuid;
-            if (!PageExtra.TryGetValue("bucket.uuid", out o_uuid))
+            tbBucket.Text = "";
+            tbBucket.Uid = "";
+            tbBucket.IsEnabled = true;
+        }
+
+        private void onSearchClicked(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbBucket.Uid))
+            {
+                //TODO 错误提示
                 return;
-            string uuid = (string)o_uuid;
+            }
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            if (!string.IsNullOrEmpty(tbPrefix.Text) || !string.IsNullOrEmpty(tbName.Text))
+            {
+                searchObject(tbBucket.Uid, tbPrefix.Text, tbName.Text);
+            }
+            else
+            {
+                listObject(tbBucket.Uid);
+            }
+        }
+
+        private void listObject(string _bucketUUID)
+        {
 
             var bridge = facade.getViewBridge() as IObjectViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
-            param["bucket"] = uuid;
+            param["bucket"] = _bucketUUID;
             param["offset"] = 0;
             param["count"] = int.MaxValue;
             string json = JsonSerializer.Serialize(param);
             bridge.OnListSubmit(json);
         }
-
-        private void onSearchClicked(object sender, RoutedEventArgs e)
+        private void searchObject(string _bucketUUID, string _prefix, string _name)
         {
-            //清除页面参数
-            PageExtra.Clear();
 
             var bridge = facade.getViewBridge() as IObjectViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
+            param["bucket"] = _bucketUUID;
             param["offset"] = 0;
             param["count"] = int.MaxValue;
-            //param["bucket"] = "";
+            param["prefix"] = _prefix;
+            param["name"] = _name;
             string json = JsonSerializer.Serialize(param);
             bridge.OnSearchSubmit(json);
         }
+
 
         private void onUploadSubmitClicked(object sender, RoutedEventArgs e)
         {
@@ -352,6 +434,23 @@ namespace ogm.file
             param["path"] = _filename;
             string json = JsonSerializer.Serialize(param);
             bridge.OnFlushSubmit(json);
+        }
+
+        private void onDeleteObjectClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onDownloadObjectClicked(object sender, RoutedEventArgs e)
+        {
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnPreviewSubmit(json);
         }
     }
 }

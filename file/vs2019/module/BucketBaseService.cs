@@ -119,6 +119,26 @@ namespace ogm.file
         }
         
 
+        public void PostSearch(Proto.BucketSearchRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
+            paramMap["name"] = _request._name;
+
+            post(string.Format("{0}/ogm/file/Bucket/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BucketSearchResponse>(_reply, options);
+                model.SaveSearch(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
         public void PostUpdate(Proto.BucketUpdateRequest _request)
         {
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();

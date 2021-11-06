@@ -164,6 +164,7 @@ namespace ogm.file
             paramMap["count"] = _request._count;
             paramMap["bucket"] = _request._bucket;
             paramMap["prefix"] = _request._prefix;
+            paramMap["name"] = _request._name;
 
             post(string.Format("{0}/ogm/file/Object/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {

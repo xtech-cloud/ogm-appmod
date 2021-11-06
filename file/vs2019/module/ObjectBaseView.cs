@@ -58,7 +58,16 @@ namespace ogm.file
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["ogm.file.Object"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+            // 监听权限更新
+            addRouter("/permission/updated", this.handlePermissionUpdated);
         }
+
+        protected void handlePermissionUpdated(Model.Status _status, object _data)
+        {
+            Dictionary<string, string> permission = (Dictionary<string,string>) _data;
+            bridge.UpdatePermission(permission);
+        }
+        
 
         public void Alert(string _message)
         {

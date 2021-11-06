@@ -13,9 +13,19 @@ namespace ogm.file
         public const string NAME = "ogm.file.BucketModel";
 
         public void SaveMake(Proto.BlankResponse _rsp) { }
-        public void SaveList(Proto.BucketListResponse _rsp) 
+        public void SaveList(Proto.BucketListResponse _rsp)
         {
-            if(_rsp._status._code.AsInt32() != 0)
+            if (_rsp._status._code.AsInt32() != 0)
+            {
+                getLogger().Error(_rsp._status._message.AsString());
+                return;
+            }
+            status.bucketList = _rsp._entity;
+            this.Bubble("/reply/bucket/list", null);
+        }
+        public void SaveSearch(Proto.BucketSearchResponse _rsp)
+        {
+            if (_rsp._status._code.AsInt32() != 0)
             {
                 getLogger().Error(_rsp._status._message.AsString());
                 return;

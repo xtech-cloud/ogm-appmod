@@ -140,6 +140,42 @@ namespace ogm.file.Proto
 
         }
     
+        public class BucketSearchRequest
+        {
+            public BucketSearchRequest()
+            {
+                _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _name = Any.FromString("");
+
+            }
+            [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+        }
+    
+        public class BucketSearchResponse
+        {
+            public BucketSearchResponse()
+            {
+                _status = new Status();
+                _total = Any.FromInt64(0);
+                _entity = new BucketEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("entity")]
+            public BucketEntity[] _entity {get;set;}
+
+        }
+    
         public class BucketUpdateRequest
         {
             public BucketUpdateRequest()
@@ -221,7 +257,7 @@ namespace ogm.file.Proto
             [JsonPropertyName("engine")]
             public Any _engine {get;set;}
             [JsonPropertyName("url")]
-            public Any _url{get;set;}
+            public Any _url {get;set;}
             [JsonPropertyName("accessToken")]
             public Any _accessToken {get;set;}
 
@@ -499,6 +535,7 @@ namespace ogm.file.Proto
                 _count = Any.FromInt64(0);
                 _bucket = Any.FromString("");
                 _prefix = Any.FromString("");
+                _name = Any.FromString("");
 
             }
             [JsonPropertyName("offset")]
@@ -509,6 +546,8 @@ namespace ogm.file.Proto
             public Any _bucket {get;set;}
             [JsonPropertyName("prefix")]
             public Any _prefix {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
 
         }
     

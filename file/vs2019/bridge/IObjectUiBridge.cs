@@ -7,6 +7,7 @@ namespace ogm.file
     {
         object getRootPanel();
         void Alert(string _message);
+        void UpdatePermission(Dictionary<string, string> _permission);
 
         void receivePrepare(string _json);
         void receiveFlush(string _json);

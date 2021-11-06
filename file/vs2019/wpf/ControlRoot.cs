@@ -39,6 +39,7 @@ namespace ogm.file
             uiObjectBridge.control = controlObject;
             facadeObject.setUiBridge(uiObjectBridge);
         
+            controlBucket.controlObject= controlObject;
         }
 
         public void Cancel()

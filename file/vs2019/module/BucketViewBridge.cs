@@ -73,9 +73,17 @@ namespace ogm.file
             service.PostResetToken(req);
         }
 
-        public void OnEnterBucket(string _uuid)
+        public void OnOpenBucketUi()
         {
-            view.EnterBucket(_uuid);
+            view.OpenBucketUi();
+        }
+
+        public void OnSearchSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.BucketSearchRequest>(_json, options);
+            service.PostSearch(req);
         }
     }
 }

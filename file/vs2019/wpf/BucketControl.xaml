@@ -22,10 +22,10 @@
         <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:SimplePanel Margin="24">
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBox Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onRefreshCliked" />
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
                     <Button Content="查询"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onSearchClicked" />
                 </hc:UniformSpacingPanel>
             </hc:SimplePanel>
@@ -79,13 +79,13 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:SimplePanel>
-                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" />
+                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionCreate}"/>
                     <DataGrid Name="dgBucketList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding BucketList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onBucketSelectionChanged" MouseDoubleClick="onBucketDoubleClicked">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditBucketClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:BucketControl}}}" Click="onEditBucketClicked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -98,6 +98,20 @@
                             <DataGridTextColumn Binding="{Binding accessKey}" Header="Key" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding accessSecret}" Header="Secret" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding url}" Header="访问地址" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource LinkGeometry}" Click="onLinkBucketClicked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" IsEnabled="{Binding Path=PermissionDelete, RelativeSource={RelativeSource AncestorType={x:Type local:BucketControl}}}" Click="onDeleteBucketClicked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <!--/
                             <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
                             <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>

@@ -66,10 +66,40 @@ namespace ogm.file
                     return string.Format("{0} T", _size / 1024 / 1024 / 1024 / 1024);
                 return "?";
             }
+
+            public void UpdatePermission(Dictionary<string, string> _permission)
+            {
+                control.PermissionCreate = _permission.ContainsKey("/ogm/file/Bucket/Create");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/file/Bucket/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/file/Bucket/Delete");
+            }
         }
 
         public BucketFacade facade { get; set; }
+        public ObjectControl controlObject { get; set; }
         public ObservableCollection<BucketEntity> BucketList { get; set; }
+
+        public static readonly DependencyProperty PermissionCreateProperty = DependencyProperty.Register("PermissionCreate", typeof(bool), typeof(BucketControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(BucketControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionDeleteProperty = DependencyProperty.Register("PermissionDelete", typeof(bool), typeof(BucketControl), new PropertyMetadata(true));
+
+        public bool PermissionCreate
+        {
+            get { return (bool)GetValue(PermissionCreateProperty); }
+            set { SetValue(PermissionCreateProperty, value); }
+        }
+
+        public bool PermissionEdit
+        {
+            get { return (bool)GetValue(PermissionEditProperty); }
+            set { SetValue(PermissionEditProperty, value); }
+        }
+
+        public bool PermissionDelete
+        {
+            get { return (bool)GetValue(PermissionDeleteProperty); }
+            set { SetValue(PermissionDeleteProperty, value); }
+        }
 
         public BucketControl()
         {
@@ -140,14 +170,10 @@ namespace ogm.file
             formEditBucket.Visibility = Visibility.Collapsed;
         }
 
-        private void onRefreshCliked(object sender, RoutedEventArgs e)
+        private void onResetCliked(object sender, RoutedEventArgs e)
         {
-            var bridge = facade.getViewBridge() as IBucketViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
+            tbName.Text = "";
+            BucketList.Clear();
         }
 
         private void onSearchClicked(object sender, RoutedEventArgs e)
@@ -156,8 +182,17 @@ namespace ogm.file
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["offset"] = 0;
             param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
+            if (string.IsNullOrEmpty(tbName.Text))
+            {
+                string json = JsonSerializer.Serialize(param);
+                bridge.OnListSubmit(json);
+            }
+            else
+            {
+                param["name"] = tbName.Text;
+                string json = JsonSerializer.Serialize(param);
+                bridge.OnSearchSubmit(json);
+            }
         }
 
         private void onNewSubmitClicked(object sender, RoutedEventArgs e)
@@ -192,10 +227,25 @@ namespace ogm.file
             if (null == item)
                 return;
 
-            ObjectControl.PageExtra["bucket.uuid"] = item.uuid;
-            ObjectControl.PageExtra["bucket.scope"] = item.scope;
+            controlObject.PageExtra["bucket.uuid"] = item.uuid;
+            controlObject.PageExtra["bucket.name"] = item.name;
+            controlObject.PageExtra["bucket.scope"] = item.scope;
+            controlObject.RefreshWithExtra();
             var bridge = facade.getViewBridge() as IBucketViewBridge;
-            bridge.OnEnterBucket(item.uuid);
+            bridge.OnOpenBucketUi();
+        }
+
+        private void onDeleteBucketClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onLinkBucketClicked(object sender, RoutedEventArgs e)
+        {
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
+            //TODO ¿½±´UUIDµ½¼ôÌù°å
         }
     }
 }

@@ -36,6 +36,8 @@ namespace ogm.file
     
            addRouter("/ogm/file/Bucket/Find", this.handleBucketFind);
     
+           addRouter("/ogm/file/Bucket/Search", this.handleBucketSearch);
+    
            addRouter("/ogm/file/Bucket/Update", this.handleBucketUpdate);
     
            addRouter("/ogm/file/Bucket/ResetToken", this.handleBucketResetToken);
@@ -50,7 +52,16 @@ namespace ogm.file
             Dictionary<string, object> data = new Dictionary<string, object>();
             data["ogm.file.Bucket"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
+            // 监听权限更新
+            addRouter("/permission/updated", this.handlePermissionUpdated);
         }
+
+        protected void handlePermissionUpdated(Model.Status _status, object _data)
+        {
+            Dictionary<string, string> permission = (Dictionary<string,string>) _data;
+            bridge.UpdatePermission(permission);
+        }
+        
 
         public void Alert(string _message)
         {
@@ -96,6 +107,15 @@ namespace ogm.file
         private void handleBucketFind(Model.Status _status, object _data)
         {
             var rsp = (Proto.BucketFindResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleBucketSearch(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BucketSearchResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else
