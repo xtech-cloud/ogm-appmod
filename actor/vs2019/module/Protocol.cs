@@ -86,6 +86,21 @@ namespace ogm.actor.Proto
 
         }
     
+        public class DomainUpdateRequest
+        {
+            public DomainUpdateRequest()
+            {
+                _uuid = Any.FromString("");
+                _name = Any.FromString("");
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+        }
+    
         public class DomainDeleteRequest
         {
             public DomainDeleteRequest()
@@ -200,18 +215,18 @@ namespace ogm.actor.Proto
 
         }
     
-        public class DomainFetchDeviceRequest
+        public class GuardFetchRequest
         {
-            public DomainFetchDeviceRequest()
+            public GuardFetchRequest()
             {
-                _uuid = Any.FromString("");
+                _domain = Any.FromString("");
                 _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _filter = new Dictionary<string, string>();
 
             }
-            [JsonPropertyName("uuid")]
-            public Any _uuid {get;set;}
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
             [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
@@ -221,9 +236,9 @@ namespace ogm.actor.Proto
 
         }
     
-        public class DomainFetchDeviceResponse
+        public class GuardFetchResponse
         {
-            public DomainFetchDeviceResponse()
+            public GuardFetchResponse()
             {
                 _status = new Status();
                 _total = Any.FromInt64(0);
@@ -245,18 +260,39 @@ namespace ogm.actor.Proto
 
         }
     
-        public class DomainEditDeviceRequest
+        public class GuardEditRequest
         {
-            public DomainEditDeviceRequest()
+            public GuardEditRequest()
             {
-                _uuid = Any.FromString("");
+                _domain = Any.FromString("");
                 _device = Any.FromString("");
                 _access = Any.FromInt32(0);
                 _alias = Any.FromString("");
 
             }
-            [JsonPropertyName("uuid")]
-            public Any _uuid {get;set;}
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
+            [JsonPropertyName("device")]
+            public Any _device {get;set;}
+            [JsonPropertyName("access")]
+            public Any _access {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
+
+        }
+    
+        public class GuardDeleteRequest
+        {
+            public GuardDeleteRequest()
+            {
+                _domain = Any.FromString("");
+                _device = Any.FromString("");
+                _access = Any.FromInt32(0);
+                _alias = Any.FromString("");
+
+            }
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
             [JsonPropertyName("device")]
             public Any _device {get;set;}
             [JsonPropertyName("access")]

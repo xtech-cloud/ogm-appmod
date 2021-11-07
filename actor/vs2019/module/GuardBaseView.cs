@@ -5,40 +5,42 @@ using XTC.oelMVCS;
 
 namespace ogm.actor
 {
-    public class SyncBaseView: View
+    public class GuardBaseView: View
     {
         protected Facade facade = null;
-        protected SyncModel model = null;
-        protected ISyncUiBridge bridge = null;
+        protected GuardModel model = null;
+        protected IGuardUiBridge bridge = null;
 
         protected override void preSetup()
         {
-            model = findModel(SyncModel.NAME) as SyncModel;
-            var service = findService(SyncService.NAME) as SyncService;
-            facade = findFacade("ogm.actor.SyncFacade");
-            SyncViewBridge vb = new SyncViewBridge();
-            vb.view = this as SyncView;
+            model = findModel(GuardModel.NAME) as GuardModel;
+            var service = findService(GuardService.NAME) as GuardService;
+            facade = findFacade("ogm.actor.GuardFacade");
+            GuardViewBridge vb = new GuardViewBridge();
+            vb.view = this as GuardView;
             vb.service = service;
             facade.setViewBridge(vb);
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup ogm.actor.SyncView");
+            getLogger().Trace("setup ogm.actor.GuardView");
 
-           addRouter("/ogm/actor/Sync/Push", this.handleSyncPush);
+           addRouter("/ogm/actor/Guard/Fetch", this.handleGuardFetch);
     
-           addRouter("/ogm/actor/Sync/Pull", this.handleSyncPull);
+           addRouter("/ogm/actor/Guard/Edit", this.handleGuardEdit);
+    
+           addRouter("/ogm/actor/Guard/Delete", this.handleGuardDelete);
     
         }
 
         protected override void postSetup()
         {
-            bridge = facade.getUiBridge() as ISyncUiBridge;
+            bridge = facade.getUiBridge() as IGuardUiBridge;
             object rootPanel = bridge.getRootPanel();
             // 通知主程序挂载界面
             Dictionary<string, object> data = new Dictionary<string, object>();
-            data["ogm.actor.Sync"] = rootPanel;
+            data["ogm.actor.Guard"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
             // 监听权限更新
             addRouter("/permission/updated", this.handlePermissionUpdated);
@@ -56,18 +58,27 @@ namespace ogm.actor
             bridge.Alert(_message);
         }
 
-        private void handleSyncPush(Model.Status _status, object _data)
+        private void handleGuardFetch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.SyncPushResponse)_data;
+            var rsp = (Proto.GuardFetchResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else
                 bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
         }
     
-        private void handleSyncPull(Model.Status _status, object _data)
+        private void handleGuardEdit(Model.Status _status, object _data)
         {
-            var rsp = (Proto.SyncPullResponse)_data;
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleGuardDelete(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else

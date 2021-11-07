@@ -8,13 +8,25 @@ namespace ogm.actor
     {
         public const string NAME = "ogm.actor.DomainView";
 
+        public void OpenGuardUi()
+        {
+            model.Broadcast("/sidemenu/active/tab", "ogm.actor.Guard");
+        }
+
+        public void OpenSyncUi()
+        {
+            model.Broadcast("/sidemenu/active/tab", "ogm.actor.Sync");
+        }
+
+
         protected override void setup()
         {
             base.setup();
 
             addRouter("/sidemenu/tab/activated", this.handleTabActivated);
+            addObserver(DomainModel.NAME, "/reply/Domain/Create", this.receiveCreate);
+            addObserver(DomainModel.NAME, "/reply/Domain/Update", this.receiveUpdate);
             addObserver(DomainModel.NAME, "/reply/Domain/List", this.receiveList);
-            addObserver(DomainModel.NAME, "/reply/Domain/FetchDevice", this.receiveFetchDevice);
         }
 
         private void handleTabActivated(Model.Status _status, object _data)
@@ -45,23 +57,27 @@ namespace ogm.actor
             bridge.RefreshList(json);
         }
 
-        private void receiveFetchDevice(Model.Status _status, object _data)
+        private void receiveCreate(Model.Status _status, object _data)
         {
-            DomainModel.DomainStatus status = _status as DomainModel.DomainStatus;
-            if (null == status)
-            {
-                getLogger().Error("status [DomainModel.DomainStatus] is null");
-                return;
-            }
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["device"] = status.deviceList;
-            param["access"] = status.accessList;
-            param["alias"] = status.aliasListt;
             var bridge = facade.getUiBridge() as IDomainUiBridge;
             var options = new JsonSerializerOptions();
             options.Converters.Add(new AnyProtoConverter());
-            var json = JsonSerializer.Serialize(param, options);
-            bridge.RefreshFetchDevice(json);
+            var status = _data as Proto.Status;
+            var json = JsonSerializer.Serialize(status, options);
+            bridge.ReceiveCreate(json);
         }
+
+        private void receiveUpdate(Model.Status _status, object _data)
+        {
+            var bridge = facade.getUiBridge() as IDomainUiBridge;
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var status = _data as Proto.Status;
+            var json = JsonSerializer.Serialize(status, options);
+            bridge.ReceiveUpdate(json);
+        }
+
+
+
     }
 }

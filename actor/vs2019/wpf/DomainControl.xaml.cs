@@ -8,6 +8,13 @@ namespace ogm.actor
 {
     public partial class DomainControl : UserControl
     {
+
+        public class ReplyStatus
+        {
+            public int code { get; set; }
+            public string message { get; set; }
+        }
+
         public class DomainEntity
         {
             public string uuid { get; set; }
@@ -44,9 +51,29 @@ namespace ogm.actor
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
             }
+
+            public void ReceiveCreate(string _json)
+            {
+                var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
+                if(status.code == 0)
+                {
+                    control.formNewDomain.Visibility = Visibility.Collapsed;
+                }
+            }
+
+            public void ReceiveUpdate(string _json)
+            {
+                var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
+                if(status.code == 0)
+                {
+                    control.formEditDomain.Visibility = Visibility.Collapsed;
+                }
+            }
         }
 
         public DomainFacade facade { get; set; }
+        public GuardControl controlGuard { get; set; }
+        public SyncControl controlSync{ get; set; }
         public ObservableCollection<DomainEntity> DomainList { get; set; }
 
         public DomainControl()
@@ -69,7 +96,7 @@ namespace ogm.actor
 
             var bridge = facade.getViewBridge() as IDomainViewBridge;
             string json = JsonSerializer.Serialize(param);
-            //bridge.OnUp(json);
+            bridge.OnUpdateSubmit(json);
         }
 
         private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -84,7 +111,8 @@ namespace ogm.actor
             if (null == item)
                 return;
 
-            //tbEditName.Text = item.alias;
+            tbEditUUID.Text = item.uuid;
+            tbEditName.Text = item.name;
         }
 
         private void onEditDomainClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -131,13 +159,42 @@ namespace ogm.actor
 
         private void onNewSubmitClicked(object sender, RoutedEventArgs e)
         {
-            formEditDomain.Visibility = Visibility.Collapsed;
-            formNewDomain.Visibility = Visibility.Visible;
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["name"] = tbNewName.Text;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnCreateSubmit(json);
         }
 
         private void onNewCancelClicked(object sender, RoutedEventArgs e)
         {
             formNewDomain.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnBrowseGuardClick(object sender, RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+
+            controlGuard.PageExtra["domain.uuid"] = item.uuid;
+            controlGuard.PageExtra["domain.name"] = item.name;
+            controlGuard.RefreshWithExtra();
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            bridge.OnOpenGuardUi();
+        }
+
+        private void OnBrowseSyncClick(object sender, RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+
+            controlSync.PageExtra["domain.uuid"] = item.uuid;
+            controlSync.PageExtra["domain.name"] = item.name;
+            controlSync.RefreshWithExtra();
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            bridge.OnOpenSyncUi();
         }
     }
 }

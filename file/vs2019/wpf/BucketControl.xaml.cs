@@ -154,6 +154,7 @@ namespace ogm.file
             formEditBucket.Visibility = Visibility.Visible;
             formNewBucket.Visibility = Visibility.Collapsed;
 
+            tbEditUUID.Text = item.uuid;
             tbEditName.Text = item.name;
             tbEditCapacity.Value = item.totalSize / 1024 / 1024 / 1024;
             cbEditEngine.SelectedIndex = engineFromStringToInt(item.engine);
@@ -221,7 +222,12 @@ namespace ogm.file
             return -1;
         }
 
-        private void onBucketDoubleClicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void onDeleteBucketClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OnBrowseObjectClick(object sender, RoutedEventArgs e)
         {
             var item = dgBucketList.SelectedItem as BucketEntity;
             if (null == item)
@@ -233,19 +239,6 @@ namespace ogm.file
             controlObject.RefreshWithExtra();
             var bridge = facade.getViewBridge() as IBucketViewBridge;
             bridge.OnOpenBucketUi();
-        }
-
-        private void onDeleteBucketClicked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void onLinkBucketClicked(object sender, RoutedEventArgs e)
-        {
-            var item = dgBucketList.SelectedItem as BucketEntity;
-            if (null == item)
-                return;
-            //TODO ¿½±´UUIDµ½¼ôÌù°å
         }
     }
 }

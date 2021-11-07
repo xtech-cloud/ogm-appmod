@@ -29,7 +29,7 @@ namespace ogm.actor
             DeviceControl.DeviceUiBridge uiDeviceBridge = new DeviceControl.DeviceUiBridge();
             uiDeviceBridge.control = controlDevice;
             facadeDevice.setUiBridge(uiDeviceBridge);
-        
+
             // 注册UI装饰
             DomainFacade facadeDomain = new DomainFacade();
             framework_.getStaticPipe().RegisterFacade(DomainFacade.NAME, facadeDomain);
@@ -38,7 +38,16 @@ namespace ogm.actor
             DomainControl.DomainUiBridge uiDomainBridge = new DomainControl.DomainUiBridge();
             uiDomainBridge.control = controlDomain;
             facadeDomain.setUiBridge(uiDomainBridge);
-        
+
+            // 注册UI装饰
+            GuardFacade facadeGuard = new GuardFacade();
+            framework_.getStaticPipe().RegisterFacade(GuardFacade.NAME, facadeGuard);
+            GuardControl controlGuard = new GuardControl();
+            controlGuard.facade = facadeGuard;
+            GuardControl.GuardUiBridge uiGuardBridge = new GuardControl.GuardUiBridge();
+            uiGuardBridge.control = controlGuard;
+            facadeGuard.setUiBridge(uiGuardBridge);
+
             // 注册UI装饰
             SyncFacade facadeSync = new SyncFacade();
             framework_.getStaticPipe().RegisterFacade(SyncFacade.NAME, facadeSync);
@@ -47,7 +56,9 @@ namespace ogm.actor
             SyncControl.SyncUiBridge uiSyncBridge = new SyncControl.SyncUiBridge();
             uiSyncBridge.control = controlSync;
             facadeSync.setUiBridge(uiSyncBridge);
-        
+
+            controlDomain.controlGuard = controlGuard;
+            controlDomain.controlSync = controlSync;
         }
 
         public void Cancel()
@@ -55,13 +66,16 @@ namespace ogm.actor
 
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(DeviceFacade.NAME);
-        
+
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(DomainFacade.NAME);
-        
+
+            // 注销UI装饰
+            framework_.getStaticPipe().CancelFacade(GuardFacade.NAME);
+
             // 注销UI装饰
             framework_.getStaticPipe().CancelFacade(SyncFacade.NAME);
-        
+
         }
 
         private Framework framework_ = null;

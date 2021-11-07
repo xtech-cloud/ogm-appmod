@@ -18,6 +18,15 @@ namespace ogm.actor
             var req = JsonSerializer.Deserialize<Proto.DomainCreateRequest>(_json, options);
             service.PostCreate(req);
         }
+
+        public void OnUpdateSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.DomainUpdateRequest>(_json, options);
+            service.PostUpdate(req);
+        }
+        
         
 
         public void OnDeleteSubmit(string _json)
@@ -46,24 +55,6 @@ namespace ogm.actor
             service.PostExecute(req);
         }
         
-
-        public void OnFetchDeviceSubmit(string _json)
-        {
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new AnyProtoConverter());
-            var req = JsonSerializer.Deserialize<Proto.DomainFetchDeviceRequest>(_json, options);
-            service.PostFetchDevice(req);
-        }
-        
-
-        public void OnEditDeviceSubmit(string _json)
-        {
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new AnyProtoConverter());
-            var req = JsonSerializer.Deserialize<Proto.DomainEditDeviceRequest>(_json, options);
-            service.PostEditDevice(req);
-        }
-
         public void OnSearchSubmit(string _json)
         {
             var options = new JsonSerializerOptions();
@@ -78,6 +69,16 @@ namespace ogm.actor
             options.Converters.Add(new AnyProtoConverter());
             var req = JsonSerializer.Deserialize<Proto.DomainFindRequest>(_json, options);
             service.PostFind(req);
+        }
+
+        public void OnOpenGuardUi()
+        {
+            view.OpenGuardUi();
+        }
+
+        public void OnOpenSyncUi()
+        {
+            view.OpenSyncUi();
         }
     }
 }

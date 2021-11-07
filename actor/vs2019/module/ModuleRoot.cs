@@ -37,6 +37,15 @@ namespace ogm.actor
             framework_.getStaticPipe().RegisterService(DomainService.NAME, new DomainService());
     
             // 注册数据层
+            framework_.getStaticPipe().RegisterModel(GuardModel.NAME, new GuardModel());
+            // 注册视图层
+            framework_.getStaticPipe().RegisterView(GuardView.NAME, new GuardView());
+            // 注册控制层
+            framework_.getStaticPipe().RegisterController(GuardController.NAME, new GuardController());
+            // 注册服务层
+            framework_.getStaticPipe().RegisterService(GuardService.NAME, new GuardService());
+    
+            // 注册数据层
             framework_.getStaticPipe().RegisterModel(SyncModel.NAME, new SyncModel());
             // 注册视图层
             framework_.getStaticPipe().RegisterView(SyncView.NAME, new SyncView());
@@ -67,6 +76,15 @@ namespace ogm.actor
             framework_.getStaticPipe().CancelView(DomainView.NAME);
             // 注销数据层
             framework_.getStaticPipe().CancelModel(DomainModel.NAME);
+    
+            // 注销服务层
+            framework_.getStaticPipe().CancelService(GuardService.NAME);
+            // 注销控制层
+            framework_.getStaticPipe().CancelController(GuardController.NAME);
+            // 注销视图层
+            framework_.getStaticPipe().CancelView(GuardView.NAME);
+            // 注销数据层
+            framework_.getStaticPipe().CancelModel(GuardModel.NAME);
     
             // 注销服务层
             framework_.getStaticPipe().CancelService(SyncService.NAME);

@@ -28,6 +28,8 @@ namespace ogm.actor
 
            addRouter("/ogm/actor/Domain/Create", this.handleDomainCreate);
     
+           addRouter("/ogm/actor/Domain/Update", this.handleDomainUpdate);
+    
            addRouter("/ogm/actor/Domain/Delete", this.handleDomainDelete);
     
            addRouter("/ogm/actor/Domain/List", this.handleDomainList);
@@ -37,10 +39,6 @@ namespace ogm.actor
            addRouter("/ogm/actor/Domain/Search", this.handleDomainSearch);
     
            addRouter("/ogm/actor/Domain/Execute", this.handleDomainExecute);
-    
-           addRouter("/ogm/actor/Domain/FetchDevice", this.handleDomainFetchDevice);
-    
-           addRouter("/ogm/actor/Domain/EditDevice", this.handleDomainEditDevice);
     
         }
 
@@ -69,6 +67,15 @@ namespace ogm.actor
         }
 
         private void handleDomainCreate(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleDomainUpdate(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
@@ -114,24 +121,6 @@ namespace ogm.actor
         }
     
         private void handleDomainExecute(Model.Status _status, object _data)
-        {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
-        }
-    
-        private void handleDomainFetchDevice(Model.Status _status, object _data)
-        {
-            var rsp = (Proto.DomainFetchDeviceResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
-        }
-    
-        private void handleDomainEditDevice(Model.Status _status, object _data)
         {
             var rsp = (Proto.BlankResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
