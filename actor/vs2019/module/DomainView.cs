@@ -18,6 +18,11 @@ namespace ogm.actor
             model.Broadcast("/sidemenu/active/tab", "ogm.actor.Sync");
         }
 
+        public void OpenApplicationUi()
+        {
+            model.Broadcast("/sidemenu/active/tab", "ogm.actor.Application");
+        }
+
 
         protected override void setup()
         {

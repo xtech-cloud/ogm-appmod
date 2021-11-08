@@ -43,31 +43,37 @@ namespace ogm.actor
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
             }
+
+            public void ReceivePull(string _json)
+            {
+                control.DeviceList.Clear();
+                PullReply pullReply = JsonSerializer.Deserialize<PullReply>(_json);
+                foreach (var e in pullReply.device)
+                {
+                    string alias;
+                    if (pullReply.alias.TryGetValue(e.uuid, out alias))
+                        e._alias = alias;
+                    string application;
+                    if (pullReply.property.TryGetValue(e.uuid, out application))
+                        e._application = application;
+                    control.DeviceList.Add(e);
+                }
+            }
         }
 
+        public class PullReply
+        {
+            public DeviceEntity[] device { get; set; }
+            public Dictionary<string, string> property { get; set; }
+            public Dictionary<string, string> alias { get; set; }
+        }
         public class DeviceEntity
         {
             public string uuid { get; set; }
-            public string serialNumber { get; set; }
-            public string name { get; set; }
-            public string operationSystem { get; set; }
-            public string systemVersion { get; set; }
-            public string shape { get; set; }
             public int battery { get; set; }
-            public int volume { get; set; }
-            public int brightness { get; set; }
-            public string storage { get; set; }
-            public long storageBlocks { get; set; }
-            public long storageAvailable { get; set; }
-            public string network { get; set; }
             public int networkStrength { get; set; }
-            public Dictionary<string, string> program { get; set; }
-            public int access { get; set; }
-            public string alias { get; set; }
-
-            public Visibility _acceptVisibility { get; set; }
-            public Visibility _rejectVisibility { get; set; }
-            public Visibility _waitVisibility { get; set; }
+            public string _alias { get; set; }
+            public string _application { get; set; }
         }
 
         public class DomainEntity
@@ -90,6 +96,60 @@ namespace ogm.actor
         }
 
         public void RefreshWithExtra()
+        {
+            DeviceList.Clear();
+            object o_uuid;
+            if (!PageExtra.TryGetValue("domain.uuid", out o_uuid))
+                return;
+            object o_name;
+            if (!PageExtra.TryGetValue("domain.name", out o_name))
+                return;
+            tbDomain.Uid = (string)o_uuid;
+            tbDomain.Text = (string)o_name;
+            tbDomain.IsEnabled = false;
+
+            pull(tbDomain.Uid);
+        }
+
+        private void onResetCliked(object sender, RoutedEventArgs e)
+        {
+            tbDomain.Uid = "";
+            tbDomain.Text = "";
+            DeviceList.Clear();
+        }
+
+        private void onConnectClicked(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbDomain.Text))
+                return;
+            pull(tbDomain.Uid);
+        }
+
+        private void onDeviceSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void pull(string _domainUUID)
+        {
+            var bridge = facade.getViewBridge() as ISyncViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["domain"] = _domainUUID;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnPullSubmit(json);
+        }
+
+        private void onInstallClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onRunClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onExitClicked(object sender, RoutedEventArgs e)
         {
 
         }

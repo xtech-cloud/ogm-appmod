@@ -15,5 +15,6 @@ namespace ogm.actor
 
         void OnOpenGuardUi();
         void OnOpenSyncUi();
+        void OnOpenApplicationUi();
     }
 }

@@ -55,7 +55,7 @@ namespace ogm.actor
             public void ReceiveCreate(string _json)
             {
                 var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if(status.code == 0)
+                if (status.code == 0)
                 {
                     control.formNewDomain.Visibility = Visibility.Collapsed;
                 }
@@ -64,7 +64,7 @@ namespace ogm.actor
             public void ReceiveUpdate(string _json)
             {
                 var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if(status.code == 0)
+                if (status.code == 0)
                 {
                     control.formEditDomain.Visibility = Visibility.Collapsed;
                 }
@@ -73,7 +73,8 @@ namespace ogm.actor
 
         public DomainFacade facade { get; set; }
         public GuardControl controlGuard { get; set; }
-        public SyncControl controlSync{ get; set; }
+        public SyncControl controlSync { get; set; }
+        public ApplicationControl controlApplication { get; set; }
         public ObservableCollection<DomainEntity> DomainList { get; set; }
 
         public DomainControl()
@@ -195,6 +196,19 @@ namespace ogm.actor
             controlSync.RefreshWithExtra();
             var bridge = facade.getViewBridge() as IDomainViewBridge;
             bridge.OnOpenSyncUi();
+        }
+
+        private void OnBrowseApplicationClick(object sender, RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+
+            controlApplication.PageExtra["domain.uuid"] = item.uuid;
+            controlApplication.PageExtra["domain.name"] = item.name;
+            controlApplication.RefreshWithExtra();
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            bridge.OnOpenApplicationUi();
         }
     }
 }

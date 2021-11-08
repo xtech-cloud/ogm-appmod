@@ -80,6 +80,15 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="OnBrowseApplicationClick">应用管理</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
                                             <Hyperlink Click="OnBrowseSyncClick">同步控制</Hyperlink>
                                         </TextBlock>
                                     </DataTemplate>

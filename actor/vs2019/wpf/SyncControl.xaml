@@ -19,6 +19,73 @@
     </UserControl.Resources>
 
     <DockPanel>
+        <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <hc:SimplePanel Margin="24">
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox Name="tbDomain" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="域" Style="{StaticResource TextBoxExtend}"/>
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
+                    <Button Content="连接"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onConnectClicked" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+
+        <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <DockPanel Margin="24">
+                <hc:UniformSpacingPanel Name="formEditDevice" DockPanel.Dock="Right" Spacing="24" Orientation="Vertical" Width="320" Margin="24,0,0,0">
+                    <Border Style="{StaticResource BorderTipDanger}">
+                        <TextBlock Text="电源"/>
+                    </Border>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Left">
+                        <Button Content="待机"  Width="80" Style="{StaticResource ButtonSuccess}"/>
+                        <Button Content="重启"  Width="80" Style="{StaticResource ButtonWarning}"/>
+                        <Button Content="关机"  Width="80" Style="{StaticResource ButtonDanger}"/>
+                    </hc:UniformSpacingPanel>
+                    <Border Style="{StaticResource BorderTipPrimary}" Margin="0,8,0,0">
+                        <TextBlock Text="原生应用"/>
+                    </Border>
+                    <ComboBox Name="cbApplication" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="应用名" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right">
+                        <Button Content="安装"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onInstallClicked"/>
+                        <Button Content="运行"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onRunClicked"/>
+                        <Button Content="停止"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onExitClicked"/>
+                    </hc:UniformSpacingPanel>
+                    <!--
+                    <Border Style="{StaticResource BorderTipSuccess}" Margin="0,8,0,0">
+                        <TextBlock Text="自定义指令"/>
+                    </Border>
+                    -->
+                </hc:UniformSpacingPanel>
+
+                <DataGrid Name="dgDeviceList" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Extended" SelectionChanged="onDeviceSelectionChanged">
+                     <DataGrid.RowHeaderTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected,RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                        </DataTemplate>
+                    </DataGrid.RowHeaderTemplate>
+                    <DataGrid.Columns>
+                        <!--
+                        <DataGridTemplateColumn Width="50" CanUserResize="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDeviceClicked"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        -->
+                        <DataGridTextColumn Binding="{Binding _alias}" Header="别名" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding battery}" Header="电量" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding networkStrength}" Header="网络" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding application}" Header="前台应用" IsReadOnly="True"/>
+                        <!--/
+                            <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
+                            -->
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
     </DockPanel>
 
 </UserControl>

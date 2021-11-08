@@ -80,5 +80,10 @@ namespace ogm.actor
         {
             view.OpenSyncUi();
         }
+
+        public void OnOpenApplicationUi()
+        {
+            view.OpenApplicationUi();
+        }
     }
 }

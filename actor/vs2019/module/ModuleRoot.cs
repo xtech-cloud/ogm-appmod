@@ -19,6 +19,15 @@ namespace ogm.actor
         {
 
             // 注册数据层
+            framework_.getStaticPipe().RegisterModel(ApplicationModel.NAME, new ApplicationModel());
+            // 注册视图层
+            framework_.getStaticPipe().RegisterView(ApplicationView.NAME, new ApplicationView());
+            // 注册控制层
+            framework_.getStaticPipe().RegisterController(ApplicationController.NAME, new ApplicationController());
+            // 注册服务层
+            framework_.getStaticPipe().RegisterService(ApplicationService.NAME, new ApplicationService());
+    
+            // 注册数据层
             framework_.getStaticPipe().RegisterModel(DeviceModel.NAME, new DeviceModel());
             // 注册视图层
             framework_.getStaticPipe().RegisterView(DeviceView.NAME, new DeviceView());
@@ -59,6 +68,15 @@ namespace ogm.actor
         public void Cancel()
         {
 
+            // 注销服务层
+            framework_.getStaticPipe().CancelService(ApplicationService.NAME);
+            // 注销控制层
+            framework_.getStaticPipe().CancelController(ApplicationController.NAME);
+            // 注销视图层
+            framework_.getStaticPipe().CancelView(ApplicationView.NAME);
+            // 注销数据层
+            framework_.getStaticPipe().CancelModel(ApplicationModel.NAME);
+    
             // 注销服务层
             framework_.getStaticPipe().CancelService(DeviceService.NAME);
             // 注销控制层

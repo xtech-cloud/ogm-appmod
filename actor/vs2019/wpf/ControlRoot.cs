@@ -20,6 +20,14 @@ namespace ogm.actor
 
         public void Register()
         {
+            // 注册UI装饰
+            ApplicationFacade facadeApplication = new ApplicationFacade();
+            framework_.getStaticPipe().RegisterFacade(ApplicationFacade.NAME, facadeApplication);
+            ApplicationControl controlApplication = new ApplicationControl();
+            controlApplication.facade = facadeApplication;
+            ApplicationControl.ApplicationUiBridge uiApplicationBridge = new ApplicationControl.ApplicationUiBridge();
+            uiApplicationBridge.control = controlApplication;
+            facadeApplication.setUiBridge(uiApplicationBridge);
 
             // 注册UI装饰
             DeviceFacade facadeDevice = new DeviceFacade();
@@ -59,6 +67,7 @@ namespace ogm.actor
 
             controlDomain.controlGuard = controlGuard;
             controlDomain.controlSync = controlSync;
+            controlDomain.controlApplication = controlApplication;
         }
 
         public void Cancel()

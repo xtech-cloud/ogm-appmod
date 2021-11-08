@@ -8,6 +8,81 @@ using XTC.oelMVCS;
 namespace ogm.actor.Proto
 {
 
+        public class ApplicationAddRequest
+        {
+            public ApplicationAddRequest()
+            {
+                _domain = Any.FromString("");
+                _name = Any.FromString("");
+                _version = Any.FromString("");
+                _program = Any.FromString("");
+                _location = Any.FromString("");
+                _url = Any.FromString("");
+
+            }
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("version")]
+            public Any _version {get;set;}
+            [JsonPropertyName("program")]
+            public Any _program {get;set;}
+            [JsonPropertyName("location")]
+            public Any _location {get;set;}
+            [JsonPropertyName("url")]
+            public Any _url {get;set;}
+
+        }
+    
+        public class ApplicationRemoveRequest
+        {
+            public ApplicationRemoveRequest()
+            {
+                _uuid = Any.FromString("");
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+        }
+    
+        public class ApplicationListRequest
+        {
+            public ApplicationListRequest()
+            {
+                _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _domain = Any.FromString("");
+
+            }
+            [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
+
+        }
+    
+        public class ApplicationListResponse
+        {
+            public ApplicationListResponse()
+            {
+                _status = new Status();
+                _total = Any.FromInt64(0);
+                _application = new ApplicationEntity[0];
+
+            }
+            [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("application")]
+            public ApplicationEntity[] _application {get;set;}
+
+        }
+    
         public class DeviceListResponse
         {
             public DeviceListResponse()
@@ -425,6 +500,33 @@ namespace ogm.actor.Proto
 
         }
     
+        public class ApplicationEntity
+        {
+            public ApplicationEntity()
+            {
+                _uuid = Any.FromString("");
+                _name = Any.FromString("");
+                _version = Any.FromString("");
+                _program = Any.FromString("");
+                _location = Any.FromString("");
+                _url = Any.FromString("");
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("version")]
+            public Any _version {get;set;}
+            [JsonPropertyName("program")]
+            public Any _program {get;set;}
+            [JsonPropertyName("location")]
+            public Any _location {get;set;}
+            [JsonPropertyName("url")]
+            public Any _url {get;set;}
+
+        }
+    
         public class SyncPushRequest
         {
             public SyncPushRequest()
@@ -488,6 +590,7 @@ namespace ogm.actor.Proto
             {
                 _status = new Status();
                 _device = new DeviceEntity[0];
+                _alias = new Dictionary<string, string>();
                 _property = new Dictionary<string, string>();
 
             }
@@ -495,6 +598,8 @@ namespace ogm.actor.Proto
             public Status _status {get;set;}
             [JsonPropertyName("device")]
             public DeviceEntity[] _device {get;set;}
+            [JsonPropertyName("alias")]
+            public Dictionary<string, string> _alias {get;set;}
             [JsonPropertyName("property")]
             public Dictionary<string, string> _property {get;set;}
 
