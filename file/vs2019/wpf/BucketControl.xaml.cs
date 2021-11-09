@@ -9,6 +9,11 @@ namespace ogm.file
 {
     public partial class BucketControl : UserControl
     {
+        public class ReplyStatus
+        {
+            public int code { get; set; }
+            public string message { get; set; }
+        }
         public class BucketEntity
         {
             public string uuid { get; set; }
@@ -69,9 +74,20 @@ namespace ogm.file
 
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
-                control.PermissionCreate = _permission.ContainsKey("/ogm/file/Bucket/Create");
+                control.PermissionCreate = _permission.ContainsKey("/ogm/file/Bucket/Make");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/file/Bucket/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/file/Bucket/Delete");
+            }
+
+            public void ReceiveMake(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<ReplyStatus>(_json);
+                if(reply.code != 0)
+                {
+                    Alert(reply.message);
+                    return;
+                }
+                control.formNewBucket.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -200,8 +216,20 @@ namespace ogm.file
         {
             formEditBucket.Visibility = Visibility.Collapsed;
             formNewBucket.Visibility = Visibility.Visible;
-            //TODO
 
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["name"] = tbNewName.Text;
+            param["capacity"] = tbNewCapacity.Value * 1024 * 1024 * 1024;
+            param["engine"] = cbNewEngine.SelectedIndex + 1;
+            param["address"] = tbNewAddress.Text;
+            param["scope"] = tbNewScope.Text;
+            param["accessKey"] = tbNewKey.Text;
+            param["accessSecret"] = tbNewSecret.Text;
+            param["url"] = tbNewUrl.Text;
+
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnMakeSubmit(json);
         }
 
         private void onNewCancelClicked(object sender, RoutedEventArgs e)

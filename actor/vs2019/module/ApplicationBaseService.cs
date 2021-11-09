@@ -30,6 +30,7 @@ namespace ogm.actor
             paramMap["program"] = _request._program;
             paramMap["location"] = _request._location;
             paramMap["url"] = _request._url;
+            paramMap["upgrade"] = _request._upgrade;
 
             post(string.Format("{0}/ogm/actor/Application/Add", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
@@ -75,6 +76,30 @@ namespace ogm.actor
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.ApplicationListResponse>(_reply, options);
                 model.SaveList(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
+        public void PostUpdate(Proto.ApplicationUpdateRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+            paramMap["name"] = _request._name;
+            paramMap["version"] = _request._version;
+            paramMap["program"] = _request._program;
+            paramMap["location"] = _request._location;
+            paramMap["url"] = _request._url;
+            paramMap["upgrade"] = _request._upgrade;
+
+            post(string.Format("{0}/ogm/actor/Application/Update", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                model.SaveUpdate(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());

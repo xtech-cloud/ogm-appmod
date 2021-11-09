@@ -12,7 +12,11 @@ namespace ogm.file
         }
         public const string NAME = "ogm.file.BucketModel";
 
-        public void SaveMake(Proto.BlankResponse _rsp) { }
+        public void SaveMake(Proto.BlankResponse _rsp) 
+        {
+            this.Bubble("/reply/bucket/make", _rsp._status);
+        }
+
         public void SaveList(Proto.BucketListResponse _rsp)
         {
             if (_rsp._status._code.AsInt32() != 0)

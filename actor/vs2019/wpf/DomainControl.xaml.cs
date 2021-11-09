@@ -50,6 +50,9 @@ namespace ogm.actor
 
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
+                control.PermissionCreate = _permission.ContainsKey("/ogm/actor/Domain/Create");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/actor/Domain/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/actor/Domain/Delete");
             }
 
             public void ReceiveCreate(string _json)
@@ -76,6 +79,28 @@ namespace ogm.actor
         public SyncControl controlSync { get; set; }
         public ApplicationControl controlApplication { get; set; }
         public ObservableCollection<DomainEntity> DomainList { get; set; }
+
+        public static readonly DependencyProperty PermissionCreateProperty = DependencyProperty.Register("PermissionCreate", typeof(bool), typeof(DomainControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(DomainControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionDeleteProperty = DependencyProperty.Register("PermissionDelete", typeof(bool), typeof(DomainControl), new PropertyMetadata(true));
+
+        public bool PermissionCreate
+        {
+            get { return (bool)GetValue(PermissionCreateProperty); }
+            set { SetValue(PermissionCreateProperty, value); }
+        }
+
+        public bool PermissionEdit
+        {
+            get { return (bool)GetValue(PermissionEditProperty); }
+            set { SetValue(PermissionEditProperty, value); }
+        }
+
+        public bool PermissionDelete
+        {
+            get { return (bool)GetValue(PermissionDeleteProperty); }
+            set { SetValue(PermissionDeleteProperty, value); }
+        }
 
         public DomainControl()
         {

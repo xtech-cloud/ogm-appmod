@@ -76,7 +76,7 @@
                             <DataGridTemplateColumn Width="80" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource DownloadGeometry}" IsEnabled="{Binding Path=PermissionPreview, RelativeSource={RelativeSource AncestorType={x:Type local:ObjectControl}}}" Click="onDownloadObjectClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource DownloadGeometry}" IsEnabled="{Binding Path=PermissionPublish, RelativeSource={RelativeSource AncestorType={x:Type local:ObjectControl}}}" Click="onDownloadObjectClicked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

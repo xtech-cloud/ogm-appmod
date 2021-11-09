@@ -59,7 +59,7 @@
                 </hc:UniformSpacingPanel>
 
                 <DataGrid Name="dgDeviceList" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Extended" SelectionChanged="onDeviceSelectionChanged">
-                     <DataGrid.RowHeaderTemplate>
+                    <DataGrid.RowHeaderTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding IsSelected,RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
                         </DataTemplate>
@@ -76,7 +76,10 @@
                         -->
                         <DataGridTextColumn Binding="{Binding _alias}" Header="别名" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding battery}" Header="电量" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding volume}" Header="音量" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding brightness}" Header="亮度" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding networkStrength}" Header="网络" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding _storageAvailable}" Header="可用空间" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding application}" Header="前台应用" IsReadOnly="True"/>
                         <!--/
                             <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>

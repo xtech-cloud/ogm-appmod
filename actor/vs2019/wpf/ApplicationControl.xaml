@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:ogm.actor"
              mc:Ignorable="d" 
              DataContext="{Binding RelativeSource={RelativeSource self}}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="900" d:DesignWidth="1440">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -43,6 +43,11 @@
                     <TextBox Name="tbNewProgram" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="执行程序" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbNewLocation" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="安装路径" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbNewUrl" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="下载地址" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <ComboBox Name="cbNewUpgrade" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="更新策略" Style="{StaticResource ComboBoxExtend}" Text="自动更新">
+                        <ComboBoxItem Content="不更新"></ComboBoxItem>
+                        <ComboBoxItem Content="自动更新"></ComboBoxItem>
+                        <ComboBoxItem Content="手动更新"></ComboBoxItem>
+                    </ComboBox>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
                         <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onNewSubmitClicked" />
                         <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onNewCancelClicked" />
@@ -57,6 +62,11 @@
                     <TextBox Name="tbEditProgram" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="执行程序" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbEditLocation" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="安装路径" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbEditUrl" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="下载地址" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <ComboBox Name="cbEditUpgrade" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="更新策略" Style="{StaticResource ComboBoxExtend}" Text="自动更新">
+                        <ComboBoxItem Content="不更新"></ComboBoxItem>
+                        <ComboBoxItem Content="自动更新"></ComboBoxItem>
+                        <ComboBoxItem Content="手动更新"></ComboBoxItem>
+                    </ComboBox>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
                         <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onEditSubmitClicked" />
                         <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onEditCancelClicked" />
@@ -64,13 +74,13 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:SimplePanel>
-                    <Button Content="+ 添加"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onAddClicked" VerticalAlignment="Top" />
+                    <Button Content="+ 添加"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onAddClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionAdd}"/>
                     <DataGrid Name="dgApplicationList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding ApplicationList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onApplicationSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditApplicationClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditApplicationClicked" IsEnabled="{Binding Path=PermissionUpdate, RelativeSource={RelativeSource AncestorType={x:Type local:ApplicationControl}}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -78,6 +88,24 @@
                             <DataGridTextColumn Binding="{Binding version}" Header="版本" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding program}" Header="执行程序" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding location}" Header="安装路径" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Width="100" CanUserResize="False" Header="更新策略">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Style="{StaticResource LabelDanger}" Content="不更新" Visibility="{Binding _noUpgradeVisibility}"></Label>
+                                            <Label Style="{StaticResource LabelSuccess}" Content="自动更新" Visibility="{Binding _autoUpgradeVisibility}"></Label>
+                                            <Label Style="{StaticResource LabelWarning}" Content="手动更新" Visibility="{Binding _manualUpgradeVisibility}"></Label>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" Click="onDeleteApplicationClicked" IsEnabled="{Binding Path=PermissionUpdate, RelativeSource={RelativeSource AncestorType={x:Type local:ApplicationControl}}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <!--/
                             <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
                             <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>

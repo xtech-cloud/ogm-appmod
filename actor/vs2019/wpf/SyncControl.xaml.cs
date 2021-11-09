@@ -57,6 +57,7 @@ namespace ogm.actor
                     if (pullReply.property.TryGetValue(e.uuid, out application))
                         e._application = application;
                     control.DeviceList.Add(e);
+                    e._storageAvailable = string.Format("{0} G", e.storageAvailable / 1024 / 1024 / 1024);
                 }
             }
         }
@@ -71,9 +72,13 @@ namespace ogm.actor
         {
             public string uuid { get; set; }
             public int battery { get; set; }
+            public int volume { get; set; }
+            public int brightness { get; set; }
+            public long storageAvailable { get; set; }
             public int networkStrength { get; set; }
             public string _alias { get; set; }
             public string _application { get; set; }
+            public string _storageAvailable { get; set; }
         }
 
         public class DomainEntity

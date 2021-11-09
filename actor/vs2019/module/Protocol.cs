@@ -18,6 +18,7 @@ namespace ogm.actor.Proto
                 _program = Any.FromString("");
                 _location = Any.FromString("");
                 _url = Any.FromString("");
+                _upgrade = Any.FromInt32(0);
 
             }
             [JsonPropertyName("domain")]
@@ -32,6 +33,38 @@ namespace ogm.actor.Proto
             public Any _location {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
+            [JsonPropertyName("upgrade")]
+            public Any _upgrade {get;set;}
+
+        }
+    
+        public class ApplicationUpdateRequest
+        {
+            public ApplicationUpdateRequest()
+            {
+                _uuid = Any.FromString("");
+                _name = Any.FromString("");
+                _version = Any.FromString("");
+                _program = Any.FromString("");
+                _location = Any.FromString("");
+                _url = Any.FromString("");
+                _upgrade = Any.FromInt32(0);
+
+            }
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("version")]
+            public Any _version {get;set;}
+            [JsonPropertyName("program")]
+            public Any _program {get;set;}
+            [JsonPropertyName("location")]
+            public Any _location {get;set;}
+            [JsonPropertyName("url")]
+            public Any _url {get;set;}
+            [JsonPropertyName("upgrade")]
+            public Any _upgrade {get;set;}
 
         }
     
@@ -510,6 +543,7 @@ namespace ogm.actor.Proto
                 _program = Any.FromString("");
                 _location = Any.FromString("");
                 _url = Any.FromString("");
+                _upgrade = Any.FromInt32(0);
 
             }
             [JsonPropertyName("uuid")]
@@ -524,6 +558,8 @@ namespace ogm.actor.Proto
             public Any _location {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
+            [JsonPropertyName("upgrade")]
+            public Any _upgrade {get;set;}
 
         }
     

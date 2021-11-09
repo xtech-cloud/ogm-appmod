@@ -32,6 +32,8 @@ namespace ogm.actor
     
            addRouter("/ogm/actor/Application/List", this.handleApplicationList);
     
+           addRouter("/ogm/actor/Application/Update", this.handleApplicationUpdate);
+    
         }
 
         protected override void postSetup()
@@ -79,6 +81,15 @@ namespace ogm.actor
         private void handleApplicationList(Model.Status _status, object _data)
         {
             var rsp = (Proto.ApplicationListResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleApplicationUpdate(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else

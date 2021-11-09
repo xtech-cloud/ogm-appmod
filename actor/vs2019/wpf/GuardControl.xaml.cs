@@ -80,6 +80,8 @@ namespace ogm.actor
 
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
+                control.PermissionEdit = _permission.ContainsKey("/ogm/actor/Guard/Edit");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/actor/Guard/Delete");
             }
 
             public void ReceiveFetch(string _reply)
@@ -123,6 +125,21 @@ namespace ogm.actor
 
         //页面参数，用于页面间跳转时传递数据
         public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
+
+        public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(GuardControl), new PropertyMetadata(true));
+        public static readonly DependencyProperty PermissionDeleteProperty = DependencyProperty.Register("PermissionDelete", typeof(bool), typeof(GuardControl), new PropertyMetadata(true));
+
+        public bool PermissionEdit
+        {
+            get { return (bool)GetValue(PermissionEditProperty); }
+            set { SetValue(PermissionEditProperty, value); }
+        }
+
+        public bool PermissionDelete
+        {
+            get { return (bool)GetValue(PermissionDeleteProperty); }
+            set { SetValue(PermissionDeleteProperty, value); }
+        }
 
         public GuardControl()
         {

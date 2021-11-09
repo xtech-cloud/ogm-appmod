@@ -62,11 +62,20 @@ namespace ogm.file
             status.objectList = _rsp._entity;
             this.Bubble("/reply/object/list", null);
         }
-        public void SavePublish(Proto.ObjectPublishResponse _rsp) { }
+        public void SavePublish(Proto.ObjectPublishResponse _rsp) 
+        {
+            if(_rsp._status._code.AsInt32() != 0)
+            {
+                getLogger().Error(_rsp._status._message.AsString());
+                return;
+            }
+            this.Bubble("/reply/object/publish", _rsp._url.AsString());
+        }
         public void SavePreview(Proto.ObjectPreviewResponse _rsp)
         {
 
         }
+
         public void SaveRetract(Proto.BlankResponse _rsp) { }
 
 

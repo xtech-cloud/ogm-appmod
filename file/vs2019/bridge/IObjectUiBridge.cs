@@ -12,5 +12,6 @@ namespace ogm.file
         void receivePrepare(string _json);
         void receiveFlush(string _json);
         void receiveList(string _json);
+        void receivePublish(string _json);
     }
 }

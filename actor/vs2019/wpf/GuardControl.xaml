@@ -54,7 +54,7 @@
                         <DataGridTemplateColumn Width="50" CanUserResize="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDeviceClicked"/>
+                                    <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDeviceClicked" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:GuardControl}}}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -71,9 +71,9 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Binding="{Binding serialNumber}" Header="序列号" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding battery}" Header="电量" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding storageAvailable}" Header="存储" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding networkStrength}" Header="网络" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding name}" Header="设备名" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding operatingSystem}" Header="操作系统" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding systemVersion}" Header="系统版本" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding shape}" Header="形态" IsReadOnly="True"/>
                         <!--/
                             <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>

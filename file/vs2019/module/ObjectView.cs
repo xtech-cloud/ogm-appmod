@@ -17,6 +17,7 @@ namespace ogm.file
             addObserver(ObjectModel.NAME, "/reply/object/prepare", this.receiveObjectPrepare);
             addObserver(ObjectModel.NAME, "/reply/object/flush", this.receiveObjectFlush);
             addObserver(ObjectModel.NAME, "/reply/object/list", this.receiveObjectList);
+            addObserver(ObjectModel.NAME, "/reply/object/publish", this.receiveObjectPublish);
         }
 
         private void receiveObjectPrepare(Model.Status _status, object _data)
@@ -48,6 +49,14 @@ namespace ogm.file
             bridge.receiveList(json);
         }
 
+        private void receiveObjectPublish(Model.Status _status, object _data)
+        {
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["url"] = _data as string;
+            var bridge = facade.getUiBridge() as IObjectUiBridge;
+            string json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
+            bridge.receivePublish(json);
+        }
 
     }
 }

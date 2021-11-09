@@ -38,6 +38,15 @@ namespace ogm.actor
         }
         
 
+        public void OnUpdateSubmit(string _json)
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new AnyProtoConverter());
+            var req = JsonSerializer.Deserialize<Proto.ApplicationUpdateRequest>(_json, options);
+            service.PostUpdate(req);
+        }
+        
+
 
     }
 }

@@ -35,6 +35,11 @@ namespace ogm.file
             public string message { get; set; }
         }
 
+        public class PublishReply
+        {
+            public string url { get; set; }
+        }
+
         public class ListReply
         {
             public long total { get; set; }
@@ -186,11 +191,17 @@ namespace ogm.file
 
             public void UpdatePermission(Dictionary<string, string> _permission)
             {
-                control.PermissionUpload = _permission.ContainsKey("/ogm/file/Object/Upload");
+                control.PermissionUpload = _permission.ContainsKey("/ogm/file/Object/Prepare");
                 control.PermissionPreview = _permission.ContainsKey("/ogm/file/Object/Perview");
                 control.PermissionPublish = _permission.ContainsKey("/ogm/file/Object/Publish");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/file/Object/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/file/Object/Delete");
+            }
+
+            public void receivePublish(string _json)
+            {
+                PublishReply reply = JsonSerializer.Deserialize<PublishReply>(_json);
+                Clipboard.SetDataObject(reply.url);
             }
         }
 
@@ -450,7 +461,8 @@ namespace ogm.file
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["uuid"] = item.uuid;
             string json = JsonSerializer.Serialize(param);
-            bridge.OnPreviewSubmit(json);
+            //bridge.OnPreviewSubmit(json);
+            bridge.OnPublishSubmit(json);
         }
     }
 }

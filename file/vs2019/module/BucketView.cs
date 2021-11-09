@@ -20,6 +20,7 @@ namespace ogm.file
             base.setup();
 
             addRouter("/sidemenu/tab/activated", this.handleTabActivated);
+            addObserver(BucketModel.NAME, "/reply/bucket/make", this.receiveBucketMake);
             addObserver(BucketModel.NAME, "/reply/bucket/list", this.receiveBucketList);
         }
 
@@ -34,6 +35,13 @@ namespace ogm.file
             req._offset = Any.FromInt32(0);
             req._count = Any.FromInt32(int.MaxValue);
             bridge.service.PostList(req);
+        }
+
+        private void receiveBucketMake(Model.Status _status, object _data)
+        {
+            var bridge = facade.getUiBridge() as IBucketUiBridge;
+            var json = JsonSerializer.Serialize(_data, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveMake(json);
         }
 
         private void receiveBucketList(Model.Status _status, object _data)

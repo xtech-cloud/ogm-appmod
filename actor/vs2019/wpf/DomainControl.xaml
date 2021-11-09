@@ -56,13 +56,13 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:SimplePanel>
-                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" />
+                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionCreate}" />
                     <DataGrid Name="dgDomainList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DomainList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onDomainSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDomainClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditDomainClicked" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:DomainControl}}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
