@@ -14,6 +14,7 @@ namespace ogm.actor
             base.setup();
 
             addObserver(SyncModel.NAME, "/reply/sync/pull", this.receivePull);
+            addObserver(ApplicationModel.NAME, "/reply/application/list", this.receiveApplicationList);
         }
 
         private void receivePull(Model.Status _status, object _data)
@@ -32,6 +33,16 @@ namespace ogm.actor
             param["property"] = status.property;
             var json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
             bridge.ReceivePull(json);
+        }
+
+        private void receiveApplicationList(Model.Status _status, object _data)
+        {
+            var status = _status as ApplicationModel.ApplicationStatus;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["total"] = status.applicationTotal;
+            param["application"] = status.applicationList;
+            var json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveApplicationList(json);
         }
 
     }

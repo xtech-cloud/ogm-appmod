@@ -571,6 +571,7 @@ namespace ogm.actor.Proto
                 _device = new DeviceEntity();
                 _upProperty = new Dictionary<string, string>();
                 _downProperty = Any.FromStringAry(new string[0]);
+                _task = Any.FromStringAry(new string[0]);
 
             }
             [JsonPropertyName("domain")]
@@ -581,6 +582,8 @@ namespace ogm.actor.Proto
             public Dictionary<string, string> _upProperty {get;set;}
             [JsonPropertyName("downProperty")]
             public Any _downProperty {get;set;}
+            [JsonPropertyName("task")]
+            public Any _task {get;set;}
 
         }
     
@@ -592,6 +595,7 @@ namespace ogm.actor.Proto
                 _access = Any.FromInt32(0);
                 _alias = Any.FromString("");
                 _property = new Dictionary<string, string>();
+                _task = new Dictionary<string, string>();
 
             }
             [JsonPropertyName("status")]
@@ -602,6 +606,8 @@ namespace ogm.actor.Proto
             public Any _alias {get;set;}
             [JsonPropertyName("property")]
             public Dictionary<string, string> _property {get;set;}
+            [JsonPropertyName("task")]
+            public Dictionary<string, string> _task {get;set;}
 
         }
     

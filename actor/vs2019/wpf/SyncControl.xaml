@@ -34,6 +34,7 @@
         <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <DockPanel Margin="24">
                 <hc:UniformSpacingPanel Name="formEditDevice" DockPanel.Dock="Right" Spacing="24" Orientation="Vertical" Width="320" Margin="24,0,0,0">
+                    <!--
                     <Border Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="电源"/>
                     </Border>
@@ -42,12 +43,12 @@
                         <Button Content="重启"  Width="80" Style="{StaticResource ButtonWarning}"/>
                         <Button Content="关机"  Width="80" Style="{StaticResource ButtonDanger}"/>
                     </hc:UniformSpacingPanel>
+                    -->
                     <Border Style="{StaticResource BorderTipPrimary}" Margin="0,8,0,0">
                         <TextBlock Text="原生应用"/>
                     </Border>
                     <ComboBox Name="cbApplication" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="应用名" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch"/>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right">
-                        <Button Content="安装"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onInstallClicked"/>
                         <Button Content="运行"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onRunClicked"/>
                         <Button Content="停止"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onExitClicked"/>
                     </hc:UniformSpacingPanel>

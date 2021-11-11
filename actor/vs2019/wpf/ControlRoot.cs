@@ -65,6 +65,8 @@ namespace ogm.actor
             uiSyncBridge.control = controlSync;
             facadeSync.setUiBridge(uiSyncBridge);
 
+            controlSync.facadeApplication = facadeApplication;
+            controlSync.facadeDomain = facadeDomain;
             controlDomain.controlGuard = controlGuard;
             controlDomain.controlSync = controlSync;
             controlDomain.controlApplication = controlApplication;

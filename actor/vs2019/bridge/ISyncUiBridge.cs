@@ -10,5 +10,6 @@ namespace ogm.actor
         void UpdatePermission(Dictionary<string,string> _permission);
 
         void ReceivePull(string _json);
+        void ReceiveApplicationList(string _json);
     }
 }

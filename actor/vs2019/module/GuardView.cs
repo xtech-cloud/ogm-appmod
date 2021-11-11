@@ -41,5 +41,6 @@ namespace ogm.actor
             var json = JsonSerializer.Serialize(_data, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveEdit(json);
         }
+
     }
 }
