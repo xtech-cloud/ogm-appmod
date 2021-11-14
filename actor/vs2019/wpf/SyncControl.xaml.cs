@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using System.ComponentModel;
+using System.Windows.Media;
+using HandyControl.Tools;
 
 namespace ogm.actor
 {
@@ -25,23 +27,6 @@ namespace ogm.actor
 
             public void Alert(string _message)
             {
-            }
-
-            public void RefreshList(string _reply)
-            {
-                /*
-                control.cbDomainList.Items.Clear();
-                DomainEntity[] domainList = JsonSerializer.Deserialize<DomainEntity[]>(_reply);
-                foreach (var entity in domainList)
-                {
-                    var item = new ComboBoxItem();
-                    item.Content = entity.name;
-                    item.Uid = entity.uuid;
-                    control.cbDomainList.Items.Add(item);
-                }
-                if (control.cbDomainList.Items.Count > 0)
-                    control.cbDomainList.SelectedIndex = 0;
-                */
             }
 
             public void UpdatePermission(Dictionary<string, string> _permission)
@@ -65,7 +50,38 @@ namespace ogm.actor
                     string application;
                     if (pullReply.property.TryGetValue(e.uuid, out application))
                         e._application = application;
+                    int healthy;
+                    if (pullReply.healthy.TryGetValue(e.uuid, out healthy))
+                        e._healthy = healthy;
                     e._storageAvailable = string.Format("{0} G", e.storageAvailable / 1024 / 1024 / 1024);
+
+                    // 解析健康值
+                    Color healthyColor = Colors.Gray;
+                    if (e._healthy > 0)
+                    {
+                        healthyColor = Colors.Green;
+                    }
+                    else
+                    {
+                        e.battery = 0;
+                        e.volume = 0;
+                        e.brightness = 0;
+                        e.networkStrength = 0;
+                    }
+                    e._healthyIcon = Utility.GeometrySourceFromResource(control, "HealthyGeometry", healthyColor);
+
+                    // 解析电量
+                    int batteryLevel = (int)(e.battery / 10);
+                    Color batteryColor = Colors.Gray;
+                    if (batteryLevel > 7)
+                        batteryColor = Colors.Green;
+                    else if (batteryLevel > 4)
+                        batteryColor = Colors.Yellow;
+                    else if (batteryLevel > 2)
+                        batteryColor = Colors.OrangeRed;
+                    else if (batteryLevel > 0)
+                        batteryColor = Colors.Red;
+                    e._batteryIcon = Utility.GeometrySourceFromResource(control, string.Format("Battery{0}Geometry", batteryLevel), batteryColor);
 
                     if (control.deviceIndexMap.ContainsKey(e.uuid))
                     {
@@ -114,6 +130,7 @@ namespace ogm.actor
             public DeviceEntity[] device { get; set; }
             public Dictionary<string, string> property { get; set; }
             public Dictionary<string, string> alias { get; set; }
+            public Dictionary<string, int> healthy { get; set; }
         }
 
         public class ApplicationListReply
@@ -133,7 +150,11 @@ namespace ogm.actor
             public int networkStrength { get; set; }
             public string _alias { get; set; }
             public string _application { get; set; }
+            public int _healthy { get; set; }
             public string _storageAvailable { get; set; }
+            public ImageSource _batteryIcon { get; set; }
+            public ImageSource _healthyIcon { get; set; }
+
 
             public void Clone(DeviceEntity _other)
             {
@@ -145,6 +166,8 @@ namespace ogm.actor
                 _alias = _other._alias;
                 _application = _other._application;
                 _storageAvailable = _other._storageAvailable;
+                _batteryIcon = _other._batteryIcon;
+                _healthyIcon = _other._healthyIcon;
                 OnPrepertyChanged("battery");
                 OnPrepertyChanged("volume");
                 OnPrepertyChanged("brightness");
@@ -153,6 +176,8 @@ namespace ogm.actor
                 OnPrepertyChanged("_alias");
                 OnPrepertyChanged("_application");
                 OnPrepertyChanged("_storageAvailable");
+                OnPrepertyChanged("_batteryIcon");
+                OnPrepertyChanged("_healthyIcon");
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
@@ -182,6 +207,8 @@ namespace ogm.actor
         public DomainFacade facadeDomain { get; set; }
         public ObservableCollection<DeviceEntity> DeviceList { get; set; }
         public bool isSyncPush = false;
+        public string monitorAlias { get; set; }
+        public ImageSource monitorImage{ get; set; }
 
         //页面参数，用于页面间跳转时传递数据
         public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
@@ -194,6 +221,8 @@ namespace ogm.actor
             DeviceList = new ObservableCollection<DeviceEntity>();
             deviceIndexMap = new Dictionary<string, DeviceEntity>();
             InitializeComponent();
+            pageMonitorSingle.Visibility = Visibility.Collapsed;
+            pageMonitorWall.Visibility = Visibility.Visible;
         }
 
         public void RefreshWithExtra()
@@ -333,6 +362,23 @@ namespace ogm.actor
             param["count"] = int.MaxValue;
             string json = JsonSerializer.Serialize(param);
             bridge.OnListSubmit(json);
+        }
+
+        private void onFocusMonitorClicked(object sender, RoutedEventArgs e)
+        {
+            pageMonitorSingle.Visibility = Visibility.Visible;
+            pageMonitorWall.Visibility = Visibility.Collapsed;
+
+            Button btn = sender as Button;
+            if (null == btn)
+                return;
+            lMonitorAlias.Content = btn.Tag;
+        }
+
+        private void onCloseMonitorClicked(object sender, RoutedEventArgs e)
+        {
+            pageMonitorSingle.Visibility = Visibility.Collapsed;
+            pageMonitorWall.Visibility = Visibility.Visible;
         }
     }
 }

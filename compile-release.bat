@@ -1,7 +1,5 @@
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
-msbuild .\assloud\vs2019\meex-assloud.sln /t:Rebuild /p:Configuration=Release
-msbuild .\theloud\vs2019\meex-theloud.sln /t:Rebuild /p:Configuration=Release
-msbuild .\catalog\vs2019\meex-catalog.sln /t:Rebuild /p:Configuration=Release
-msbuild .\meetouch\vs2019\meex-meetouch.sln /t:Rebuild /p:Configuration=Release
-msbuild .\digitalwall\vs2019\meex-digitalwall.sln /t:Rebuild /p:Configuration=Release
+call "D:\ProgramFiles\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+msbuild .\actor\vs2019\ogm-actor.sln /t:Rebuild /p:Configuration=Release
+msbuild .\file\vs2019\ogm-file.sln /t:Rebuild /p:Configuration=Release
+
 

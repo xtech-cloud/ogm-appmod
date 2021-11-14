@@ -31,6 +31,7 @@ namespace ogm.actor
             param["device"] = status.device;
             param["alias"] = status.alias;
             param["property"] = status.property;
+            param["healthy"] = status.healthy;
             var json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
             bridge.ReceivePull(json);
         }

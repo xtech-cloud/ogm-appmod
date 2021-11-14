@@ -32,9 +32,11 @@
         </Border>
 
         <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-            <DockPanel Margin="24">
-                <hc:UniformSpacingPanel Name="formEditDevice" DockPanel.Dock="Right" Spacing="24" Orientation="Vertical" Width="320" Margin="24,0,0,0">
-                    <!--
+            <TabControl Margin="24" TabStripPlacement="Top">
+                <TabItem Header="功能控制" Width="160">
+                    <DockPanel Margin="0,24,0,0">
+                        <hc:UniformSpacingPanel Name="formEditDevice" DockPanel.Dock="Right" Spacing="24" Orientation="Vertical" Width="320" Margin="24,0,0,0">
+                            <!--
                     <Border Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="电源"/>
                     </Border>
@@ -44,29 +46,29 @@
                         <Button Content="关机"  Width="80" Style="{StaticResource ButtonDanger}"/>
                     </hc:UniformSpacingPanel>
                     -->
-                    <Border Style="{StaticResource BorderTipPrimary}" Margin="0,8,0,0">
-                        <TextBlock Text="原生应用"/>
-                    </Border>
-                    <ComboBox Name="cbApplication" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="应用名" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch"/>
-                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right">
-                        <Button Content="运行"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onRunClicked"/>
-                        <Button Content="停止"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onExitClicked"/>
-                    </hc:UniformSpacingPanel>
-                    <!--
+                            <Border Style="{StaticResource BorderTipPrimary}" Margin="0,8,0,0">
+                                <TextBlock Text="原生应用"/>
+                            </Border>
+                            <ComboBox Name="cbApplication" hc:InfoElement.TitleWidth="70" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="应用名" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch"/>
+                            <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right">
+                                <Button Content="运行"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onRunClicked"/>
+                                <Button Content="停止"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onExitClicked"/>
+                            </hc:UniformSpacingPanel>
+                            <!--
                     <Border Style="{StaticResource BorderTipSuccess}" Margin="0,8,0,0">
                         <TextBlock Text="自定义指令"/>
                     </Border>
                     -->
-                </hc:UniformSpacingPanel>
+                        </hc:UniformSpacingPanel>
 
-                <DataGrid Name="dgDeviceList" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Extended" SelectionChanged="onDeviceSelectionChanged">
-                    <DataGrid.RowHeaderTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsSelected,RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
-                        </DataTemplate>
-                    </DataGrid.RowHeaderTemplate>
-                    <DataGrid.Columns>
-                        <!--
+                        <DataGrid Name="dgDeviceList" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding DeviceList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Extended" SelectionChanged="onDeviceSelectionChanged">
+                            <DataGrid.RowHeaderTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected,RelativeSource={RelativeSource AncestorType=DataGridRow}}"/>
+                                </DataTemplate>
+                            </DataGrid.RowHeaderTemplate>
+                            <DataGrid.Columns>
+                                <!--
                         <DataGridTemplateColumn Width="50" CanUserResize="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -75,21 +77,88 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         -->
-                        <DataGridTextColumn Binding="{Binding _alias}" Header="别名" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding battery}" Header="电量" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding volume}" Header="音量" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding brightness}" Header="亮度" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding networkStrength}" Header="网络" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding _storageAvailable}" Header="可用空间" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding application}" Header="前台应用" IsReadOnly="True"/>
-                        <!--/
+                                <DataGridTemplateColumn Width="50" CanUserResize="False" Header="连接">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding _healthyIcon}" Width="16" Height="16" Stretch="Uniform"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding _alias}" Header="别名" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Width="50" CanUserResize="False" Header="电量">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding _batteryIcon}" Width="16" Height="16" Stretch="Uniform"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="80" CanUserResize="False" Header="音量">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ProgressBar Width="50" Height="8" Style="{StaticResource ProgressBarFlat}" Value="{Binding volume}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="80" CanUserResize="False" Header="亮度">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ProgressBar Width="50" Height="8" Style="{StaticResource ProgressBarFlat}" Value="{Binding brightness}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="80" CanUserResize="False" Header="网络">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ProgressBar Width="50" Height="8" Style="{StaticResource ProgressBarFlat}" Value="{Binding networkStrength}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding _storageAvailable}" Header="可用空间" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding application}" Header="前台应用" IsReadOnly="True"/>
+                                <!--/
                             <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
                             <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
                             -->
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </TabItem>
+
+                <TabItem Header="画面监控" Width="160">
+                    <hc:SimplePanel>
+                        <ListBox Name="pageMonitorWall" BorderThickness="0" Style="{StaticResource WrapPanelHorizontalListBox}" ItemsSource="{Binding DeviceList}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="local:DeviceEntity">
+                                    <hc:Card MaxWidth="240" BorderThickness="0" Effect="{StaticResource EffectShadow2}" Margin="8" Footer="{Binding}">
+                                        <Border CornerRadius="4,4,0,0" Style="{StaticResource BorderClip}">
+                                            <hc:SimplePanel Width="240" Height="240">
+                                                <Image Width="240" Height="240" Source="{Binding _healthyIcon}" Stretch="Uniform"/>
+                                            </hc:SimplePanel>
+                                        </Border>
+                                        <hc:Card.FooterTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="10">
+                                                    <DockPanel>
+                                                        <Button DockPanel.Dock="Right"  Padding="0,8" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" Tag="{Binding _alias}" hc:IconElement.Geometry="{StaticResource MaximumGeometry}" Click="onFocusMonitorClicked"/>
+                                                        <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockSubTitleBold}" Text="{Binding _alias}" HorizontalAlignment="Left"/>
+                                                    </DockPanel>
+                                                    <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockDefault}" Text="{Binding application}" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </hc:Card.FooterTemplate>
+                                    </hc:Card>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <hc:SimplePanel Name="pageMonitorSingle">
+                            <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockSubTitleBold}" Text="{Binding _alias}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            <Label Name="lMonitorAlias" Margin="16" FontSize="26" VerticalAlignment="Top"></Label>
+                            <Image Source="{Binding monitorImage}" Stretch="Uniform"/>
+                            <Button Margin="16" Content="切换"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onCloseMonitorClicked" VerticalAlignment="Bottom"/>
+                        </hc:SimplePanel>
+                    </hc:SimplePanel>
+                </TabItem>
+            </TabControl>
         </Border>
     </DockPanel>
-
 </UserControl>

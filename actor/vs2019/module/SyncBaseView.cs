@@ -30,6 +30,8 @@ namespace ogm.actor
     
            addRouter("/ogm/actor/Sync/Pull", this.handleSyncPull);
     
+           addRouter("/ogm/actor/Sync/Upload", this.handleSyncUpload);
+    
         }
 
         protected override void postSetup()
@@ -68,6 +70,15 @@ namespace ogm.actor
         private void handleSyncPull(Model.Status _status, object _data)
         {
             var rsp = (Proto.SyncPullResponse)_data;
+            if(rsp._status._code.AsInt32() == 0)
+                bridge.Alert("Success");
+            else
+                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+        }
+    
+        private void handleSyncUpload(Model.Status _status, object _data)
+        {
+            var rsp = (Proto.BlankResponse)_data;
             if(rsp._status._code.AsInt32() == 0)
                 bridge.Alert("Success");
             else

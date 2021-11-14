@@ -634,6 +634,7 @@ namespace ogm.actor.Proto
                 _device = new DeviceEntity[0];
                 _alias = new Dictionary<string, string>();
                 _property = new Dictionary<string, string>();
+                _healthy = new Dictionary<string, int>();
 
             }
             [JsonPropertyName("status")]
@@ -644,6 +645,29 @@ namespace ogm.actor.Proto
             public Dictionary<string, string> _alias {get;set;}
             [JsonPropertyName("property")]
             public Dictionary<string, string> _property {get;set;}
+            [JsonPropertyName("healthy")]
+            public Dictionary<string, int> _healthy {get;set;}
+
+        }
+    
+        public class SyncUploadRequest
+        {
+            public SyncUploadRequest()
+            {
+                _domain = Any.FromString("");
+                _device = Any.FromString("");
+                _name = Any.FromString("");
+                _data = Any.FromString("");
+
+            }
+            [JsonPropertyName("domain")]
+            public Any _domain {get;set;}
+            [JsonPropertyName("device")]
+            public Any _device {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("data")]
+            public Any _data {get;set;}
 
         }
     

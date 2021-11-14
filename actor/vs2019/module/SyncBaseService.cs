@@ -26,6 +26,7 @@ namespace ogm.actor
             Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
             paramMap["domain"] = _request._domain;
             paramMap["downProperty"] = _request._downProperty;
+            paramMap["task"] = _request._task;
 
             post(string.Format("{0}/ogm/actor/Sync/Push", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
@@ -52,6 +53,27 @@ namespace ogm.actor
                 options.Converters.Add(new AnyProtoConverter());
                 var rsp = JsonSerializer.Deserialize<Proto.SyncPullResponse>(_reply, options);
                 model.SavePull(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+        
+
+        public void PostUpload(Proto.SyncUploadRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["domain"] = _request._domain;
+            paramMap["device"] = _request._device;
+            paramMap["name"] = _request._name;
+            paramMap["data"] = _request._data;
+
+            post(string.Format("{0}/ogm/actor/Sync/Upload", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new AnyProtoConverter());
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, options);
+                model.SaveUpload(rsp);
             }, (_err) =>
             {
                 getLogger().Error(_err.getMessage());
