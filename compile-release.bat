@@ -1,5 +1,12 @@
+@echo off
 call "D:\ProgramFiles\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
-msbuild .\actor\vs2019\ogm-actor.sln /t:Rebuild /p:Configuration=Release
-msbuild .\file\vs2019\ogm-file.sln /t:Rebuild /p:Configuration=Release
+for /d %%d in (*) do (
+    if exist "%%d\vs2019" (
+        for %%f in (%%d\vs2019\*.sln) do (
+            msbuild "%%f" /t:Rebuild /p:Configuration=Release
+        )
+    )
+)
+pause
 
 
