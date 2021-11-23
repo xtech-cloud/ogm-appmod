@@ -4,6 +4,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>ogm.account.module</AssemblyName>
+    <Version>3.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
