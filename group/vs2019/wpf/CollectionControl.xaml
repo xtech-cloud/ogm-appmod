@@ -1,0 +1,112 @@
+<UserControl x:Class="ogm.group.CollectionControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ogm.group"
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource self}}"
+             d:DesignHeight="900" d:DesignWidth="1440">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <hc:SimplePanel Margin="24">
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
+                    <Button Content="查询"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onSearchClicked" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+
+        <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <DockPanel Margin="24">
+                <hc:UniformSpacingPanel Name="formNewCollection" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipPrimary}">
+                        <TextBlock Text="新建集合"/>
+                    </Border>
+                    <TextBox Name="tbNewName" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:NumericUpDown Name="nudNewCapacity" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="成员上限" hc:InfoElement.Necessary="True" Minimum="0" Style="{StaticResource NumericUpDownPlus}"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onNewSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onNewCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+                <!--
+                <hc:UniformSpacingPanel Name="formEditBucket" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipDanger}">
+                        <TextBlock Text="编辑存储池"/>
+                    </Border>
+                    <TextBox Name="tbEditUUID" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="uuid" hc:InfoElement.Necessary="True" IsReadOnly="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditName" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:NumericUpDown Name="tbEditCapacity" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="容量（GB)" hc:InfoElement.Necessary="True" Minimum="0" Style="{StaticResource NumericUpDownPlus}"/>
+                    <ComboBox Name="cbEditEngine" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="存储引擎" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="本地"></ComboBoxItem>
+                        <ComboBoxItem Content="MinIO"></ComboBoxItem>
+                        <ComboBoxItem Content="七牛云"></ComboBoxItem>
+                        <ComboBoxItem Content="自定义"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBox Name="tbEditAddress" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎地址" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditScope" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎存储桶" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditKey" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎Key" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditSecret" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎Secret" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditUrl" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="访问地址" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onEditSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onEditCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+                -->
+
+                <hc:SimplePanel>
+                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionCreate}"/>
+                    <DataGrid Name="dgCollectionList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding CollectionList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onCollectionSelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:CollectionControl}}}" Click="onEditCollectionClicked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding name}" Header="名称" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding capacity}" Header="成员上限" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="OnBrowseMemberClick">浏览成员</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" IsEnabled="{Binding Path=PermissionDelete, RelativeSource={RelativeSource AncestorType={x:Type local:CollectionControl}}}" Click="onDeleteCollectionClicked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--/
+                            <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
+                            -->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </hc:SimplePanel>
+            </DockPanel>
+        </Border>
+    </DockPanel>
+</UserControl>
