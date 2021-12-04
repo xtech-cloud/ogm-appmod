@@ -32,8 +32,26 @@ namespace ogm.group
 
                 post(string.Format("{0}/ogm/group/Collection/Make", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveMake(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
+            public void PostUpdate(Proto.CollectionUpdateRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["uuid"] = _request._uuid;
+            paramMap["name"] = _request._name;
+            paramMap["capacity"] = _request._capacity;
+
+                post(string.Format("{0}/ogm/group/Collection/Update", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveUpdate(rsp);
                 }, (_err) =>
                 {
                     getLogger().Error(_err.getMessage());
@@ -58,6 +76,24 @@ namespace ogm.group
             }
 
 
+            public void PostSearch(Proto.CollectionSearchRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["offset"] = _request._offset;
+            paramMap["count"] = _request._count;
+            paramMap["name"] = _request._name;
+
+                post(string.Format("{0}/ogm/group/Collection/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.CollectionListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveSearch(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
             public void PostRemove(Proto.CollectionRemoveRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
@@ -65,7 +101,7 @@ namespace ogm.group
 
                 post(string.Format("{0}/ogm/group/Collection/Remove", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveRemove(rsp);
                 }, (_err) =>
                 {

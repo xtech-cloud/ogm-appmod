@@ -6,7 +6,9 @@ namespace ogm.group
     public interface ICollectionViewBridge : View.Facade.Bridge
     {
         void OnMakeSubmit(string _json);
+        void OnUpdateSubmit(string _json);
         void OnListSubmit(string _json);
+        void OnSearchSubmit(string _json);
         void OnRemoveSubmit(string _json);
         void OnGetSubmit(string _json);
 

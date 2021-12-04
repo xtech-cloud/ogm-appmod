@@ -29,7 +29,25 @@ namespace ogm.group
                 Growl.Warning(reply.status.message, "StatusGrowl");
         }
 
+        public virtual void ReceiveUpdate(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
         public virtual void ReceiveList(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
+        public virtual void ReceiveSearch(string _json) 
         {
             Reply reply = JsonSerializer.Deserialize<Reply>(_json);
             if (reply.status.code == 0)

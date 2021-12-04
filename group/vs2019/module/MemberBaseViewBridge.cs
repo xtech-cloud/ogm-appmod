@@ -18,10 +18,24 @@ namespace ogm.group
             }
 
 
+            public void OnUpdateSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.MemberUpdateRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostUpdate(req);
+            }
+
+
             public void OnListSubmit(string _json)
             {
                 var req = JsonSerializer.Deserialize<Proto.MemberListRequest>(_json, JsonOptions.DefaultSerializerOptions);
                 service.PostList(req);
+            }
+
+
+            public void OnSearchSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.MemberSearchRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostSearch(req);
             }
 
 

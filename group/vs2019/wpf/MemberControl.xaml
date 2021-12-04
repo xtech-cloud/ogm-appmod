@@ -21,8 +21,10 @@
     <DockPanel>
         <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:SimplePanel Margin="24">
-                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="集合名" Style="{StaticResource TextBoxExtend}"/>
+                <hc:UniformSpacingPanel Spacing="32" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="集合名" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbElement" Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="元素" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbAlias" Width="300" hc:InfoElement.TitleWidth="60" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="别名" Style="{StaticResource TextBoxExtend}"/>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
@@ -38,6 +40,7 @@
                         <TextBlock Text="加入成员"/>
                     </Border>
                     <TextBox Name="tbAddElement" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="元素" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbAddAlias" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="别名" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
                         <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onAddSubmitClicked" />
                         <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onAddCancelClicked" />
@@ -81,6 +84,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Binding="{Binding element}" Header="元素" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding alias}" Header="别名" IsReadOnly="True"/>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

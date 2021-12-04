@@ -28,7 +28,11 @@ namespace ogm.group
 
             addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Add", this.handleReceiveMemberAdd);
 
+            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Update", this.handleReceiveMemberUpdate);
+
             addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/List", this.handleReceiveMemberList);
+
+            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Search", this.handleReceiveMemberSearch);
 
             addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Remove", this.handleReceiveMemberRemove);
 
@@ -64,7 +68,7 @@ namespace ogm.group
 
         private void handleReceiveMemberAdd(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.BlankResponse;
+            var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
                 getLogger().Error("rsp of Member/Add is null");
@@ -72,6 +76,18 @@ namespace ogm.group
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveAdd(json);
+        }
+
+        private void handleReceiveMemberUpdate(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Member/Update is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpdate(json);
         }
 
         private void handleReceiveMemberList(Model.Status _status, object _data)
@@ -86,9 +102,21 @@ namespace ogm.group
             bridge.ReceiveList(json);
         }
 
+        private void handleReceiveMemberSearch(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.MemberListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Member/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
+        }
+
         private void handleReceiveMemberRemove(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.BlankResponse;
+            var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
                 getLogger().Error("rsp of Member/Remove is null");

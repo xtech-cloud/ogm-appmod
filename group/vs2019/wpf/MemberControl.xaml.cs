@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using HandyControl.Controls;
 
 namespace ogm.group
 {
@@ -18,6 +19,9 @@ namespace ogm.group
                 control.PermissionAdd = _permission.ContainsKey("/ogm/group/Member/Add");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/group/Member/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/group/Member/Remove");
+                //未完成功能
+                control.PermissionEdit = false;
+                control.PermissionDelete = false;
             }
 
             public override void ReceiveAdd(string _json)
@@ -40,6 +44,11 @@ namespace ogm.group
                 {
                     control.MemberList.Add(e);
                 }
+            }
+
+            public override void ReceiveSearch(string _json)
+            {
+                ReceiveList(_json);
             }
         }
 
@@ -103,7 +112,16 @@ namespace ogm.group
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             formAddMember.Visibility = Visibility.Collapsed;
-            listMember(tbName.Uid);
+            if(string.IsNullOrEmpty(tbName.Uid))
+            {
+                //TODO required tip
+                return;
+            }
+
+            if (string.IsNullOrEmpty(tbElement.Text) && string.IsNullOrEmpty(tbAlias.Text))
+                listMember(tbName.Uid);
+            else
+                searchMember(tbName.Uid, tbElement.Text, tbAlias.Text);
         }
 
         private void onAddSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -111,6 +129,7 @@ namespace ogm.group
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["collection"] = tbName.Uid;
             param["element"] = tbAddElement.Text;
+            param["alias"] = tbAddAlias.Text;
             string json = JsonSerializer.Serialize(param);
             var bridge = facade.getViewBridge() as IMemberViewBridge;
             bridge.OnAddSubmit(json);
@@ -150,6 +169,18 @@ namespace ogm.group
             string json = JsonSerializer.Serialize(param);
             var bridge = facade.getViewBridge() as IMemberViewBridge;
             bridge.OnListSubmit(json);
+        }
+        private void searchMember(string _collection, string _element, string _alias)
+        {
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            param["collection"] = _collection;
+            param["element"] = _element;
+            param["alias"] = _alias;
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as IMemberViewBridge;
+            bridge.OnSearchSubmit(json);
         }
     }
 }

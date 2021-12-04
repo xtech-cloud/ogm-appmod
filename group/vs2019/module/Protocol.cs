@@ -23,6 +23,24 @@ namespace ogm.group.Proto
 
             }
 
+            public class CollectionUpdateRequest
+            {
+                public CollectionUpdateRequest()
+                {
+                    _uuid = Any.FromString("");
+                _name = Any.FromString("");
+                _capacity = Any.FromInt64(0);
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("capacity")]
+            public Any _capacity {get;set;}
+
+            }
+
             public class CollectionListRequest
             {
                 public CollectionListRequest()
@@ -35,6 +53,24 @@ namespace ogm.group.Proto
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
+
+            }
+
+            public class CollectionSearchRequest
+            {
+                public CollectionSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _name = Any.FromString("");
+
+                }
+                [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
 
             }
 
@@ -101,12 +137,33 @@ namespace ogm.group.Proto
                 {
                     _collection = Any.FromString("");
                 _element = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("collection")]
             public Any _collection {get;set;}
             [JsonPropertyName("element")]
             public Any _element {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
+
+            }
+
+            public class MemberUpdateRequest
+            {
+                public MemberUpdateRequest()
+                {
+                    _uuid = Any.FromString("");
+                _element = Any.FromString("");
+                _alias = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("element")]
+            public Any _element {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
@@ -125,6 +182,30 @@ namespace ogm.group.Proto
             public Any _count {get;set;}
             [JsonPropertyName("collection")]
             public Any _collection {get;set;}
+
+            }
+
+            public class MemberSearchRequest
+            {
+                public MemberSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _collection = Any.FromString("");
+                _element = Any.FromString("");
+                _alias = Any.FromString("");
+
+                }
+                [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("collection")]
+            public Any _collection {get;set;}
+            [JsonPropertyName("element")]
+            public Any _element {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
@@ -248,6 +329,21 @@ namespace ogm.group.Proto
 
             }
 
+            public class UuidResponse
+            {
+                public UuidResponse()
+                {
+                    _status = new Status();
+                _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
             public class CollectionEntity
             {
                 public CollectionEntity()
@@ -273,6 +369,7 @@ namespace ogm.group.Proto
                     _uuid = Any.FromString("");
                 _collection = Any.FromString("");
                 _element = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
@@ -281,6 +378,8 @@ namespace ogm.group.Proto
             public Any _collection {get;set;}
             [JsonPropertyName("element")]
             public Any _element {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 

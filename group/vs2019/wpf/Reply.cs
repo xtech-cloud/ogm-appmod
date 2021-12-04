@@ -12,6 +12,7 @@ namespace ogm.group
     {
         public string uuid { get; set; }
         public string element { get; set; }
+        public string alias { get; set; }
     }
 
 

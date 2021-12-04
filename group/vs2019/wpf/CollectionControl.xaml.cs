@@ -15,6 +15,9 @@ namespace ogm.group
                 control.PermissionCreate = _permission.ContainsKey("/ogm/group/Collection/Make");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/group/Collection/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/group/Collection/Remove");
+                // 未完成功能
+                control.PermissionEdit = false;
+                control.PermissionDelete = false;
             }
 
             public override void ReceiveMake(string _json)
@@ -37,6 +40,11 @@ namespace ogm.group
                 {
                     control.CollectionList.Add(e);
                 }
+            }
+
+            public override void ReceiveSearch(string _json)
+            {
+                ReceiveList(_json);
             }
         }
 
@@ -80,8 +88,10 @@ namespace ogm.group
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             formNewCollection.Visibility = Visibility.Collapsed;
-            //TODO add search
-            listCollection();
+            if(string.IsNullOrEmpty(tbName.Text))
+                listCollection();
+            else
+                searchCollection(tbName.Text);
         }
 
         private void onNewSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -140,6 +150,16 @@ namespace ogm.group
             string json = JsonSerializer.Serialize(param);
             var bridge = facade.getViewBridge() as ICollectionViewBridge;
             bridge.OnListSubmit(json);
+        }
+        private void searchCollection(string _name)
+        {
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            param["name"] = _name;
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as ICollectionViewBridge;
+            bridge.OnSearchSubmit(json);
         }
     }
 }

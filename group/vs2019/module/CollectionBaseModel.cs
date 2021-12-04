@@ -53,9 +53,15 @@ namespace ogm.group
         }
 
 
-        public virtual void SaveMake(Proto.BlankResponse _rsp) 
+        public virtual void SaveMake(Proto.UuidResponse _rsp) 
         {
              this.Bubble("_.reply.arrived:ogm/group/Collection/Make", _rsp);
+        }
+
+
+        public virtual void SaveUpdate(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/group/Collection/Update", _rsp);
         }
 
 
@@ -65,7 +71,13 @@ namespace ogm.group
         }
 
 
-        public virtual void SaveRemove(Proto.BlankResponse _rsp) 
+        public virtual void SaveSearch(Proto.CollectionListResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/group/Collection/Search", _rsp);
+        }
+
+
+        public virtual void SaveRemove(Proto.UuidResponse _rsp) 
         {
              this.Bubble("_.reply.arrived:ogm/group/Collection/Remove", _rsp);
         }

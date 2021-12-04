@@ -28,7 +28,11 @@ namespace ogm.group
 
             addObserver(CollectionModel.NAME, "_.reply.arrived:ogm/group/Collection/Make", this.handleReceiveCollectionMake);
 
+            addObserver(CollectionModel.NAME, "_.reply.arrived:ogm/group/Collection/Update", this.handleReceiveCollectionUpdate);
+
             addObserver(CollectionModel.NAME, "_.reply.arrived:ogm/group/Collection/List", this.handleReceiveCollectionList);
+
+            addObserver(CollectionModel.NAME, "_.reply.arrived:ogm/group/Collection/Search", this.handleReceiveCollectionSearch);
 
             addObserver(CollectionModel.NAME, "_.reply.arrived:ogm/group/Collection/Remove", this.handleReceiveCollectionRemove);
 
@@ -62,7 +66,7 @@ namespace ogm.group
 
         private void handleReceiveCollectionMake(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.BlankResponse;
+            var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
                 getLogger().Error("rsp of Collection/Make is null");
@@ -70,6 +74,18 @@ namespace ogm.group
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveMake(json);
+        }
+
+        private void handleReceiveCollectionUpdate(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Collection/Update is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpdate(json);
         }
 
         private void handleReceiveCollectionList(Model.Status _status, object _data)
@@ -84,9 +100,21 @@ namespace ogm.group
             bridge.ReceiveList(json);
         }
 
+        private void handleReceiveCollectionSearch(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.CollectionListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Collection/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
+        }
+
         private void handleReceiveCollectionRemove(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.BlankResponse;
+            var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
                 getLogger().Error("rsp of Collection/Remove is null");
