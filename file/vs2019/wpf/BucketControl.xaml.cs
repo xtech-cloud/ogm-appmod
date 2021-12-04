@@ -85,6 +85,14 @@ namespace ogm.file
                     return;
                 control.listBucket();
             }
+
+            public void HandleTabActivated()
+            {
+                if(string.IsNullOrEmpty(control.tbName.Text) && control.BucketList.Count == 0)
+                {
+                    control.listBucket();
+                }
+            }
         }
 
         public BucketFacade facade { get; set; }
