@@ -134,7 +134,7 @@ namespace ogm.file
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
             tbName.Text = "";
-            BucketList.Clear();
+            listBucket();
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
