@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace ogm.account
 {
-    public partial class AuthControl: UserControl
+    public partial class AuthControl : UserControl
     {
         public class AuthUiBridge : BaseAuthUiBridge, IAuthExtendUiBridge
         {
@@ -40,10 +40,12 @@ namespace ogm.account
 
         private void onSignupSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(tbSignupUsername.Text) || string.IsNullOrEmpty(tbSignupPassword.Password))
+                return;
             var bridge = facade.getViewBridge() as IAuthViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["username"] = tbSignupUsername.Text;
-            param["password"] = tbSignupPassword.Password;
+            param["password"] = Utility.WrapPassword(tbSignupPassword.Password);
             string json = JsonSerializer.Serialize(param);
             bridge.OnSignupSubmit(json);
         }
@@ -55,10 +57,12 @@ namespace ogm.account
 
         private void onSigninSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(tbSigninUsername.Text) || string.IsNullOrEmpty(tbSigninPassword.Password))
+                return;
             var bridge = facade.getViewBridge() as IAuthViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["username"] = tbSigninUsername.Text;
-            param["password"] = tbSigninPassword.Password;
+            param["password"] = Utility.WrapPassword(tbSigninPassword.Password);
             param["strategy"] = 1;
             string json = JsonSerializer.Serialize(param);
             bridge.OnSigninSubmit(json);
@@ -68,5 +72,7 @@ namespace ogm.account
         {
 
         }
+
+      
     }
 }
