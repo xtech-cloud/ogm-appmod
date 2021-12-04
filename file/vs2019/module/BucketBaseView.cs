@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,22 +26,22 @@ namespace ogm.file
         {
             getLogger().Trace("setup ogm.file.BucketView");
 
-           addRouter("/ogm/file/Bucket/Make", this.handleBucketMake);
-    
-           addRouter("/ogm/file/Bucket/List", this.handleBucketList);
-    
-           addRouter("/ogm/file/Bucket/Remove", this.handleBucketRemove);
-    
-           addRouter("/ogm/file/Bucket/Get", this.handleBucketGet);
-    
-           addRouter("/ogm/file/Bucket/Find", this.handleBucketFind);
-    
-           addRouter("/ogm/file/Bucket/Search", this.handleBucketSearch);
-    
-           addRouter("/ogm/file/Bucket/Update", this.handleBucketUpdate);
-    
-           addRouter("/ogm/file/Bucket/ResetToken", this.handleBucketResetToken);
-    
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Make", this.handleReceiveBucketMake);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/List", this.handleReceiveBucketList);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Remove", this.handleReceiveBucketRemove);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Get", this.handleReceiveBucketGet);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Find", this.handleReceiveBucketFind);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Search", this.handleReceiveBucketSearch);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Update", this.handleReceiveBucketUpdate);
+
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/ResetToken", this.handleReceiveBucketResetToken);
+
         }
 
         protected override void postSetup()
@@ -61,84 +61,108 @@ namespace ogm.file
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleBucketMake(Model.Status _status, object _data)
+        private void handleReceiveBucketMake(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Make is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveMake(json);
         }
-    
-        private void handleBucketList(Model.Status _status, object _data)
+
+        private void handleReceiveBucketList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BucketListResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BucketListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/List is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveList(json);
         }
-    
-        private void handleBucketRemove(Model.Status _status, object _data)
+
+        private void handleReceiveBucketRemove(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Remove is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveRemove(json);
         }
-    
-        private void handleBucketGet(Model.Status _status, object _data)
+
+        private void handleReceiveBucketGet(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BucketGetResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BucketGetResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Get is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveGet(json);
         }
-    
-        private void handleBucketFind(Model.Status _status, object _data)
+
+        private void handleReceiveBucketFind(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BucketFindResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BucketFindResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Find is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveFind(json);
         }
-    
-        private void handleBucketSearch(Model.Status _status, object _data)
+
+        private void handleReceiveBucketSearch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BucketSearchResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BucketSearchResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
         }
-    
-        private void handleBucketUpdate(Model.Status _status, object _data)
+
+        private void handleReceiveBucketUpdate(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Update is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpdate(json);
         }
-    
-        private void handleBucketResetToken(Model.Status _status, object _data)
+
+        private void handleReceiveBucketResetToken(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/ResetToken is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveResetToken(json);
         }
-    
+
     }
 }

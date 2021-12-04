@@ -93,7 +93,7 @@
                             <DataGridTextColumn Binding="{Binding name}" Header="名称" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _totalSize}" Header="总容量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _usedSize}" Header="已用容量" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding engine}" Header="存储引擎" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding _engine}" Header="存储引擎" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding address}" Header="引擎地址" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding scope}" Header="引擎存储桶" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding accessKey}" Header="Key" IsReadOnly="True"/>

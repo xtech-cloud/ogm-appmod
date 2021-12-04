@@ -1,7 +1,5 @@
 
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace ogm.file
@@ -10,56 +8,9 @@ namespace ogm.file
     {
         public const string NAME = "ogm.file.BucketView";
 
-        public void OpenBucketUi()
+        public void OpenObjectUi()
         {
             model.Broadcast("/sidemenu/active/tab", "ogm.file.Object");
         }
-
-        protected override void setup()
-        {
-            base.setup();
-
-            addRouter("/sidemenu/tab/activated", this.handleTabActivated);
-            addObserver(BucketModel.NAME, "/reply/bucket/make", this.receiveBucketMake);
-            addObserver(BucketModel.NAME, "/reply/bucket/list", this.receiveBucketList);
-        }
-
-        private void handleTabActivated(Model.Status _status, object _data)
-        {
-            string tab = (string)_data;
-            if (!tab.Equals("ogm.file.Bucket"))
-                return;
-
-            var bridge = facade.getViewBridge() as BucketViewBridge;
-            var req = new Proto.BucketListRequest();
-            req._offset = Any.FromInt32(0);
-            req._count = Any.FromInt32(int.MaxValue);
-            bridge.service.PostList(req);
-        }
-
-        private void receiveBucketMake(Model.Status _status, object _data)
-        {
-            var bridge = facade.getUiBridge() as IBucketUiBridge;
-            var json = JsonSerializer.Serialize(_data, JsonOptions.DefaultSerializerOptions);
-            bridge.ReceiveMake(json);
-        }
-
-        private void receiveBucketList(Model.Status _status, object _data)
-        {
-            BucketModel.BucketStatus status = _status as BucketModel.BucketStatus;
-            if(null == status)
-            {
-                getLogger().Error("status [BucketModel.BucketStatus] is null");
-                return;
-            }    
-            var bridge = facade.getUiBridge() as IBucketUiBridge;
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new AnyProtoConverter());
-            var json = JsonSerializer.Serialize(status.bucketList, options);
-            bridge.RefreshList(json);
-
-        }
-
-
     }
 }

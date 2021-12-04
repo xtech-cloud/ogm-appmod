@@ -51,5 +51,56 @@ namespace ogm.file
                 return status_ as BucketModel.BucketStatus;
             }
         }
+
+
+        public virtual void SaveMake(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Make", _rsp);
+        }
+
+
+        public virtual void SaveList(Proto.BucketListResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/List", _rsp);
+        }
+
+
+        public virtual void SaveRemove(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Remove", _rsp);
+        }
+
+
+        public virtual void SaveGet(Proto.BucketGetResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Get", _rsp);
+        }
+
+
+        public virtual void SaveFind(Proto.BucketFindResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Find", _rsp);
+        }
+
+
+        public virtual void SaveSearch(Proto.BucketSearchResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Search", _rsp);
+        }
+
+
+        public virtual void SaveUpdate(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Update", _rsp);
+        }
+
+
+        public virtual void SaveResetToken(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/ResetToken", _rsp);
+        }
+
+
+
     }
 }

@@ -8,10 +8,179 @@ using XTC.oelMVCS;
 namespace ogm.file.Proto
 {
 
-        public class BucketMakeRequest
-        {
-            public BucketMakeRequest()
+            public class BucketMakeRequest
             {
+                public BucketMakeRequest()
+                {
+                    _name = Any.FromString("");
+                _capacity = Any.FromInt64(0);
+                _engine = Any.FromInt32(0);
+                _address = Any.FromString("");
+                _scope = Any.FromString("");
+                _accessKey = Any.FromString("");
+                _accessSecret = Any.FromString("");
+                _url = Any.FromString("");
+
+                }
+                [JsonPropertyName("name")]
+            public Any _name {get;set;}
+            [JsonPropertyName("capacity")]
+            public Any _capacity {get;set;}
+            [JsonPropertyName("engine")]
+            public Any _engine {get;set;}
+            [JsonPropertyName("address")]
+            public Any _address {get;set;}
+            [JsonPropertyName("scope")]
+            public Any _scope {get;set;}
+            [JsonPropertyName("accessKey")]
+            public Any _accessKey {get;set;}
+            [JsonPropertyName("accessSecret")]
+            public Any _accessSecret {get;set;}
+            [JsonPropertyName("url")]
+            public Any _url {get;set;}
+
+            }
+
+            public class BucketListRequest
+            {
+                public BucketListRequest()
+                {
+                    _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+
+                }
+                [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+
+            }
+
+            public class BucketListResponse
+            {
+                public BucketListResponse()
+                {
+                    _status = new Status();
+                _total = Any.FromInt64(0);
+                _entity = new BucketEntity[0];
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("entity")]
+            public BucketEntity[] _entity {get;set;}
+
+            }
+
+            public class BucketRemoveRequest
+            {
+                public BucketRemoveRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
+            public class BucketGetRequest
+            {
+                public BucketGetRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
+            public class BucketGetResponse
+            {
+                public BucketGetResponse()
+                {
+                    _status = new Status();
+                _entity = new BucketEntity();
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("entity")]
+            public BucketEntity _entity {get;set;}
+
+            }
+
+            public class BucketFindRequest
+            {
+                public BucketFindRequest()
+                {
+                    _name = Any.FromString("");
+
+                }
+                [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+            }
+
+            public class BucketFindResponse
+            {
+                public BucketFindResponse()
+                {
+                    _status = new Status();
+                _entity = new BucketEntity();
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("entity")]
+            public BucketEntity _entity {get;set;}
+
+            }
+
+            public class BucketSearchRequest
+            {
+                public BucketSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
+                _count = Any.FromInt64(0);
+                _name = Any.FromString("");
+
+                }
+                [JsonPropertyName("offset")]
+            public Any _offset {get;set;}
+            [JsonPropertyName("count")]
+            public Any _count {get;set;}
+            [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+            }
+
+            public class BucketSearchResponse
+            {
+                public BucketSearchResponse()
+                {
+                    _status = new Status();
+                _total = Any.FromInt64(0);
+                _entity = new BucketEntity[0];
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("total")]
+            public Any _total {get;set;}
+            [JsonPropertyName("entity")]
+            public BucketEntity[] _entity {get;set;}
+
+            }
+
+            public class BucketUpdateRequest
+            {
+                public BucketUpdateRequest()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
                 _capacity = Any.FromInt64(0);
                 _engine = Any.FromInt32(0);
@@ -21,7 +190,9 @@ namespace ogm.file.Proto
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
 
-            }
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
             [JsonPropertyName("capacity")]
@@ -39,220 +210,49 @@ namespace ogm.file.Proto
             [JsonPropertyName("url")]
             public Any _url {get;set;}
 
-        }
-    
-        public class BucketListRequest
-        {
-            public BucketListRequest()
-            {
-                _offset = Any.FromInt64(0);
-                _count = Any.FromInt64(0);
-
             }
-            [JsonPropertyName("offset")]
-            public Any _offset {get;set;}
-            [JsonPropertyName("count")]
-            public Any _count {get;set;}
 
-        }
-    
-        public class BucketListResponse
-        {
-            public BucketListResponse()
+            public class BucketResetTokenRequest
             {
-                _status = new Status();
-                _total = Any.FromInt64(0);
-                _entity = new BucketEntity[0];
+                public BucketResetTokenRequest()
+                {
+                    _uuid = Any.FromString("");
 
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("total")]
-            public Any _total {get;set;}
-            [JsonPropertyName("entity")]
-            public BucketEntity[] _entity {get;set;}
-
-        }
-    
-        public class BucketRemoveRequest
-        {
-            public BucketRemoveRequest()
-            {
-                _uuid = Any.FromString("");
-
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class BucketGetRequest
-        {
-            public BucketGetRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
-            public Any _uuid {get;set;}
 
-        }
-    
-        public class BucketGetResponse
-        {
-            public BucketGetResponse()
+            public class ObjectPrepareRequest
             {
-                _status = new Status();
-                _entity = new BucketEntity();
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("entity")]
-            public BucketEntity _entity {get;set;}
-
-        }
-    
-        public class BucketFindRequest
-        {
-            public BucketFindRequest()
-            {
-                _name = Any.FromString("");
-
-            }
-            [JsonPropertyName("name")]
-            public Any _name {get;set;}
-
-        }
-    
-        public class BucketFindResponse
-        {
-            public BucketFindResponse()
-            {
-                _status = new Status();
-                _entity = new BucketEntity();
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("entity")]
-            public BucketEntity _entity {get;set;}
-
-        }
-    
-        public class BucketSearchRequest
-        {
-            public BucketSearchRequest()
-            {
-                _offset = Any.FromInt64(0);
-                _count = Any.FromInt64(0);
-                _name = Any.FromString("");
-
-            }
-            [JsonPropertyName("offset")]
-            public Any _offset {get;set;}
-            [JsonPropertyName("count")]
-            public Any _count {get;set;}
-            [JsonPropertyName("name")]
-            public Any _name {get;set;}
-
-        }
-    
-        public class BucketSearchResponse
-        {
-            public BucketSearchResponse()
-            {
-                _status = new Status();
-                _total = Any.FromInt64(0);
-                _entity = new BucketEntity[0];
-
-            }
-            [JsonPropertyName("status")]
-            public Status _status {get;set;}
-            [JsonPropertyName("total")]
-            public Any _total {get;set;}
-            [JsonPropertyName("entity")]
-            public BucketEntity[] _entity {get;set;}
-
-        }
-    
-        public class BucketUpdateRequest
-        {
-            public BucketUpdateRequest()
-            {
-                _uuid = Any.FromString("");
-                _name = Any.FromString("");
-                _capacity = Any.FromInt64(0);
-                _engine = Any.FromInt32(0);
-                _address = Any.FromString("");
-                _scope = Any.FromString("");
-                _accessKey = Any.FromString("");
-                _accessSecret = Any.FromString("");
-                _url = Any.FromString("");
-
-            }
-            [JsonPropertyName("uuid")]
-            public Any _uuid {get;set;}
-            [JsonPropertyName("name")]
-            public Any _name {get;set;}
-            [JsonPropertyName("capacity")]
-            public Any _capacity {get;set;}
-            [JsonPropertyName("engine")]
-            public Any _engine {get;set;}
-            [JsonPropertyName("address")]
-            public Any _address {get;set;}
-            [JsonPropertyName("scope")]
-            public Any _scope {get;set;}
-            [JsonPropertyName("accessKey")]
-            public Any _accessKey {get;set;}
-            [JsonPropertyName("accessSecret")]
-            public Any _accessSecret {get;set;}
-            [JsonPropertyName("url")]
-            public Any _url {get;set;}
-
-        }
-    
-        public class BucketResetTokenRequest
-        {
-            public BucketResetTokenRequest()
-            {
-                _uuid = Any.FromString("");
-
-            }
-            [JsonPropertyName("uuid")]
-            public Any _uuid {get;set;}
-
-        }
-    
-        public class ObjectPrepareRequest
-        {
-            public ObjectPrepareRequest()
-            {
-                _bucket = Any.FromString("");
+                public ObjectPrepareRequest()
+                {
+                    _bucket = Any.FromString("");
                 _uname = Any.FromString("");
                 _size = Any.FromInt64(0);
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("uname")]
             public Any _uname {get;set;}
             [JsonPropertyName("size")]
             public Any _size {get;set;}
 
-        }
-    
-        public class ObjectPrepareResponse
-        {
-            public ObjectPrepareResponse()
+            }
+
+            public class ObjectPrepareResponse
             {
-                _status = new Status();
+                public ObjectPrepareResponse()
+                {
+                    _status = new Status();
                 _engine = Any.FromInt32(0);
                 _url = Any.FromString("");
                 _accessToken = Any.FromString("");
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("engine")]
             public Any _engine {get;set;}
@@ -261,106 +261,106 @@ namespace ogm.file.Proto
             [JsonPropertyName("accessToken")]
             public Any _accessToken {get;set;}
 
-        }
-    
-        public class ObjectFlushRequest
-        {
-            public ObjectFlushRequest()
+            }
+
+            public class ObjectFlushRequest
             {
-                _bucket = Any.FromString("");
+                public ObjectFlushRequest()
+                {
+                    _bucket = Any.FromString("");
                 _uname = Any.FromString("");
                 _path = Any.FromString("");
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("uname")]
             public Any _uname {get;set;}
             [JsonPropertyName("path")]
             public Any _path {get;set;}
 
-        }
-    
-        public class ObjectPublishRequest
-        {
-            public ObjectPublishRequest()
+            }
+
+            public class ObjectPublishRequest
             {
-                _uuid = Any.FromString("");
+                public ObjectPublishRequest()
+                {
+                    _uuid = Any.FromString("");
                 _expiry = Any.FromInt64(0);
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("expiry")]
             public Any _expiry {get;set;}
 
-        }
-    
-        public class ObjectPublishResponse
-        {
-            public ObjectPublishResponse()
+            }
+
+            public class ObjectPublishResponse
             {
-                _status = new Status();
+                public ObjectPublishResponse()
+                {
+                    _status = new Status();
                 _url = Any.FromString("");
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
 
-        }
-    
-        public class ObjectPreviewRequest
-        {
-            public ObjectPreviewRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class ObjectPreviewRequest
+            {
+                public ObjectPreviewRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class ObjectPreviewResponse
-        {
-            public ObjectPreviewResponse()
+            }
+
+            public class ObjectPreviewResponse
             {
-                _status = new Status();
+                public ObjectPreviewResponse()
+                {
+                    _status = new Status();
                 _url = Any.FromString("");
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
 
-        }
-    
-        public class ObjectRetractRequest
-        {
-            public ObjectRetractRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class ObjectRetractRequest
+            {
+                public ObjectRetractRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class ObjectUploadRequest
-        {
-            public ObjectUploadRequest()
+            }
+
+            public class ObjectUploadRequest
             {
-                _bucket = Any.FromString("");
+                public ObjectUploadRequest()
+                {
+                    _bucket = Any.FromString("");
                 _filepath = Any.FromString("");
                 _data = Any.FromBytes(new byte[0]);
                 _overwrite = Any.FromBool(false);
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("filepath")]
             public Any _filepath {get;set;}
@@ -369,49 +369,49 @@ namespace ogm.file.Proto
             [JsonPropertyName("overwrite")]
             public Any _overwrite {get;set;}
 
-        }
-    
-        public class ObjectDownloadRequest
-        {
-            public ObjectDownloadRequest()
+            }
+
+            public class ObjectDownloadRequest
             {
-                _bucket = Any.FromString("");
+                public ObjectDownloadRequest()
+                {
+                    _bucket = Any.FromString("");
                 _filepath = Any.FromString("");
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("filepath")]
             public Any _filepath {get;set;}
 
-        }
-    
-        public class ObjectDownloadResponse
-        {
-            public ObjectDownloadResponse()
+            }
+
+            public class ObjectDownloadResponse
             {
-                _status = new Status();
+                public ObjectDownloadResponse()
+                {
+                    _status = new Status();
                 _data = Any.FromBytes(new byte[0]);
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("data")]
             public Any _data {get;set;}
 
-        }
-    
-        public class ObjectLinkRequest
-        {
-            public ObjectLinkRequest()
+            }
+
+            public class ObjectLinkRequest
             {
-                _bucket = Any.FromString("");
+                public ObjectLinkRequest()
+                {
+                    _bucket = Any.FromString("");
                 _filepath = Any.FromString("");
                 _url = Any.FromString("");
                 _overwrite = Any.FromBool(false);
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("filepath")]
             public Any _filepath {get;set;}
@@ -420,125 +420,125 @@ namespace ogm.file.Proto
             [JsonPropertyName("overwrite")]
             public Any _overwrite {get;set;}
 
-        }
-    
-        public class ObjectGetRequest
-        {
-            public ObjectGetRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class ObjectGetRequest
+            {
+                public ObjectGetRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class ObjectGetResponse
-        {
-            public ObjectGetResponse()
+            }
+
+            public class ObjectGetResponse
             {
-                _status = new Status();
+                public ObjectGetResponse()
+                {
+                    _status = new Status();
                 _entity = new ObjectEntity();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("entity")]
             public ObjectEntity _entity {get;set;}
 
-        }
-    
-        public class ObjectFindRequest
-        {
-            public ObjectFindRequest()
+            }
+
+            public class ObjectFindRequest
             {
-                _bucket = Any.FromString("");
+                public ObjectFindRequest()
+                {
+                    _bucket = Any.FromString("");
                 _filepath = Any.FromString("");
 
-            }
-            [JsonPropertyName("bucket")]
+                }
+                [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
             [JsonPropertyName("filepath")]
             public Any _filepath {get;set;}
 
-        }
-    
-        public class ObjectFindResponse
-        {
-            public ObjectFindResponse()
+            }
+
+            public class ObjectFindResponse
             {
-                _status = new Status();
+                public ObjectFindResponse()
+                {
+                    _status = new Status();
                 _entity = new ObjectEntity();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("entity")]
             public ObjectEntity _entity {get;set;}
 
-        }
-    
-        public class ObjectRemoveRequest
-        {
-            public ObjectRemoveRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class ObjectRemoveRequest
+            {
+                public ObjectRemoveRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class ObjectListRequest
-        {
-            public ObjectListRequest()
+            }
+
+            public class ObjectListRequest
             {
-                _offset = Any.FromInt64(0);
+                public ObjectListRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _bucket = Any.FromString("");
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
             [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
 
-        }
-    
-        public class ObjectListResponse
-        {
-            public ObjectListResponse()
+            }
+
+            public class ObjectListResponse
             {
-                _status = new Status();
+                public ObjectListResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _entity = new ObjectEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("entity")]
             public ObjectEntity[] _entity {get;set;}
 
-        }
-    
-        public class ObjectSearchRequest
-        {
-            public ObjectSearchRequest()
+            }
+
+            public class ObjectSearchRequest
             {
-                _offset = Any.FromInt64(0);
+                public ObjectSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _bucket = Any.FromString("");
                 _prefix = Any.FromString("");
                 _name = Any.FromString("");
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
@@ -549,67 +549,82 @@ namespace ogm.file.Proto
             [JsonPropertyName("name")]
             public Any _name {get;set;}
 
-        }
-    
-        public class ObjectSearchResponse
-        {
-            public ObjectSearchResponse()
+            }
+
+            public class ObjectSearchResponse
             {
-                _status = new Status();
+                public ObjectSearchResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _entity = new ObjectEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("entity")]
             public ObjectEntity[] _entity {get;set;}
 
-        }
-    
-        public class Status
-        {
-            public Status()
+            }
+
+            public class Status
             {
-                _code = Any.FromInt32(0);
+                public Status()
+                {
+                    _code = Any.FromInt32(0);
                 _message = Any.FromString("");
 
-            }
-            [JsonPropertyName("code")]
+                }
+                [JsonPropertyName("code")]
             public Any _code {get;set;}
             [JsonPropertyName("message")]
             public Any _message {get;set;}
 
-        }
-    
-        public class BlankRequest
-        {
-            public BlankRequest()
-            {
-
             }
 
-        }
-    
-        public class BlankResponse
-        {
-            public BlankResponse()
+            public class BlankRequest
             {
-                _status = new Status();
-
+                public BlankRequest()
+                {
+    
+                }
+    
             }
-            [JsonPropertyName("status")]
+
+            public class BlankResponse
+            {
+                public BlankResponse()
+                {
+                    _status = new Status();
+
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
 
-        }
-    
-        public class BucketEntity
-        {
-            public BucketEntity()
+            }
+
+            public class UuidResponse
             {
+                public UuidResponse()
+                {
+                    _status = new Status();
                 _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
+            public class BucketEntity
+            {
+                public BucketEntity()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
                 _token = Any.FromString("");
                 _totalSize = Any.FromInt64(0);
@@ -621,8 +636,8 @@ namespace ogm.file.Proto
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
@@ -645,20 +660,20 @@ namespace ogm.file.Proto
             [JsonPropertyName("url")]
             public Any _url {get;set;}
 
-        }
-    
-        public class ObjectEntity
-        {
-            public ObjectEntity()
+            }
+
+            public class ObjectEntity
             {
-                _uuid = Any.FromString("");
+                public ObjectEntity()
+                {
+                    _uuid = Any.FromString("");
                 _filepath = Any.FromString("");
                 _url = Any.FromString("");
                 _size = Any.FromInt64(0);
                 _md5 = Any.FromString("");
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("filepath")]
             public Any _filepath {get;set;}
@@ -669,6 +684,6 @@ namespace ogm.file.Proto
             [JsonPropertyName("md5")]
             public Any _md5 {get;set;}
 
-        }
-    
+            }
+
 }

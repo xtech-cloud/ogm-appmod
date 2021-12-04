@@ -1,97 +1,94 @@
 
+using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
+using System.Text.Json;
 
 namespace ogm.file
 {
     public partial class BucketControl : UserControl
     {
-        public class ReplyStatus
+        public class BucketUiBridge : BaseBucketUiBridge, IBucketExtendUiBridge
         {
-            public int code { get; set; }
-            public string message { get; set; }
-        }
-        public class BucketEntity
-        {
-            public string uuid { get; set; }
-            public string name { get; set; }
-            public string token { get; set; }
-            public long totalSize { get; set; }
-            public long usedSize { get; set; }
-            public string engine { get; set; }
-            public string address { get; set; }
-            public string scope { get; set; }
-            public string accessKey { get; set; }
-            public string accessSecret { get; set; }
-            public string url { get; set; }
-
-            public string _totalSize { get; set; }
-            public string _usedSize { get; set; }
-        }
-
-        public class BucketUiBridge : IBucketUiBridge
-        {
-            public BucketControl control { get; set; }
-
-            public object getRootPanel()
-            {
-                return control;
-            }
-
-            public void Alert(string _message)
-            {
-            }
-
-            public void RefreshList(string _reply)
-            {
-                control.BucketList.Clear();
-                var list = JsonSerializer.Deserialize<BucketEntity[]>(_reply);
-                foreach (var e in list)
-                {
-                    e._totalSize = formatSize(e.totalSize);
-                    e._usedSize = formatSize(e.usedSize);
-                    control.BucketList.Add(e);
-                }
-            }
-
-            private string formatSize(long _size)
-            {
-                if (_size < 1024)
-                    return string.Format("{0} B", _size);
-                if (_size < 1024 * 1024)
-                    return string.Format("{0} K", _size / 1024);
-                if (_size < 1024 * 1024 * 1024)
-                    return string.Format("{0} M", _size / 1024 / 1024);
-                if (_size < (long)1024 * 1024 * 1024 * 1024)
-                    return string.Format("{0} G", _size / 1024 / 1024 / 1024);
-                if (_size < (long)1024 * 1024 * 1024 * 1024 * 1024)
-                    return string.Format("{0} T", _size / 1024 / 1024 / 1024 / 1024);
-                return "?";
-            }
-
-            public void UpdatePermission(Dictionary<string, string> _permission)
+            public override void UpdatePermission(Dictionary<string, string> _permission)
             {
                 control.PermissionCreate = _permission.ContainsKey("/ogm/file/Bucket/Make");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/file/Bucket/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/file/Bucket/Delete");
+                // 未完成的功能
+                control.PermissionDelete = false;
             }
 
-            public void ReceiveMake(string _json)
+            public override void ReceiveList(string _json)
             {
-                var reply = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if(reply.code != 0)
+                base.ReceiveList(_json);
+                control.BucketList.Clear();
+                var reply = JsonSerializer.Deserialize<BucketListReply>(_json);
+                foreach (var e in reply.entity)
                 {
-                    Alert(reply.message);
-                    return;
+                    e._totalSize = Utility.FormatSize(e.totalSize);
+                    e._usedSize = Utility.FormatSize(e.usedSize);
+                    e._engine = BucketEntity.engineToString(e.engine);
+                    control.BucketList.Add(e);
                 }
-                control.formNewBucket.Visibility = Visibility.Collapsed;
+            }
+
+            public override void ReceiveSearch(string _json)
+            {
+                ReceiveList(_json);
+            }
+
+            public override void ReceiveMake(string _json)
+            {
+                base.ReceiveMake(_json);
+                var reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code == 0)
+                {
+                    control.formNewBucket.Visibility = Visibility.Collapsed;
+                    control.listBucket();
+                }
+            }
+
+            public override void ReceiveUpdate(string _json)
+            {
+                base.ReceiveMake(_json);
+                var reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code == 0)
+                {
+                    control.formEditBucket.Visibility = Visibility.Collapsed;
+                    control.getBucket(reply.uuid);
+                }
+            }
+
+            public override void ReceiveGet(string _json)
+            {
+                base.ReceiveGet(_json);
+                var reply = JsonSerializer.Deserialize<BucketGetReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+                foreach(var e in control.BucketList)
+                {
+                    if(e.uuid.Equals(reply.entity.uuid))
+                    {
+                        e.CopyFromOther(reply.entity);
+                        break;
+                    }
+                }
+            }
+
+            public override void ReceiveRemove(string _json)
+            {
+                base.ReceiveRemove(_json);
+                var reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+                control.listBucket();
             }
         }
 
         public BucketFacade facade { get; set; }
+
         public ObjectControl controlObject { get; set; }
         public ObservableCollection<BucketEntity> BucketList { get; set; }
 
@@ -117,11 +114,55 @@ namespace ogm.file
             set { SetValue(PermissionDeleteProperty, value); }
         }
 
+
         public BucketControl()
         {
             BucketList = new ObservableCollection<BucketEntity>();
             InitializeComponent();
             formEditBucket.Visibility = Visibility.Collapsed;
+            formNewBucket.Visibility = Visibility.Collapsed;
+        }
+
+        private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            tbName.Text = "";
+            BucketList.Clear();
+        }
+
+        private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbName.Text))
+            {
+                listBucket();
+            }
+            else
+            {
+                searchBucket(tbName.Text);
+            }
+        }
+
+        private void onNewSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formEditBucket.Visibility = Visibility.Collapsed;
+            formNewBucket.Visibility = Visibility.Visible;
+
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["name"] = tbNewName.Text;
+            param["capacity"] = tbNewCapacity.Value * 1024 * 1024 * 1024;
+            param["engine"] = cbNewEngine.SelectedIndex + 1;
+            param["address"] = tbNewAddress.Text;
+            param["scope"] = tbNewScope.Text;
+            param["accessKey"] = tbNewKey.Text;
+            param["accessSecret"] = tbNewSecret.Text;
+            param["url"] = tbNewUrl.Text;
+
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnMakeSubmit(json);
+        }
+
+        private void onNewCancelClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
             formNewBucket.Visibility = Visibility.Collapsed;
         }
 
@@ -152,14 +193,10 @@ namespace ogm.file
             formEditBucket.Visibility = Visibility.Collapsed;
         }
 
-        private void onBucketSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void onCreateClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            formNewBucket.Visibility = Visibility.Collapsed;
-            var item = dgBucketList.SelectedItem as BucketEntity;
-            if (null == item)
-                return;
-
-            tbEditName.Text = item.name;
+            formNewBucket.Visibility = Visibility.Visible;
+            formEditBucket.Visibility = Visibility.Collapsed;
         }
 
         private void onEditBucketClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -173,7 +210,7 @@ namespace ogm.file
             tbEditUUID.Text = item.uuid;
             tbEditName.Text = item.name;
             tbEditCapacity.Value = item.totalSize / 1024 / 1024 / 1024;
-            cbEditEngine.SelectedIndex = engineFromStringToInt(item.engine);
+            cbEditEngine.SelectedIndex = item.engine - 1;
             tbEditAddress.Text = item.address;
             tbEditScope.Text = item.scope;
             tbEditKey.Text = item.accessKey;
@@ -181,60 +218,40 @@ namespace ogm.file
             tbEditUrl.Text = item.url;
         }
 
-        private void onCreateClicked(object sender, RoutedEventArgs e)
+        private void OnBrowseObjectClick(object sender, System.Windows.RoutedEventArgs e)
         {
-            formNewBucket.Visibility = Visibility.Visible;
-            formEditBucket.Visibility = Visibility.Collapsed;
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
+
+            controlObject.PageExtra["bucket.uuid"] = item.uuid;
+            controlObject.PageExtra["bucket.name"] = item.name;
+            controlObject.PageExtra["bucket.scope"] = item.scope;
+            controlObject.RefreshWithExtra();
+            var bridge = facade.getViewBridge() as IBucketExtendViewBridge;
+            bridge.OnOpenObjectUi();
         }
 
-        private void onResetCliked(object sender, RoutedEventArgs e)
+        private void onDeleteBucketClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            tbName.Text = "";
-            BucketList.Clear();
-        }
-
-        private void onSearchClicked(object sender, RoutedEventArgs e)
-        {
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
             var bridge = facade.getViewBridge() as IBucketViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            if (string.IsNullOrEmpty(tbName.Text))
-            {
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnListSubmit(json);
-            }
-            else
-            {
-                param["name"] = tbName.Text;
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnSearchSubmit(json);
-            }
-        }
-
-        private void onNewSubmitClicked(object sender, RoutedEventArgs e)
-        {
-            formEditBucket.Visibility = Visibility.Collapsed;
-            formNewBucket.Visibility = Visibility.Visible;
-
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["name"] = tbNewName.Text;
-            param["capacity"] = tbNewCapacity.Value * 1024 * 1024 * 1024;
-            param["engine"] = cbNewEngine.SelectedIndex + 1;
-            param["address"] = tbNewAddress.Text;
-            param["scope"] = tbNewScope.Text;
-            param["accessKey"] = tbNewKey.Text;
-            param["accessSecret"] = tbNewSecret.Text;
-            param["url"] = tbNewUrl.Text;
-
-            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            param["uuid"] = item.uuid;
             string json = JsonSerializer.Serialize(param);
-            bridge.OnMakeSubmit(json);
+            bridge.OnRemoveSubmit(json);
         }
 
-        private void onNewCancelClicked(object sender, RoutedEventArgs e)
+        private void onBucketSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             formNewBucket.Visibility = Visibility.Collapsed;
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
+
+            tbEditName.Text = item.name;
         }
 
         private int engineFromStringToInt(string _engine)
@@ -250,23 +267,35 @@ namespace ogm.file
             return -1;
         }
 
-        private void onDeleteBucketClicked(object sender, RoutedEventArgs e)
+        private void listBucket()
         {
-
-        }
-
-        private void OnBrowseObjectClick(object sender, RoutedEventArgs e)
-        {
-            var item = dgBucketList.SelectedItem as BucketEntity;
-            if (null == item)
-                return;
-
-            controlObject.PageExtra["bucket.uuid"] = item.uuid;
-            controlObject.PageExtra["bucket.name"] = item.name;
-            controlObject.PageExtra["bucket.scope"] = item.scope;
-            controlObject.RefreshWithExtra();
             var bridge = facade.getViewBridge() as IBucketViewBridge;
-            bridge.OnOpenBucketUi();
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnListSubmit(json);
         }
+
+        private void searchBucket(string _name)
+        {
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            param["name"] = _name;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnSearchSubmit(json);
+        }
+
+        private void getBucket(string _uuid)
+        {
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = _uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnGetSubmit(json);
+        }
+
     }
 }

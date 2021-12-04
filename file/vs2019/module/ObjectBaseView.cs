@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,28 +26,28 @@ namespace ogm.file
         {
             getLogger().Trace("setup ogm.file.ObjectView");
 
-           addRouter("/ogm/file/Object/Prepare", this.handleObjectPrepare);
-    
-           addRouter("/ogm/file/Object/Flush", this.handleObjectFlush);
-    
-           addRouter("/ogm/file/Object/Link", this.handleObjectLink);
-    
-           addRouter("/ogm/file/Object/Get", this.handleObjectGet);
-    
-           addRouter("/ogm/file/Object/Find", this.handleObjectFind);
-    
-           addRouter("/ogm/file/Object/Remove", this.handleObjectRemove);
-    
-           addRouter("/ogm/file/Object/List", this.handleObjectList);
-    
-           addRouter("/ogm/file/Object/Search", this.handleObjectSearch);
-    
-           addRouter("/ogm/file/Object/Publish", this.handleObjectPublish);
-    
-           addRouter("/ogm/file/Object/Preview", this.handleObjectPreview);
-    
-           addRouter("/ogm/file/Object/Retract", this.handleObjectRetract);
-    
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Prepare", this.handleReceiveObjectPrepare);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Flush", this.handleReceiveObjectFlush);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Link", this.handleReceiveObjectLink);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Get", this.handleReceiveObjectGet);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Find", this.handleReceiveObjectFind);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Remove", this.handleReceiveObjectRemove);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/List", this.handleReceiveObjectList);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Search", this.handleReceiveObjectSearch);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Publish", this.handleReceiveObjectPublish);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Preview", this.handleReceiveObjectPreview);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Retract", this.handleReceiveObjectRetract);
+
         }
 
         protected override void postSetup()
@@ -67,111 +67,144 @@ namespace ogm.file
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleObjectPrepare(Model.Status _status, object _data)
+        private void handleReceiveObjectPrepare(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectPrepareResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectPrepareResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Prepare is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceivePrepare(json);
         }
-    
-        private void handleObjectFlush(Model.Status _status, object _data)
+
+        private void handleReceiveObjectFlush(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Flush is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveFlush(json);
         }
-    
-        private void handleObjectLink(Model.Status _status, object _data)
+
+        private void handleReceiveObjectLink(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BlankResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Link is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveLink(json);
         }
-    
-        private void handleObjectGet(Model.Status _status, object _data)
+
+        private void handleReceiveObjectGet(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectGetResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectGetResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Get is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveGet(json);
         }
-    
-        private void handleObjectFind(Model.Status _status, object _data)
+
+        private void handleReceiveObjectFind(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectFindResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectFindResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Find is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveFind(json);
         }
-    
-        private void handleObjectRemove(Model.Status _status, object _data)
+
+        private void handleReceiveObjectRemove(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Remove is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveRemove(json);
         }
-    
-        private void handleObjectList(Model.Status _status, object _data)
+
+        private void handleReceiveObjectList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectListResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/List is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveList(json);
         }
-    
-        private void handleObjectSearch(Model.Status _status, object _data)
+
+        private void handleReceiveObjectSearch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectSearchResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectSearchResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
         }
-    
-        private void handleObjectPublish(Model.Status _status, object _data)
+
+        private void handleReceiveObjectPublish(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectPublishResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectPublishResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Publish is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceivePublish(json);
         }
-    
-        private void handleObjectPreview(Model.Status _status, object _data)
+
+        private void handleReceiveObjectPreview(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ObjectPreviewResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ObjectPreviewResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Preview is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceivePreview(json);
         }
-    
-        private void handleObjectRetract(Model.Status _status, object _data)
+
+        private void handleReceiveObjectRetract(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/Retract is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveRetract(json);
         }
-    
+
     }
 }

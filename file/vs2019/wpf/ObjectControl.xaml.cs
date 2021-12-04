@@ -1,103 +1,69 @@
+
+using System.Windows.Controls;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Text.Json;
 using Microsoft.Win32;
+using System.IO;
+using System.Security.Cryptography;
+using System;
 using Minio;
 using Minio.DataModel.Tracing;
 using Minio.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text.Json;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace ogm.file
 {
-    public partial class ObjectControl : UserControl
+    public class MinioLog : IRequestLogger
     {
-        //页面参数，用于页面间跳转时传递数据
-        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
-        public class ObjectEntity
+        public Action<int> Callback;
+        public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
         {
-            public string uuid { get; set; }
-            public string name { get; set; }
-            public string filepath { get; set; }
-            public long size { get; set; }
-            public string md5 { get; set; }
-
-            public string _size { get; set; }
-        }
-
-        public class ReplyStatus
-        {
-            public int code { get; set; }
-            public string message { get; set; }
-        }
-
-        public class PublishReply
-        {
-            public string url { get; set; }
-        }
-
-        public class ListReply
-        {
-            public long total { get; set; }
-            public ObjectEntity[] entity { get; set; }
-        }
-
-
-        public class MinioLog : IRequestLogger
-        {
-            public Action<int> Callback;
-            public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
+            if (responseToLog.statusCode == System.Net.HttpStatusCode.OK)
             {
-                if (responseToLog.statusCode == System.Net.HttpStatusCode.OK)
+                foreach (var header in requestToLog.parameters)
                 {
-                    foreach (var header in requestToLog.parameters)
+                    if (header.value == null)
+                        continue;
+                    if (header.name.Equals("partNumber"))
                     {
-                        if (header.value == null)
-                            continue;
-                        if (header.name.Equals("partNumber"))
-                        {
-                            int partNumber = Convert.ToInt32(header.value);
-                            Callback(partNumber);
-                        }
+                        int partNumber = Convert.ToInt32(header.value);
+                        Callback(partNumber);
                     }
                 }
             }
         }
+    }
 
-        public class ObjectUiBridge : IObjectUiBridge
+
+    public partial class ObjectControl : UserControl
+    {
+        //页面参数，用于页面间跳转时传递数据
+        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
+
+        public class ObjectUiBridge : BaseObjectUiBridge, IObjectExtendUiBridge
         {
-            public ObjectControl control { get; set; }
-
-            public object getRootPanel()
+            public override void ReceiveList(string _json)
             {
-                return control;
+                base.ReceiveList(_json);
+                ObjectListReply reply = JsonSerializer.Deserialize<ObjectListReply>(_json);
+                control.ObjectList.Clear();
+                foreach (var e in reply.entity)
+                {
+                    e._size = formatSize(e.size);
+                    control.ObjectList.Add(e);
+                }
             }
 
-            public void Alert(string _message)
+            public override void ReceiveSearch(string _json)
             {
+                ReceiveList(_json);
             }
 
-            private string formatSize(long _size)
+            public override void ReceivePrepare(string _json)
             {
-                if (_size < 1024)
-                    return string.Format("{0} B", _size);
-                if (_size < 1024 * 1024)
-                    return string.Format("{0} K", _size / 1024);
-                if (_size < 1024 * 1024 * 1024)
-                    return string.Format("{0} M", _size / 1024 / 1024);
-                if (_size < (long)1024 * 1024 * 1024 * 1024)
-                    return string.Format("{0} G", _size / 1024 / 1024 / 1024);
-                if (_size < (long)1024 * 1024 * 1024 * 1024 * 1024)
-                    return string.Format("{0} T", _size / 1024 / 1024 / 1024 / 1024);
-                return "?";
-            }
-
-            public void receivePrepare(string _json)
-            {
+                base.ReceivePrepare(_json);
                 object o_uuid;
                 if (!control.PageExtra.TryGetValue("bucket.uuid", out o_uuid))
                     return;
@@ -113,27 +79,26 @@ namespace ogm.file
                 object o_filepath;
                 if (!control.PageExtra.TryGetValue("object.file", out o_filepath))
                     return;
-                string filepath = (string)o_filepath;
+                string file_fullpath = (string)o_filepath;
                 object o_size;
                 if (!control.PageExtra.TryGetValue("object.size", out o_size))
                     return;
                 long size = (long)o_size;
 
-                Dictionary<string, string> param = JsonSerializer.Deserialize<Dictionary<string, string>>(_json);
-                bool exist = param["exist"].Equals("True");
-                if (exist)
+                var reply = JsonSerializer.Deserialize<ObjectPrepareReply>(_json);
+                if (reply.status.code == 200)
                 {
                     control.pbUpload.Visibility = Visibility.Collapsed;
-                    control.flushObject(uuid, md5, Path.GetFileName(filepath));
+                    string filepath = Path.Combine(control.tbUploadPrefix.Text, Path.GetFileName(file_fullpath));
+                    control.flushObject(uuid, md5, filepath);
                     return;
                 }
 
                 int total_minio_chunk_count = (int)Math.Ceiling(Convert.ToDouble(size) / 1024 / 5120);
-                string accessToken = param["accessToken"];
-                if (param["engine"].Equals("ENGINE_MINIO"))
+                if (2 == reply.engine)
                 {
-                    string[] token = accessToken.Split(' ');
-                    Uri uri = new Uri(param["url"]);
+                    string[] token = reply.accessToken.Split(' ');
+                    Uri uri = new Uri(reply.url);
                     MinioClient minio = new MinioClient(uri.Authority, token[0], token[1]);
                     minio.SetTraceOn(new MinioLog()
                     {
@@ -143,8 +108,47 @@ namespace ogm.file
                             control.pbUpload.Dispatcher.Invoke(new Action(() => { control.pbUpload.Value = process; }));
                         }
                     });
-                    upload(minio, uuid, scope, md5, filepath);
+                    upload(minio, uuid, scope, md5, file_fullpath);
                 }
+            }
+
+            public override void ReceiveFlush(string _json)
+            {
+                base.ReceiveFlush(_json);
+                Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+                control.pbUpload.Visibility = Visibility.Collapsed;
+                if (reply.status.code == 0)
+                {
+                    control.tbUploadSuccess.Visibility = Visibility.Visible;
+                    control.tbPrefix.Text = "";
+                    control.tbName.Text = "";
+                    control.listObject(control.tbBucket.Uid);
+                }
+                else
+                {
+                    control.tbUploadFailury.Visibility = Visibility.Visible;
+                }
+                control.PageExtra.Remove("bucket.md5");
+                control.PageExtra.Remove("bucket.file");
+            }
+
+            public override void ReceiveRemove(string _json)
+            {
+                base.ReceiveRemove(_json);
+                UuidReply reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+                control.tbPrefix.Text = "";
+                control.tbName.Text = "";
+                control.listObject(control.tbBucket.Uid);
+            }
+
+            public override void ReceivePublish(string _json)
+            {
+                base.ReceivePublish(_json);
+                PublishReply reply = JsonSerializer.Deserialize<PublishReply>(_json);
+                if (reply.status.code == 0)
+                    Clipboard.SetDataObject(reply.url);
             }
 
             private async Task upload(MinioClient _minio, string _uuid, string _scope, string _md5, string _filepath)
@@ -159,49 +163,23 @@ namespace ogm.file
                     control.tbUploadFailury.Visibility = Visibility.Visible;
                     return;
                 }
-                control.flushObject(_uuid, _md5, Path.GetFileName(_filepath));
+                string filepath = Path.Combine(control.tbUploadPrefix.Text, Path.GetFileName(_filepath));
+                control.flushObject(_uuid, _md5, _filepath);
             }
 
-            public void receiveFlush(string _json)
+            private string formatSize(long _size)
             {
-                ReplyStatus status = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                control.pbUpload.Visibility = Visibility.Collapsed;
-                if (status.code == 0)
-                {
-                    control.tbUploadSuccess.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    control.tbUploadFailury.Visibility = Visibility.Visible;
-                }
-                control.PageExtra.Remove("bucket.md5");
-                control.PageExtra.Remove("bucket.file");
-            }
-
-            public void receiveList(string _json)
-            {
-                ListReply reply = JsonSerializer.Deserialize<ListReply>(_json);
-                control.ObjectList.Clear();
-                foreach (var e in reply.entity)
-                {
-                    e._size = formatSize(e.size);
-                    control.ObjectList.Add(e);
-                }
-            }
-
-            public void UpdatePermission(Dictionary<string, string> _permission)
-            {
-                control.PermissionUpload = _permission.ContainsKey("/ogm/file/Object/Prepare");
-                control.PermissionPreview = _permission.ContainsKey("/ogm/file/Object/Perview");
-                control.PermissionPublish = _permission.ContainsKey("/ogm/file/Object/Publish");
-                control.PermissionEdit = _permission.ContainsKey("/ogm/file/Object/Update");
-                control.PermissionDelete = _permission.ContainsKey("/ogm/file/Object/Delete");
-            }
-
-            public void receivePublish(string _json)
-            {
-                PublishReply reply = JsonSerializer.Deserialize<PublishReply>(_json);
-                Clipboard.SetDataObject(reply.url);
+                if (_size < 1024)
+                    return string.Format("{0} B", _size);
+                if (_size < 1024 * 1024)
+                    return string.Format("{0} K", _size / 1024);
+                if (_size < 1024 * 1024 * 1024)
+                    return string.Format("{0} M", _size / 1024 / 1024);
+                if (_size < (long)1024 * 1024 * 1024 * 1024)
+                    return string.Format("{0} G", _size / 1024 / 1024 / 1024);
+                if (_size < (long)1024 * 1024 * 1024 * 1024 * 1024)
+                    return string.Format("{0} T", _size / 1024 / 1024 / 1024 / 1024);
+                return "?";
             }
         }
 
@@ -266,66 +244,22 @@ namespace ogm.file
             tbBucket.Uid = (string)o_uuid;
             tbBucket.Text = (string)o_name;
             tbBucket.IsEnabled = false;
-
+            tbPrefix.Text = "";
+            tbName.Text = "";
 
             listObject(tbBucket.Uid);
         }
 
-        private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var item = dgObjectList.SelectedItem as ObjectEntity;
-            if (null == item)
-                return;
-
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["uuid"] = item.uuid;
-            param["filepath"] = tbEditFilepath.Text;
-
-            var bridge = facade.getViewBridge() as IObjectViewBridge;
-            string json = JsonSerializer.Serialize(param);
-            //bridge.OnUpdateSubmit(json);
-        }
-
-        private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            formEditObject.Visibility = Visibility.Collapsed;
-        }
-
-        private void onObjectSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            formUploadObject.Visibility = Visibility.Collapsed;
-            var item = dgObjectList.SelectedItem as ObjectEntity;
-            if (null == item)
-                return;
-
-            tbEditFilepath.Text = item.filepath;
-        }
-
-        private void onEditObjectClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var item = dgObjectList.SelectedItem as ObjectEntity;
-            if (null == item)
-                return;
-            formEditObject.Visibility = Visibility.Visible;
-            formUploadObject.Visibility = Visibility.Collapsed;
-
-            tbEditFilepath.Text = item.filepath;
-        }
-
-        private void onUploadClicked(object sender, RoutedEventArgs e)
-        {
-            formUploadObject.Visibility = Visibility.Visible;
-            formEditObject.Visibility = Visibility.Collapsed;
-        }
-
-        private void onResetCliked(object sender, RoutedEventArgs e)
+        private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
             tbBucket.Text = "";
             tbBucket.Uid = "";
             tbBucket.IsEnabled = true;
+            tbPrefix.Text = "";
+            tbName.Text = "";
         }
 
-        private void onSearchClicked(object sender, RoutedEventArgs e)
+        private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(tbBucket.Uid))
             {
@@ -343,44 +277,7 @@ namespace ogm.file
             }
         }
 
-        private void listObject(string _bucketUUID)
-        {
-
-            var bridge = facade.getViewBridge() as IObjectViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["bucket"] = _bucketUUID;
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
-        }
-        private void searchObject(string _bucketUUID, string _prefix, string _name)
-        {
-
-            var bridge = facade.getViewBridge() as IObjectViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["bucket"] = _bucketUUID;
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            param["prefix"] = _prefix;
-            param["name"] = _name;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnSearchSubmit(json);
-        }
-
-
-        private void onUploadSubmitClicked(object sender, RoutedEventArgs e)
-        {
-            formEditObject.Visibility = Visibility.Collapsed;
-            formUploadObject.Visibility = Visibility.Visible;
-        }
-
-        private void onUploadCancelClicked(object sender, RoutedEventArgs e)
-        {
-            formUploadObject.Visibility = Visibility.Collapsed;
-        }
-
-        private void onOpenFileClicked(object sender, RoutedEventArgs e)
+        private void onOpenFileClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             tbFilename.Text = "";
             pbUpload.Value = 0;
@@ -436,23 +333,54 @@ namespace ogm.file
             bridge.OnPrepareSubmit(json);
         }
 
-        private void flushObject(string _bucket, string _md5, string _filename)
+        private void onUploadCancelClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            formUploadObject.Visibility = Visibility.Collapsed;
+        }
+
+        private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+
             Dictionary<string, object> param = new Dictionary<string, object>();
-            param["bucket"] = _bucket;
-            param["uname"] = _md5;
-            param["path"] = _filename;
+            param["uuid"] = item.uuid;
+            param["filepath"] = tbEditFilepath.Text;
+
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
             string json = JsonSerializer.Serialize(param);
-            bridge.OnFlushSubmit(json);
+            //bridge.OnUpdateSubmit(json);
         }
 
-        private void onDeleteObjectClicked(object sender, RoutedEventArgs e)
+        private void onUploadClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-
+            formUploadObject.Visibility = Visibility.Visible;
+            formEditObject.Visibility = Visibility.Collapsed;
         }
 
-        private void onDownloadObjectClicked(object sender, RoutedEventArgs e)
+        private void onObjectSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            formUploadObject.Visibility = Visibility.Collapsed;
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+
+            tbEditFilepath.Text = item.filepath;
+        }
+
+        private void onEditObjectClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+            formEditObject.Visibility = Visibility.Visible;
+            formUploadObject.Visibility = Visibility.Collapsed;
+
+            tbEditFilepath.Text = item.filepath;
+        }
+
+        private void onDownloadObjectClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = dgObjectList.SelectedItem as ObjectEntity;
             if (null == item)
@@ -463,6 +391,59 @@ namespace ogm.file
             string json = JsonSerializer.Serialize(param);
             //bridge.OnPreviewSubmit(json);
             bridge.OnPublishSubmit(json);
+        }
+
+        private void onDeleteObjectClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnRemoveSubmit(json);
+        }
+
+        private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formEditObject.Visibility = Visibility.Collapsed;
+        }
+
+        private void listObject(string _bucketUUID)
+        {
+
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["bucket"] = _bucketUUID;
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnListSubmit(json);
+        }
+        private void searchObject(string _bucketUUID, string _prefix, string _name)
+        {
+
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["bucket"] = _bucketUUID;
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            param["prefix"] = _prefix;
+            param["name"] = _name;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnSearchSubmit(json);
+        }
+
+        private void flushObject(string _bucket, string _md5, string _filename)
+        {
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["bucket"] = _bucket;
+            param["uname"] = _md5;
+            param["path"] = _filename;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnFlushSubmit(json);
         }
     }
 }

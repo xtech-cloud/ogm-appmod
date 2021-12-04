@@ -1,8 +1,8 @@
 
 using System.Windows;
+using System.Text.Json;
 using XTC.oelMVCS;
 using ogm.file;
-using System.IO;
 
 namespace app
 {
@@ -33,10 +33,9 @@ namespace app
         {
             logger_ = new ConsoleLogger();
             config_ = new AppConfig();
-            if(File.Exists("config.json"))
-            {
-                config_.Merge(File.ReadAllText("config.json"));
-            }
+
+            string json = JsonSerializer.Serialize(System.Environment.GetEnvironmentVariables());
+            config_.Merge(json);
 
             MainWindow mainWindow = new MainWindow();
             this.MainWindow = mainWindow;
@@ -50,7 +49,7 @@ namespace app
 
             base.OnStartup(e);
 
-            
+
         }
 
         protected override void OnExit(ExitEventArgs e)

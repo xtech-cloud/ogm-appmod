@@ -39,6 +39,7 @@
                     <Border Style="{StaticResource BorderTipPrimary}">
                         <TextBlock Text="上传文件"/>
                     </Border>
+                    <TextBox x:Name="tbUploadPrefix" Margin="0,24,0,0" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件路径" Style="{StaticResource TextBoxExtend}"/>
                     <Button Margin="0,24,0,0" Content="选择文件"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenFileClicked" />
                     <TextBlock x:Name="tbFilename" Margin="0,24,0,0"/>
                     <ProgressBar Name="pbUpload" Margin="0,24,0,0" Style="{StaticResource ProgressBarSuccess}" Value="40"/>
