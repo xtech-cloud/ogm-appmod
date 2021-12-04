@@ -11,6 +11,12 @@ namespace ogm.account
     {
         public class QueryUiBridge : BaseQueryUiBridge, IQueryExtendUiBridge
         {
+            public void HandleTabActivated()
+            {
+                if (string.IsNullOrEmpty(control.tbUsername.Text) && control.AccountList.Count == 0)
+                    control.listAccount();
+            }
+
             public override void ReceiveList(string _json)
             {
                 base.ReceiveList(_json);
@@ -50,28 +56,19 @@ namespace ogm.account
 
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
-            AccountList.Clear();
             tbUsername.Text = "";
-
+            listAccount();
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            var bridge = facade.getViewBridge() as IQueryViewBridge;
             if (string.IsNullOrEmpty(tbUsername.Text))
             {
-                param["offset"] = 0;
-                param["count"] = int.MaxValue;
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnListSubmit(json);
+                listAccount();
             }
             else
             {
-                param["field"] = 2;
-                param["value"] = tbUsername.Text;
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnSingleSubmit(json);
+                searchAccount(tbUsername.Text);
             }
 
         }
@@ -92,6 +89,26 @@ namespace ogm.account
             if (null == item)
                 return;
             Clipboard.SetDataObject(item.uuid);
+        }
+
+        private void listAccount()
+        {
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            var bridge = facade.getViewBridge() as IQueryViewBridge;
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnListSubmit(json);
+        }
+
+        private void searchAccount(string _username)
+        {
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            var bridge = facade.getViewBridge() as IQueryViewBridge;
+            param["field"] = 2;
+            param["value"] = tbUsername.Text;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnSingleSubmit(json);
         }
     }
 }
