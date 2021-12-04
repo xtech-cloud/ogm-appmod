@@ -252,11 +252,9 @@ namespace ogm.file
 
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
-            tbBucket.Text = "";
-            tbBucket.Uid = "";
-            tbBucket.IsEnabled = true;
             tbPrefix.Text = "";
             tbName.Text = "";
+            listObject(tbBucket.Uid);
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
