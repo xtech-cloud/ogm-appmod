@@ -31,7 +31,7 @@ namespace ogm.account
                 base.ReceiveList(_json);
                 QuerySingleReply reply = JsonSerializer.Deserialize<QuerySingleReply>(_json);
                 control.AccountList.Clear();
-                if (null == reply.account)
+                if (null == reply.account || string.IsNullOrEmpty(reply.account.uuid))
                     return;
                 DateTime startTime = TimeZoneInfo.ConvertTimeFromUtc(new System.DateTime(1970, 1, 1, 0, 0, 0), TimeZoneInfo.Local);
                 long lTime = reply.account.createdAt * 10000000;
