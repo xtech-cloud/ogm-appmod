@@ -103,10 +103,9 @@ namespace ogm.group
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
             formAddMember.Visibility = Visibility.Collapsed;
-            tbName.IsEnabled = true;
-            tbName.Uid = "";
-            tbName.Text = "";
-            MemberList.Clear();
+            tbElement.Text = "";
+            tbAlias.Text = "";
+            listMember(tbName.Uid);
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)

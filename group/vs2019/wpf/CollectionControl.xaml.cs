@@ -46,6 +46,12 @@ namespace ogm.group
             {
                 ReceiveList(_json);
             }
+
+            public void HandleTabActivated()
+            {
+                if(string.IsNullOrEmpty(control.tbName.Text) && control.CollectionList.Count == 0)
+                    control.listCollection();
+            }
         }
 
         public MemberControl controlMember { get; set; }
@@ -82,7 +88,8 @@ namespace ogm.group
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
             formNewCollection.Visibility = Visibility.Collapsed;
-            CollectionList.Clear();
+            tbName.Text = "";
+            listCollection();
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)

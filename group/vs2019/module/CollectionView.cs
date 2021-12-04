@@ -8,9 +8,24 @@ namespace ogm.group
     {
         public const string NAME = "ogm.group.CollectionView";
 
+        protected override void postSetup()
+        {
+            base.postSetup();
+            addRouter("/sidemenu/tab/activated", handleTabActivated);
+        }
+
         public void OpenMemberUi()
         {
             model.Broadcast("/sidemenu/active/tab", "ogm.group.Member");
+        }
+
+        private void handleTabActivated(Model.Status _status, object _data)
+        {
+            string target = _data as string;
+            if (!target.Equals("ogm.group.Collection"))
+                return;
+            var extendBridge = facade.getUiBridge() as ICollectionExtendUiBridge;
+            extendBridge.HandleTabActivated();
         }
     }
 }
