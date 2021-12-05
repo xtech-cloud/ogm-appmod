@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,20 +26,22 @@ namespace ogm.actor
         {
             getLogger().Trace("setup ogm.actor.DomainView");
 
-           addRouter("/ogm/actor/Domain/Create", this.handleDomainCreate);
-    
-           addRouter("/ogm/actor/Domain/Update", this.handleDomainUpdate);
-    
-           addRouter("/ogm/actor/Domain/Delete", this.handleDomainDelete);
-    
-           addRouter("/ogm/actor/Domain/List", this.handleDomainList);
-    
-           addRouter("/ogm/actor/Domain/Find", this.handleDomainFind);
-    
-           addRouter("/ogm/actor/Domain/Search", this.handleDomainSearch);
-    
-           addRouter("/ogm/actor/Domain/Execute", this.handleDomainExecute);
-    
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Create", this.handleReceiveDomainCreate);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Update", this.handleReceiveDomainUpdate);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Delete", this.handleReceiveDomainDelete);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/List", this.handleReceiveDomainList);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Get", this.handleReceiveDomainGet);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Find", this.handleReceiveDomainFind);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Search", this.handleReceiveDomainSearch);
+
+            addObserver(DomainModel.NAME, "_.reply.arrived:ogm/actor/Domain/Execute", this.handleReceiveDomainExecute);
+
         }
 
         protected override void postSetup()
@@ -59,75 +61,108 @@ namespace ogm.actor
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleDomainCreate(Model.Status _status, object _data)
+        private void handleReceiveDomainCreate(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Create is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveCreate(json);
         }
-    
-        private void handleDomainUpdate(Model.Status _status, object _data)
+
+        private void handleReceiveDomainUpdate(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Update is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpdate(json);
         }
-    
-        private void handleDomainDelete(Model.Status _status, object _data)
+
+        private void handleReceiveDomainDelete(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Delete is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveDelete(json);
         }
-    
-        private void handleDomainList(Model.Status _status, object _data)
+
+        private void handleReceiveDomainList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.DomainListResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DomainListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/List is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveList(json);
         }
-    
-        private void handleDomainFind(Model.Status _status, object _data)
+
+        private void handleReceiveDomainGet(Model.Status _status, object _data)
         {
-            var rsp = (Proto.DomainFindResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DomainGetResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Get is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveGet(json);
         }
-    
-        private void handleDomainSearch(Model.Status _status, object _data)
+
+        private void handleReceiveDomainFind(Model.Status _status, object _data)
         {
-            var rsp = (Proto.DomainSearchResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DomainFindResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Find is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveFind(json);
         }
-    
-        private void handleDomainExecute(Model.Status _status, object _data)
+
+        private void handleReceiveDomainSearch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DomainSearchResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
         }
-    
+
+        private void handleReceiveDomainExecute(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.BlankResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Domain/Execute is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveExecute(json);
+        }
+
     }
 }

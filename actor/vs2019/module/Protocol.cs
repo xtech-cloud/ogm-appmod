@@ -8,11 +8,11 @@ using XTC.oelMVCS;
 namespace ogm.actor.Proto
 {
 
-        public class ApplicationAddRequest
-        {
-            public ApplicationAddRequest()
+            public class ApplicationAddRequest
             {
-                _domain = Any.FromString("");
+                public ApplicationAddRequest()
+                {
+                    _domain = Any.FromString("");
                 _name = Any.FromString("");
                 _version = Any.FromString("");
                 _program = Any.FromString("");
@@ -20,8 +20,8 @@ namespace ogm.actor.Proto
                 _url = Any.FromString("");
                 _upgrade = Any.FromInt32(0);
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
@@ -36,13 +36,13 @@ namespace ogm.actor.Proto
             [JsonPropertyName("upgrade")]
             public Any _upgrade {get;set;}
 
-        }
-    
-        public class ApplicationUpdateRequest
-        {
-            public ApplicationUpdateRequest()
+            }
+
+            public class ApplicationUpdateRequest
             {
-                _uuid = Any.FromString("");
+                public ApplicationUpdateRequest()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
                 _version = Any.FromString("");
                 _program = Any.FromString("");
@@ -50,8 +50,8 @@ namespace ogm.actor.Proto
                 _url = Any.FromString("");
                 _upgrade = Any.FromInt32(0);
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
@@ -66,79 +66,106 @@ namespace ogm.actor.Proto
             [JsonPropertyName("upgrade")]
             public Any _upgrade {get;set;}
 
-        }
-    
-        public class ApplicationRemoveRequest
-        {
-            public ApplicationRemoveRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class ApplicationRemoveRequest
+            {
+                public ApplicationRemoveRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class ApplicationListRequest
-        {
-            public ApplicationListRequest()
+            }
+
+            public class ApplicationGetRequest
             {
-                _offset = Any.FromInt64(0);
+                public ApplicationGetRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
+            public class ApplicationGetResponse
+            {
+                public ApplicationGetResponse()
+                {
+                    _status = new Status();
+                _application = new ApplicationEntity();
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("application")]
+            public ApplicationEntity _application {get;set;}
+
+            }
+
+            public class ApplicationListRequest
+            {
+                public ApplicationListRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _domain = Any.FromString("");
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
             [JsonPropertyName("domain")]
             public Any _domain {get;set;}
 
-        }
-    
-        public class ApplicationListResponse
-        {
-            public ApplicationListResponse()
+            }
+
+            public class ApplicationListResponse
             {
-                _status = new Status();
+                public ApplicationListResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _application = new ApplicationEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("application")]
             public ApplicationEntity[] _application {get;set;}
 
-        }
-    
-        public class DeviceListResponse
-        {
-            public DeviceListResponse()
+            }
+
+            public class DeviceListResponse
             {
-                _status = new Status();
+                public DeviceListResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _device = new DeviceEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("device")]
             public DeviceEntity[] _device {get;set;}
 
-        }
-    
-        public class DeviceSearchRequest
-        {
-            public DeviceSearchRequest()
+            }
+
+            public class DeviceSearchRequest
             {
-                _offset = Any.FromInt64(0);
+                public DeviceSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _serialNumber = Any.FromString("");
                 _name = Any.FromString("");
@@ -146,8 +173,8 @@ namespace ogm.actor.Proto
                 _systemVersion = Any.FromString("");
                 _shape = Any.FromString("");
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
@@ -162,157 +189,184 @@ namespace ogm.actor.Proto
             [JsonPropertyName("shape")]
             public Any _shape {get;set;}
 
-        }
-    
-        public class DeviceSearchResponse
-        {
-            public DeviceSearchResponse()
+            }
+
+            public class DeviceSearchResponse
             {
-                _status = new Status();
+                public DeviceSearchResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _device = new DeviceEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("device")]
             public DeviceEntity[] _device {get;set;}
 
-        }
-    
-        public class DomainCreateRequest
-        {
-            public DomainCreateRequest()
-            {
-                _name = Any.FromString("");
-
             }
-            [JsonPropertyName("name")]
+
+            public class DomainCreateRequest
+            {
+                public DomainCreateRequest()
+                {
+                    _name = Any.FromString("");
+
+                }
+                [JsonPropertyName("name")]
             public Any _name {get;set;}
 
-        }
-    
-        public class DomainUpdateRequest
-        {
-            public DomainUpdateRequest()
+            }
+
+            public class DomainUpdateRequest
             {
-                _uuid = Any.FromString("");
+                public DomainUpdateRequest()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
 
-        }
-    
-        public class DomainDeleteRequest
-        {
-            public DomainDeleteRequest()
-            {
-                _uuid = Any.FromString("");
-
             }
-            [JsonPropertyName("uuid")]
+
+            public class DomainDeleteRequest
+            {
+                public DomainDeleteRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
 
-        }
-    
-        public class DomainListResponse
-        {
-            public DomainListResponse()
+            }
+
+            public class DomainListResponse
             {
-                _status = new Status();
+                public DomainListResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _domain = new DomainEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("domain")]
             public DomainEntity[] _domain {get;set;}
 
-        }
-    
-        public class DomainFindRequest
-        {
-            public DomainFindRequest()
+            }
+
+            public class DomainGetRequest
             {
-                _name = Any.FromString("");
+                public DomainGetRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
 
             }
-            [JsonPropertyName("name")]
-            public Any _name {get;set;}
 
-        }
-    
-        public class DomainFindResponse
-        {
-            public DomainFindResponse()
+            public class DomainGetResponse
             {
-                _status = new Status();
+                public DomainGetResponse()
+                {
+                    _status = new Status();
                 _domain = new DomainEntity();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("domain")]
             public DomainEntity _domain {get;set;}
 
-        }
-    
-        public class DomainSearchRequest
-        {
-            public DomainSearchRequest()
+            }
+
+            public class DomainFindRequest
             {
-                _offset = Any.FromInt64(0);
+                public DomainFindRequest()
+                {
+                    _name = Any.FromString("");
+
+                }
+                [JsonPropertyName("name")]
+            public Any _name {get;set;}
+
+            }
+
+            public class DomainFindResponse
+            {
+                public DomainFindResponse()
+                {
+                    _status = new Status();
+                _domain = new DomainEntity();
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("domain")]
+            public DomainEntity _domain {get;set;}
+
+            }
+
+            public class DomainSearchRequest
+            {
+                public DomainSearchRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _name = Any.FromString("");
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
 
-        }
-    
-        public class DomainSearchResponse
-        {
-            public DomainSearchResponse()
+            }
+
+            public class DomainSearchResponse
             {
-                _status = new Status();
+                public DomainSearchResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _domain = new DomainEntity[0];
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("domain")]
             public DomainEntity[] _domain {get;set;}
 
-        }
-    
-        public class DomainExecuteRequest
-        {
-            public DomainExecuteRequest()
+            }
+
+            public class DomainExecuteRequest
             {
-                _uuid = Any.FromString("");
+                public DomainExecuteRequest()
+                {
+                    _uuid = Any.FromString("");
                 _command = Any.FromString("");
                 _device = Any.FromStringAry(new string[0]);
                 _parameter = Any.FromString("");
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("command")]
             public Any _command {get;set;}
@@ -321,19 +375,19 @@ namespace ogm.actor.Proto
             [JsonPropertyName("parameter")]
             public Any _parameter {get;set;}
 
-        }
-    
-        public class GuardFetchRequest
-        {
-            public GuardFetchRequest()
+            }
+
+            public class GuardFetchRequest
             {
-                _domain = Any.FromString("");
+                public GuardFetchRequest()
+                {
+                    _domain = Any.FromString("");
                 _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _filter = new Dictionary<string, string>();
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("offset")]
             public Any _offset {get;set;}
@@ -342,20 +396,20 @@ namespace ogm.actor.Proto
             [JsonPropertyName("filter")]
             public Dictionary<string, string> _filter {get;set;}
 
-        }
-    
-        public class GuardFetchResponse
-        {
-            public GuardFetchResponse()
+            }
+
+            public class GuardFetchResponse
             {
-                _status = new Status();
+                public GuardFetchResponse()
+                {
+                    _status = new Status();
                 _total = Any.FromInt64(0);
                 _device = new DeviceEntity[0];
                 _access = new Dictionary<string, int>();
                 _alias = new Dictionary<string, string>();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("total")]
             public Any _total {get;set;}
@@ -366,19 +420,19 @@ namespace ogm.actor.Proto
             [JsonPropertyName("alias")]
             public Dictionary<string, string> _alias {get;set;}
 
-        }
-    
-        public class GuardEditRequest
-        {
-            public GuardEditRequest()
+            }
+
+            public class GuardEditRequest
             {
-                _domain = Any.FromString("");
+                public GuardEditRequest()
+                {
+                    _domain = Any.FromString("");
                 _device = Any.FromString("");
                 _access = Any.FromInt32(0);
                 _alias = Any.FromString("");
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("device")]
             public Any _device {get;set;}
@@ -387,19 +441,19 @@ namespace ogm.actor.Proto
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
 
-        }
-    
-        public class GuardDeleteRequest
-        {
-            public GuardDeleteRequest()
+            }
+
+            public class GuardDeleteRequest
             {
-                _domain = Any.FromString("");
+                public GuardDeleteRequest()
+                {
+                    _domain = Any.FromString("");
                 _device = Any.FromString("");
                 _access = Any.FromInt32(0);
                 _alias = Any.FromString("");
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("device")]
             public Any _device {get;set;}
@@ -408,82 +462,97 @@ namespace ogm.actor.Proto
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
 
-        }
-    
-        public class Status
-        {
-            public Status()
+            }
+
+            public class Status
             {
-                _code = Any.FromInt32(0);
+                public Status()
+                {
+                    _code = Any.FromInt32(0);
                 _message = Any.FromString("");
 
-            }
-            [JsonPropertyName("code")]
+                }
+                [JsonPropertyName("code")]
             public Any _code {get;set;}
             [JsonPropertyName("message")]
             public Any _message {get;set;}
 
-        }
-    
-        public class BlankRequest
-        {
-            public BlankRequest()
-            {
-
             }
 
-        }
-    
-        public class BlankResponse
-        {
-            public BlankResponse()
+            public class BlankRequest
             {
-                _status = new Status();
-
+                public BlankRequest()
+                {
+    
+                }
+    
             }
-            [JsonPropertyName("status")]
+
+            public class BlankResponse
+            {
+                public BlankResponse()
+                {
+                    _status = new Status();
+
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
 
-        }
-    
-        public class ListRequest
-        {
-            public ListRequest()
+            }
+
+            public class UuidResponse
             {
-                _offset = Any.FromInt64(0);
+                public UuidResponse()
+                {
+                    _status = new Status();
+                _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
+            public class ListRequest
+            {
+                public ListRequest()
+                {
+                    _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _filter = new Dictionary<string, string>();
 
-            }
-            [JsonPropertyName("offset")]
+                }
+                [JsonPropertyName("offset")]
             public Any _offset {get;set;}
             [JsonPropertyName("count")]
             public Any _count {get;set;}
             [JsonPropertyName("filter")]
             public Dictionary<string, string> _filter {get;set;}
 
-        }
-    
-        public class DomainEntity
-        {
-            public DomainEntity()
+            }
+
+            public class DomainEntity
             {
-                _uuid = Any.FromString("");
+                public DomainEntity()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
 
-        }
-    
-        public class DeviceEntity
-        {
-            public DeviceEntity()
+            }
+
+            public class DeviceEntity
             {
-                _uuid = Any.FromString("");
+                public DeviceEntity()
+                {
+                    _uuid = Any.FromString("");
                 _serialNumber = Any.FromString("");
                 _name = Any.FromString("");
                 _operatingSystem = Any.FromString("");
@@ -499,8 +568,8 @@ namespace ogm.actor.Proto
                 _networkStrength = Any.FromInt32(0);
                 _program = new Dictionary<string, string>();
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("serialNumber")]
             public Any _serialNumber {get;set;}
@@ -531,13 +600,13 @@ namespace ogm.actor.Proto
             [JsonPropertyName("program")]
             public Dictionary<string, string> _program {get;set;}
 
-        }
-    
-        public class ApplicationEntity
-        {
-            public ApplicationEntity()
+            }
+
+            public class ApplicationEntity
             {
-                _uuid = Any.FromString("");
+                public ApplicationEntity()
+                {
+                    _uuid = Any.FromString("");
                 _name = Any.FromString("");
                 _version = Any.FromString("");
                 _program = Any.FromString("");
@@ -545,8 +614,8 @@ namespace ogm.actor.Proto
                 _url = Any.FromString("");
                 _upgrade = Any.FromInt32(0);
 
-            }
-            [JsonPropertyName("uuid")]
+                }
+                [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
@@ -561,20 +630,20 @@ namespace ogm.actor.Proto
             [JsonPropertyName("upgrade")]
             public Any _upgrade {get;set;}
 
-        }
-    
-        public class SyncPushRequest
-        {
-            public SyncPushRequest()
+            }
+
+            public class SyncPushRequest
             {
-                _domain = Any.FromString("");
+                public SyncPushRequest()
+                {
+                    _domain = Any.FromString("");
                 _device = new DeviceEntity();
                 _upProperty = new Dictionary<string, string>();
                 _downProperty = Any.FromStringAry(new string[0]);
                 _task = Any.FromStringAry(new string[0]);
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("device")]
             public DeviceEntity _device {get;set;}
@@ -585,20 +654,20 @@ namespace ogm.actor.Proto
             [JsonPropertyName("task")]
             public Any _task {get;set;}
 
-        }
-    
-        public class SyncPushResponse
-        {
-            public SyncPushResponse()
+            }
+
+            public class SyncPushResponse
             {
-                _status = new Status();
+                public SyncPushResponse()
+                {
+                    _status = new Status();
                 _access = Any.FromInt32(0);
                 _alias = Any.FromString("");
                 _property = new Dictionary<string, string>();
                 _task = new Dictionary<string, string>();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("access")]
             public Any _access {get;set;}
@@ -609,35 +678,35 @@ namespace ogm.actor.Proto
             [JsonPropertyName("task")]
             public Dictionary<string, string> _task {get;set;}
 
-        }
-    
-        public class SyncPullRequest
-        {
-            public SyncPullRequest()
+            }
+
+            public class SyncPullRequest
             {
-                _domain = Any.FromString("");
+                public SyncPullRequest()
+                {
+                    _domain = Any.FromString("");
                 _downProperty = Any.FromStringAry(new string[0]);
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("downProperty")]
             public Any _downProperty {get;set;}
 
-        }
-    
-        public class SyncPullResponse
-        {
-            public SyncPullResponse()
+            }
+
+            public class SyncPullResponse
             {
-                _status = new Status();
+                public SyncPullResponse()
+                {
+                    _status = new Status();
                 _device = new DeviceEntity[0];
                 _alias = new Dictionary<string, string>();
                 _property = new Dictionary<string, string>();
                 _healthy = new Dictionary<string, int>();
 
-            }
-            [JsonPropertyName("status")]
+                }
+                [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("device")]
             public DeviceEntity[] _device {get;set;}
@@ -648,19 +717,19 @@ namespace ogm.actor.Proto
             [JsonPropertyName("healthy")]
             public Dictionary<string, int> _healthy {get;set;}
 
-        }
-    
-        public class SyncUploadRequest
-        {
-            public SyncUploadRequest()
+            }
+
+            public class SyncUploadRequest
             {
-                _domain = Any.FromString("");
+                public SyncUploadRequest()
+                {
+                    _domain = Any.FromString("");
                 _device = Any.FromString("");
                 _name = Any.FromString("");
                 _data = Any.FromString("");
 
-            }
-            [JsonPropertyName("domain")]
+                }
+                [JsonPropertyName("domain")]
             public Any _domain {get;set;}
             [JsonPropertyName("device")]
             public Any _device {get;set;}
@@ -669,6 +738,6 @@ namespace ogm.actor.Proto
             [JsonPropertyName("data")]
             public Any _data {get;set;}
 
-        }
-    
+            }
+
 }

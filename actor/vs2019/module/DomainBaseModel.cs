@@ -51,5 +51,56 @@ namespace ogm.actor
                 return status_ as DomainModel.DomainStatus;
             }
         }
+
+
+        public virtual void SaveCreate(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Create", _rsp);
+        }
+
+
+        public virtual void SaveUpdate(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Update", _rsp);
+        }
+
+
+        public virtual void SaveDelete(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Delete", _rsp);
+        }
+
+
+        public virtual void SaveList(Proto.DomainListResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/List", _rsp);
+        }
+
+
+        public virtual void SaveGet(Proto.DomainGetResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Get", _rsp);
+        }
+
+
+        public virtual void SaveFind(Proto.DomainFindResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Find", _rsp);
+        }
+
+
+        public virtual void SaveSearch(Proto.DomainSearchResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Search", _rsp);
+        }
+
+
+        public virtual void SaveExecute(Proto.BlankResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Domain/Execute", _rsp);
+        }
+
+
+
     }
 }

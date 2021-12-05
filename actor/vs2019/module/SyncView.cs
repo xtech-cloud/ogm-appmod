@@ -1,6 +1,6 @@
 
-using System.Text.Json;
 using System.Collections.Generic;
+using System.Text.Json;
 using XTC.oelMVCS;
 
 namespace ogm.actor
@@ -9,42 +9,23 @@ namespace ogm.actor
     {
         public const string NAME = "ogm.actor.SyncView";
 
-        protected override void setup()
+        protected override void postSetup()
         {
-            base.setup();
-
-            addObserver(SyncModel.NAME, "/reply/sync/pull", this.receivePull);
-            addObserver(ApplicationModel.NAME, "/reply/application/list", this.receiveApplicationList);
+            base.postSetup();
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/List", this.handleReceiveApplicationList);
         }
 
-        private void receivePull(Model.Status _status, object _data)
+        private void handleReceiveApplicationList(Model.Status _status, object _data)
         {
-            var replyStatus = _data  as Proto.Status;
-            if(replyStatus._code.AsInt32() != 0)
+            var rsp = _data as Proto.ApplicationListResponse;
+            if(null == rsp)
             {
-                Alert(replyStatus._message.AsString());
+                getLogger().Error("rsp of Application/List is null");
                 return;
             }
-
-            SyncModel.SyncStatus status = _status as SyncModel.SyncStatus;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["device"] = status.device;
-            param["alias"] = status.alias;
-            param["property"] = status.property;
-            param["healthy"] = status.healthy;
-            var json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
-            bridge.ReceivePull(json);
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            var extendBridge = bridge as ISyncExtendUiBridge;
+            extendBridge.ReceiveApplicationList(json);
         }
-
-        private void receiveApplicationList(Model.Status _status, object _data)
-        {
-            var status = _status as ApplicationModel.ApplicationStatus;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["total"] = status.applicationTotal;
-            param["application"] = status.applicationList;
-            var json = JsonSerializer.Serialize(param, JsonOptions.DefaultSerializerOptions);
-            bridge.ReceiveApplicationList(json);
-        }
-
     }
 }

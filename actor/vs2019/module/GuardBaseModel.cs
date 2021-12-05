@@ -51,5 +51,26 @@ namespace ogm.actor
                 return status_ as GuardModel.GuardStatus;
             }
         }
+
+
+        public virtual void SaveFetch(Proto.GuardFetchResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Guard/Fetch", _rsp);
+        }
+
+
+        public virtual void SaveEdit(Proto.BlankResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Guard/Edit", _rsp);
+        }
+
+
+        public virtual void SaveDelete(Proto.BlankResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Guard/Delete", _rsp);
+        }
+
+
+
     }
 }

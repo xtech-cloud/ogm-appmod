@@ -8,8 +8,9 @@ namespace ogm.actor
         object getRootPanel();
         void Alert(string _message);
         void UpdatePermission(Dictionary<string,string> _permission);
-
+        void ReceivePush(string _json);
         void ReceivePull(string _json);
-        void ReceiveApplicationList(string _json);
+        void ReceiveUpload(string _json);
+
     }
 }

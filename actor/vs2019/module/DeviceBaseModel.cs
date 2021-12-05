@@ -51,5 +51,20 @@ namespace ogm.actor
                 return status_ as DeviceModel.DeviceStatus;
             }
         }
+
+
+        public virtual void SaveList(Proto.DeviceListResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Device/List", _rsp);
+        }
+
+
+        public virtual void SaveSearch(Proto.DeviceSearchResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Device/Search", _rsp);
+        }
+
+
+
     }
 }

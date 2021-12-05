@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,12 +26,12 @@ namespace ogm.actor
         {
             getLogger().Trace("setup ogm.actor.SyncView");
 
-           addRouter("/ogm/actor/Sync/Push", this.handleSyncPush);
-    
-           addRouter("/ogm/actor/Sync/Pull", this.handleSyncPull);
-    
-           addRouter("/ogm/actor/Sync/Upload", this.handleSyncUpload);
-    
+            addObserver(SyncModel.NAME, "_.reply.arrived:ogm/actor/Sync/Push", this.handleReceiveSyncPush);
+
+            addObserver(SyncModel.NAME, "_.reply.arrived:ogm/actor/Sync/Pull", this.handleReceiveSyncPull);
+
+            addObserver(SyncModel.NAME, "_.reply.arrived:ogm/actor/Sync/Upload", this.handleReceiveSyncUpload);
+
         }
 
         protected override void postSetup()
@@ -51,39 +51,48 @@ namespace ogm.actor
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleSyncPush(Model.Status _status, object _data)
+        private void handleReceiveSyncPush(Model.Status _status, object _data)
         {
-            var rsp = (Proto.SyncPushResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.SyncPushResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Sync/Push is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceivePush(json);
         }
-    
-        private void handleSyncPull(Model.Status _status, object _data)
+
+        private void handleReceiveSyncPull(Model.Status _status, object _data)
         {
-            var rsp = (Proto.SyncPullResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.SyncPullResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Sync/Pull is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceivePull(json);
         }
-    
-        private void handleSyncUpload(Model.Status _status, object _data)
+
+        private void handleReceiveSyncUpload(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BlankResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Sync/Upload is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpload(json);
         }
-    
+
     }
 }

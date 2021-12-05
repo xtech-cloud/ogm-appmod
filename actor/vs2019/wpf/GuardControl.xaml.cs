@@ -1,92 +1,41 @@
-using System.Text.Json;
-using System.Windows;
+
 using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Windows;
+using System.Text.Json;
+using HandyControl.Controls;
 
 namespace ogm.actor
 {
     public partial class GuardControl : UserControl
     {
-        public class ReplyStatus
+        //页面参数，用于页面间跳转时传递数据
+        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
+
+        public class GuardUiBridge : BaseGuardUiBridge, IGuardExtendUiBridge
         {
-            public int code { get; set; }
-            public string message { get; set; }
-        }
-        public class FetchDeviceReply
-        {
-            public long total { get; set; }
-            public DeviceEntity[] device { get; set; }
-            public Dictionary<string, string> alias { get; set; }
-            public Dictionary<string, int> access { get; set; }
-        }
-
-        public class DeviceEntity : INotifyPropertyChanged
-        {
-            public string uuid { get; set; }
-            public string serialNumber { get; set; }
-            public string name { get; set; }
-            public string operatingSystem { get; set; }
-            public string systemVersion { get; set; }
-            public string shape { get; set; }
-            public int _access
+            public override void Alert(string _message)
             {
-                get { return _access_; }
-                set { 
-                    _access_ = value;
-                    _waitVisibility = _access == 0 ? Visibility.Visible : Visibility.Collapsed;
-                    _acceptVisibility = _access == 1 ? Visibility.Visible : Visibility.Collapsed;
-                    _rejectVisibility = _access == 2 ? Visibility.Visible : Visibility.Collapsed;
-                    OnPrepertyChanged("_waitVisibility");
-                    OnPrepertyChanged("_acceptVisibility");
-                    OnPrepertyChanged("_rejectVisibility");
-                }
+                Growl.Warning(_message, "StatusGrowl");
             }
 
-            public string _alias
-            {
-                get { return _alias_; }
-                set { _alias_ = value; OnPrepertyChanged("_alias"); }
-            }
-            public Visibility _waitVisibility { get; set; }
-            public Visibility _acceptVisibility { get; set; }
-            public Visibility _rejectVisibility { get; set; }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            private void OnPrepertyChanged(string _propertyName)
-            {
-                if (this.PropertyChanged == null)
-                    return;
-                this.PropertyChanged(this, new PropertyChangedEventArgs(_propertyName));
-            }
-
-            private string _alias_;
-            private int _access_;
-        }
-
-        public class GuardUiBridge : IGuardUiBridge
-        {
-            public GuardControl control { get; set; }
-
-            public object getRootPanel()
-            {
-                return control;
-            }
-
-            public void Alert(string _message)
-            {
-            }
-
-            public void UpdatePermission(Dictionary<string, string> _permission)
+            public override void UpdatePermission(Dictionary<string, string> _permission)
             {
                 control.PermissionEdit = _permission.ContainsKey("/ogm/actor/Guard/Edit");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/actor/Guard/Delete");
             }
 
-            public void ReceiveFetch(string _reply)
+            public override void ReceiveFetch(string _json)
             {
-                FetchDeviceReply reply = JsonSerializer.Deserialize<FetchDeviceReply>(_reply);
+                var reply = JsonSerializer.Deserialize<GuardFetchReply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
+
+                control.DeviceList.Clear();
                 foreach (var e in reply.device)
                 {
                     DeviceEntity entity = e;
@@ -100,31 +49,29 @@ namespace ogm.actor
                         entity._alias = entity.name;
                     control.DeviceList.Add(entity);
                 }
-
             }
 
-            public void ReceiveEdit(string _reply)
+            public override void ReceiveEdit(string _json)
             {
-                ReplyStatus status = JsonSerializer.Deserialize<ReplyStatus>(_reply);
-                if (status.code == 0)
+                var reply = JsonSerializer.Deserialize<GuardFetchReply>(_json);
+                if (reply.status.code != 0)
                 {
-                    control.formEditDevice.Visibility = Visibility.Collapsed;
-
-                    var itemDevice = control.dgDeviceList.SelectedItem as DeviceEntity;
-                    if (null == itemDevice)
-                        return;
-                    itemDevice._alias = control.tbEditAlias.Text;
-                    itemDevice._access = control.cbEditAccess.SelectedIndex;
+                    Alert(reply.status.message);
+                    return;
                 }
+
+                control.formEditDevice.Visibility = Visibility.Collapsed;
+
+                var itemDevice = control.dgDeviceList.SelectedItem as DeviceEntity;
+                if (null == itemDevice)
+                    return;
+                itemDevice._alias = control.tbEditAlias.Text;
+                itemDevice._access = control.cbEditAccess.SelectedIndex;
             }
         }
 
         public GuardFacade facade { get; set; }
-
         public ObservableCollection<DeviceEntity> DeviceList { get; set; }
-
-        //页面参数，用于页面间跳转时传递数据
-        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
 
         public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(GuardControl), new PropertyMetadata(true));
         public static readonly DependencyProperty PermissionDeleteProperty = DependencyProperty.Register("PermissionDelete", typeof(bool), typeof(GuardControl), new PropertyMetadata(true));
@@ -140,6 +87,7 @@ namespace ogm.actor
             get { return (bool)GetValue(PermissionDeleteProperty); }
             set { SetValue(PermissionDeleteProperty, value); }
         }
+
 
         public GuardControl()
         {
@@ -166,31 +114,15 @@ namespace ogm.actor
 
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
         {
-            tbDomain.Text = "";
-            tbDomain.Uid = "";
-            DeviceList.Clear();
+            listDevice(tbDomain.Uid);
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            DeviceList.Clear();
-            if (string.IsNullOrEmpty(tbDomain.Uid))
-            {
-                return;
-            }
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["domain"] = tbDomain.Uid;
-            string json = JsonSerializer.Serialize(param);
-            var bridge = facade.getViewBridge() as IGuardViewBridge;
-            bridge.OnFetchSubmit(json);
+            listDevice(tbDomain.Uid);
         }
 
-        private void onEditDeviceClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            formEditDevice.Visibility = Visibility.Visible;
-        }
-
-        private void onEditSubmitClicked(object sender, RoutedEventArgs e)
+        private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             var itemDevice = dgDeviceList.SelectedItem as DeviceEntity;
             if (null == itemDevice)
@@ -206,7 +138,7 @@ namespace ogm.actor
             bridge.OnEditSubmit(json);
         }
 
-        private void onEditCancelClicked(object sender, RoutedEventArgs e)
+        private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             formEditDevice.Visibility = Visibility.Collapsed;
         }
@@ -222,6 +154,11 @@ namespace ogm.actor
             cbEditAccess.SelectedIndex = item._access;
         }
 
+        private void onEditDeviceClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formEditDevice.Visibility = Visibility.Visible;
+        }
+
         private void listDevice(string _domainUUID)
         {
             var bridge = facade.getViewBridge() as IGuardViewBridge;
@@ -232,6 +169,5 @@ namespace ogm.actor
             string json = JsonSerializer.Serialize(param);
             bridge.OnFetchSubmit(json);
         }
-
     }
 }

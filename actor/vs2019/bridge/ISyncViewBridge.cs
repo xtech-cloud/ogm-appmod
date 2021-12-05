@@ -7,6 +7,7 @@ namespace ogm.actor
     {
         void OnPushSubmit(string _json);
         void OnPullSubmit(string _json);
+        void OnUploadSubmit(string _json);
 
     }
 }

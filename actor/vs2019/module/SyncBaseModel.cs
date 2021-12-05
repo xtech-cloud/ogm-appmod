@@ -51,5 +51,26 @@ namespace ogm.actor
                 return status_ as SyncModel.SyncStatus;
             }
         }
+
+
+        public virtual void SavePush(Proto.SyncPushResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Sync/Push", _rsp);
+        }
+
+
+        public virtual void SavePull(Proto.SyncPullResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Sync/Pull", _rsp);
+        }
+
+
+        public virtual void SaveUpload(Proto.BlankResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Sync/Upload", _rsp);
+        }
+
+
+
     }
 }

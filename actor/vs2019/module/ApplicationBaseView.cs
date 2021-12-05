@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,14 +26,16 @@ namespace ogm.actor
         {
             getLogger().Trace("setup ogm.actor.ApplicationView");
 
-           addRouter("/ogm/actor/Application/Add", this.handleApplicationAdd);
-    
-           addRouter("/ogm/actor/Application/Remove", this.handleApplicationRemove);
-    
-           addRouter("/ogm/actor/Application/List", this.handleApplicationList);
-    
-           addRouter("/ogm/actor/Application/Update", this.handleApplicationUpdate);
-    
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/Add", this.handleReceiveApplicationAdd);
+
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/Remove", this.handleReceiveApplicationRemove);
+
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/List", this.handleReceiveApplicationList);
+
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/Get", this.handleReceiveApplicationGet);
+
+            addObserver(ApplicationModel.NAME, "_.reply.arrived:ogm/actor/Application/Update", this.handleReceiveApplicationUpdate);
+
         }
 
         protected override void postSetup()
@@ -53,48 +55,72 @@ namespace ogm.actor
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleApplicationAdd(Model.Status _status, object _data)
+        private void handleReceiveApplicationAdd(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Application/Add is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveAdd(json);
         }
-    
-        private void handleApplicationRemove(Model.Status _status, object _data)
+
+        private void handleReceiveApplicationRemove(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Application/Remove is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveRemove(json);
         }
-    
-        private void handleApplicationList(Model.Status _status, object _data)
+
+        private void handleReceiveApplicationList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.ApplicationListResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ApplicationListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Application/List is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveList(json);
         }
-    
-        private void handleApplicationUpdate(Model.Status _status, object _data)
+
+        private void handleReceiveApplicationGet(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.ApplicationGetResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Application/Get is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveGet(json);
         }
-    
+
+        private void handleReceiveApplicationUpdate(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Application/Update is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveUpdate(json);
+        }
+
     }
 }

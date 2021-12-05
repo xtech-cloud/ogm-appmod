@@ -1,114 +1,64 @@
 
-using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Text.Json;
-using System.ComponentModel;
+using HandyControl.Controls;
 
 namespace ogm.actor
 {
     public partial class ApplicationControl : UserControl
     {
+        //页面参数，用于页面间跳转时传递数据
+        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
 
-        public class ReplyStatus
+        public class ApplicationUiBridge : BaseApplicationUiBridge, IApplicationExtendUiBridge
         {
-            public int code { get; set; }
-            public string message { get; set; }
-        }
-
-        public class ReplyList
-        {
-            public long total { get; set; }
-            public ApplicationEntity[] application { get; set; }
-        }
-
-        public class ApplicationEntity : INotifyPropertyChanged
-        {
-            public string uuid { get; set; }
-            public string name { get; set; }
-            public string version { get; set; }
-            public string program { get; set; }
-            public string location { get; set; }
-            public string url { get; set; }
-
-            public int upgrade
-            {
-                get { return upgrade_; }
-                set
-                {
-                    upgrade_ = value;
-                    _noUpgradeVisibility = upgrade_ == 1 ? Visibility.Visible : Visibility.Collapsed;
-                    _autoUpgradeVisibility = upgrade_ == 2 ? Visibility.Visible : Visibility.Collapsed;
-                    _manualUpgradeVisibility = upgrade_ == 3 ? Visibility.Visible : Visibility.Collapsed;
-                    OnPrepertyChanged("_noUpgradeVisibility");
-                    OnPrepertyChanged("_autoUpgradeVisibility");
-                    OnPrepertyChanged("_manualUpgradeVisibility");
-                }
-            }
-            private int upgrade_ { get; set; }
-
-            public Visibility _noUpgradeVisibility { get; set; }
-            public Visibility _autoUpgradeVisibility { get; set; }
-            public Visibility _manualUpgradeVisibility { get; set; }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-            private void OnPrepertyChanged(string _propertyName)
-            {
-                if (this.PropertyChanged == null)
-                    return;
-                this.PropertyChanged(this, new PropertyChangedEventArgs(_propertyName));
-            }
-
-        }
-        public class ApplicationUiBridge : IApplicationUiBridge
-        {
-            public ApplicationControl control { get; set; }
-
-            public object getRootPanel()
-            {
-                return control;
-            }
-
-            public void Alert(string _message)
-            {
-            }
-
-            public void UpdatePermission(Dictionary<string, string> _permission)
+            public override void UpdatePermission(Dictionary<string, string> _permission)
             {
                 control.PermissionAdd = _permission.ContainsKey("/ogm/actor/Application/Add");
                 control.PermissionRemove = _permission.ContainsKey("/ogm/actor/Application/Remove");
                 control.PermissionUpdate = _permission.ContainsKey("/ogm/actor/Application/Update");
             }
 
-            public void ReceiveAdd(string _json)
+            public override void Alert(string _message)
             {
-                var replyStatus = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if (replyStatus.code != 0)
+                Growl.Warning(_message, "StatusGrowl");
+            }
+
+            public override void ReceiveAdd(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<Reply>(_json);
+                if (reply.status.code != 0)
                 {
-                    Alert(replyStatus.message);
+                    Alert(reply.status.message);
                     return;
                 }
                 control.formNewApplication.Visibility = Visibility.Collapsed;
                 control.listApplication(control.tbDomain.Uid);
             }
 
-            public void ReceiveRemove(string _json)
+            public override void ReceiveRemove(string _json)
             {
-                var replyStatus = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if (replyStatus.code != 0)
+                var reply = JsonSerializer.Deserialize<Reply>(_json);
+                if (reply.status.code != 0)
                 {
-                    Alert(replyStatus.message);
+                    Alert(reply.status.message);
                     return;
                 }
                 control.formEditApplication.Visibility = Visibility.Collapsed;
                 control.listApplication(control.tbDomain.Uid);
             }
 
-
-            public void ReceiveList(string _json)
+            public override void ReceiveList(string _json)
             {
-                var reply = JsonSerializer.Deserialize<ReplyList>(_json);
+                var reply = JsonSerializer.Deserialize<ApplicationListReply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
                 control.ApplicationList.Clear();
                 foreach (var e in reply.application)
                 {
@@ -116,26 +66,39 @@ namespace ogm.actor
                 }
             }
 
-            public void ReceiveUpdate(string _reply)
+            public override void ReceiveUpdate(string _json)
             {
-                ReplyStatus status = JsonSerializer.Deserialize<ReplyStatus>(_reply);
-                if (status.code == 0)
+                var reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code != 0)
                 {
-                    control.formEditApplication.Visibility = Visibility.Collapsed;
-
-                    var item = control.dgApplicationList.SelectedItem as ApplicationEntity;
-                    if (null == item)
-                        return;
-                    item.upgrade = control.cbEditUpgrade.SelectedIndex + 1;
+                    Alert(reply.status.message);
+                    return;
                 }
+                control.formEditApplication.Visibility = Visibility.Collapsed;
+                control.getApplication(reply.uuid);
             }
 
+            public override void ReceiveGet(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<ApplicationGetReply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
+                foreach(var e in control.ApplicationList)
+                {
+                    if(e.uuid.Equals(reply.application.uuid))
+                    {
+                        e.CopyFromOther(reply.application);
+                        break;
+                    }
+                }
+            }
         }
 
         public ApplicationFacade facade { get; set; }
 
-        //页面参数，用于页面间跳转时传递数据
-        public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
 
         public ObservableCollection<ApplicationEntity> ApplicationList { get; set; }
 
@@ -191,9 +154,7 @@ namespace ogm.actor
             formEditApplication.Visibility = Visibility.Collapsed;
             formNewApplication.Visibility = Visibility.Collapsed;
 
-            tbDomain.Text = "";
-            tbDomain.Uid = "";
-            ApplicationList.Clear();
+            listApplication(tbDomain.Uid);
         }
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -210,13 +171,34 @@ namespace ogm.actor
             listApplication(tbDomain.Uid);
         }
 
-        private void onEditApplicationClicked(object sender, System.Windows.RoutedEventArgs e)
+        private void onNewSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            formEditApplication.Visibility = Visibility.Visible;
-            formNewApplication.Visibility = Visibility.Collapsed;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["domain"] = tbDomain.Uid;
+            param["name"] = tbNewName.Text;
+            param["version"] = tbNewVersion.Text;
+            param["program"] = tbNewProgram.Text;
+            param["location"] = tbNewLocation.Text;
+            param["url"] = tbNewUrl.Text;
+            param["upgrade"] = cbNewUpgrade.SelectedIndex + 1;
+
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as IApplicationViewBridge;
+            bridge.OnAddSubmit(json);
         }
 
-        private void onEditSubmitClicked(object sender, RoutedEventArgs e)
+        private void onNewCancelClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formNewApplication.Visibility = Visibility.Collapsed;
+            tbNewName.Text = "";
+            tbNewVersion.Text = "";
+            tbNewProgram.Text = "";
+            tbNewLocation.Text = "";
+            tbNewUrl.Text = "";
+            cbNewUpgrade.SelectedIndex = 0;
+        }
+
+        private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             var itemApplication = dgApplicationList.SelectedItem as ApplicationEntity;
             if (null == itemApplication)
@@ -235,10 +217,16 @@ namespace ogm.actor
             bridge.OnUpdateSubmit(json);
         }
 
-        private void onEditCancelClicked(object sender, RoutedEventArgs e)
+        private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             formEditApplication.Visibility = Visibility.Collapsed;
             formNewApplication.Visibility = Visibility.Collapsed;
+        }
+
+        private void onAddClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formEditApplication.Visibility = Visibility.Collapsed;
+            formNewApplication.Visibility = Visibility.Visible;
         }
 
         private void onApplicationSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -256,52 +244,13 @@ namespace ogm.actor
             cbEditUpgrade.SelectedIndex = item.upgrade - 1;
         }
 
-
-        private void listApplication(string _domainUUID)
+        private void onEditApplicationClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            var bridge = facade.getViewBridge() as IApplicationViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["domain"] = _domainUUID;
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnListSubmit(json);
-        }
-
-        private void onAddClicked(object sender, RoutedEventArgs e)
-        {
-            formEditApplication.Visibility = Visibility.Collapsed;
-            formNewApplication.Visibility = Visibility.Visible;
-        }
-
-        private void onNewSubmitClicked(object sender, RoutedEventArgs e)
-        {
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["domain"] = tbDomain.Uid;
-            param["name"] = tbNewName.Text;
-            param["version"] = tbNewVersion.Text;
-            param["program"] = tbNewProgram.Text;
-            param["location"] = tbNewLocation.Text;
-            param["url"] = tbNewUrl.Text;
-            param["upgrade"] = cbNewUpgrade.SelectedIndex + 1;
-
-            string json = JsonSerializer.Serialize(param);
-            var bridge = facade.getViewBridge() as IApplicationViewBridge;
-            bridge.OnAddSubmit(json);
-        }
-
-        private void onNewCancelClicked(object sender, RoutedEventArgs e)
-        {
+            formEditApplication.Visibility = Visibility.Visible;
             formNewApplication.Visibility = Visibility.Collapsed;
-            tbNewName.Text = "";
-            tbNewVersion.Text = "";
-            tbNewProgram.Text = "";
-            tbNewLocation.Text = "";
-            tbNewUrl.Text = "";
-            cbNewUpgrade.SelectedIndex = 0;
         }
 
-        private void onDeleteApplicationClicked(object sender, RoutedEventArgs e)
+        private void onDeleteApplicationClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = dgApplicationList.SelectedItem as ApplicationEntity;
             if (null == item)
@@ -312,6 +261,30 @@ namespace ogm.actor
             string json = JsonSerializer.Serialize(param);
             var bridge = facade.getViewBridge() as IApplicationViewBridge;
             bridge.OnRemoveSubmit(json);
+        }
+
+        private void listApplication(string _domainUUID)
+        {
+            if (string.IsNullOrEmpty(_domainUUID))
+                return;
+            var bridge = facade.getViewBridge() as IApplicationViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["domain"] = _domainUUID;
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnListSubmit(json);
+        }
+
+        private void getApplication(string _uuid)
+        {
+            if (string.IsNullOrEmpty(_uuid))
+                return;
+            var bridge = facade.getViewBridge() as IApplicationViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = _uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnGetSubmit(json);
         }
     }
 }

@@ -1,80 +1,112 @@
+
+using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
+using System.Text.Json;
+using HandyControl.Controls;
 
 namespace ogm.actor
 {
     public partial class DomainControl : UserControl
     {
-
-        public class ReplyStatus
+        public class DomainUiBridge : BaseDomainUiBridge, IDomainExtendUiBridge
         {
-            public int code { get; set; }
-            public string message { get; set; }
-        }
-
-        public class DomainEntity
-        {
-            public string uuid { get; set; }
-            public string name { get; set; }
-        }
-
-        public class DomainUiBridge : IDomainUiBridge
-        {
-            public DomainControl control { get; set; }
-
-            public object getRootPanel()
+            public override void Alert(string _message)
             {
-                return control;
+                Growl.Warning(_message, "StatusGrowl");
             }
 
-            public void Alert(string _message)
-            {
-            }
-
-            public void RefreshList(string _reply)
-            {
-                control.DomainList.Clear();
-                var list = JsonSerializer.Deserialize<DomainEntity[]>(_reply);
-                foreach (var e in list)
-                {
-                    control.DomainList.Add(e);
-                }
-            }
-
-            public void RefreshFetchDevice(string _reply)
-            {
-            }
-
-            public void UpdatePermission(Dictionary<string, string> _permission)
+            public override void UpdatePermission(Dictionary<string, string> _permission)
             {
                 control.PermissionCreate = _permission.ContainsKey("/ogm/actor/Domain/Create");
                 control.PermissionEdit = _permission.ContainsKey("/ogm/actor/Domain/Update");
                 control.PermissionDelete = _permission.ContainsKey("/ogm/actor/Domain/Delete");
             }
 
-            public void ReceiveCreate(string _json)
+            public override void ReceiveList(string _json)
             {
-                var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if (status.code == 0)
+                var reply = JsonSerializer.Deserialize<DomainListReply>(_json);
+                if (reply.status.code != 0)
                 {
-                    control.formNewDomain.Visibility = Visibility.Collapsed;
+                    Alert(reply.status.message);
+                    return;
+                }
+                control.DomainList.Clear();
+                foreach (var e in reply.domain)
+                {
+                    control.DomainList.Add(e);
                 }
             }
 
-            public void ReceiveUpdate(string _json)
+            public override void ReceiveSearch(string _json)
             {
-                var status = JsonSerializer.Deserialize<ReplyStatus>(_json);
-                if (status.code == 0)
+                ReceiveList(_json);
+            }
+
+            public override void ReceiveCreate(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<DomainListReply>(_json);
+                if (reply.status.code != 0)
                 {
-                    control.formEditDomain.Visibility = Visibility.Collapsed;
+                    Alert(reply.status.message);
+                    return;
                 }
+                control.formNewDomain.Visibility = Visibility.Collapsed;
+                control.listDomain();
+            }
+
+            public override void ReceiveUpdate(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<UuidReply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
+                control.formEditDomain.Visibility = Visibility.Collapsed;
+                control.getDomain(reply.uuid);
+            }
+            public override void ReceiveGet(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<DomainGetReply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
+
+                foreach(var e in control.DomainList)
+                {
+                    if(e.uuid.Equals(reply.domain.uuid))
+                    {
+                        e.CopyFromOther(reply.domain);
+                        break;
+                    }
+                }
+            }
+
+            public override void ReceiveDelete(string _json)
+            {
+                var reply = JsonSerializer.Deserialize<Reply>(_json);
+                if (reply.status.code != 0)
+                {
+                    Alert(reply.status.message);
+                    return;
+                }
+                control.formEditDomain.Visibility = Visibility.Collapsed;
+                control.formNewDomain.Visibility = Visibility.Collapsed;
+                control.listDomain();
+            }
+
+            public void HandleTabActivated()
+            {
+                control.listDomain();
             }
         }
 
         public DomainFacade facade { get; set; }
+
         public GuardControl controlGuard { get; set; }
         public SyncControl controlSync { get; set; }
         public ApplicationControl controlApplication { get; set; }
@@ -110,6 +142,38 @@ namespace ogm.actor
             formNewDomain.Visibility = Visibility.Collapsed;
         }
 
+        private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            tbName.Text = "";
+            listDomain();
+        }
+
+        private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbName.Text))
+            {
+                listDomain();
+            }
+            else
+            {
+                searchDomain(tbName.Text);
+            }
+        }
+
+        private void onNewSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["name"] = tbNewName.Text;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnCreateSubmit(json);
+        }
+
+        private void onNewCancelClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formNewDomain.Visibility = Visibility.Collapsed;
+        }
+
         private void onEditSubmitClicked(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = dgDomainList.SelectedItem as DomainEntity;
@@ -127,6 +191,12 @@ namespace ogm.actor
 
         private void onEditCancelClicked(object sender, System.Windows.RoutedEventArgs e)
         {
+            formEditDomain.Visibility = Visibility.Collapsed;
+        }
+
+        private void onCreateClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            formNewDomain.Visibility = Visibility.Visible;
             formEditDomain.Visibility = Visibility.Collapsed;
         }
 
@@ -152,52 +222,7 @@ namespace ogm.actor
             tbEditName.Text = item.name;
         }
 
-        private void onCreateClicked(object sender, RoutedEventArgs e)
-        {
-            formNewDomain.Visibility = Visibility.Visible;
-            formEditDomain.Visibility = Visibility.Collapsed;
-        }
-
-        private void onResetCliked(object sender, RoutedEventArgs e)
-        {
-            tbName.Text = "";
-            DomainList.Clear();
-        }
-
-        private void onSearchClicked(object sender, RoutedEventArgs e)
-        {
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["offset"] = 0;
-            param["count"] = int.MaxValue;
-            if (string.IsNullOrEmpty(tbName.Text))
-            {
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnListSubmit(json);
-            }
-            else
-            {
-                param["name"] = tbName.Text;
-                string json = JsonSerializer.Serialize(param);
-                bridge.OnSearchSubmit(json);
-            }
-        }
-
-        private void onNewSubmitClicked(object sender, RoutedEventArgs e)
-        {
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["name"] = tbNewName.Text;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnCreateSubmit(json);
-        }
-
-        private void onNewCancelClicked(object sender, RoutedEventArgs e)
-        {
-            formNewDomain.Visibility = Visibility.Collapsed;
-        }
-
-        private void OnBrowseGuardClick(object sender, RoutedEventArgs e)
+        private void OnBrowseGuardClick(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = dgDomainList.SelectedItem as DomainEntity;
             if (null == item)
@@ -206,24 +231,11 @@ namespace ogm.actor
             controlGuard.PageExtra["domain.uuid"] = item.uuid;
             controlGuard.PageExtra["domain.name"] = item.name;
             controlGuard.RefreshWithExtra();
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            var bridge = facade.getViewBridge() as IDomainExtendViewBridge;
             bridge.OnOpenGuardUi();
         }
 
-        private void OnBrowseSyncClick(object sender, RoutedEventArgs e)
-        {
-            var item = dgDomainList.SelectedItem as DomainEntity;
-            if (null == item)
-                return;
-
-            controlSync.PageExtra["domain.uuid"] = item.uuid;
-            controlSync.PageExtra["domain.name"] = item.name;
-            controlSync.RefreshWithExtra();
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
-            bridge.OnOpenSyncUi();
-        }
-
-        private void OnBrowseApplicationClick(object sender, RoutedEventArgs e)
+        private void OnBrowseApplicationClick(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = dgDomainList.SelectedItem as DomainEntity;
             if (null == item)
@@ -232,8 +244,65 @@ namespace ogm.actor
             controlApplication.PageExtra["domain.uuid"] = item.uuid;
             controlApplication.PageExtra["domain.name"] = item.name;
             controlApplication.RefreshWithExtra();
-            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            var bridge = facade.getViewBridge() as IDomainExtendViewBridge;
             bridge.OnOpenApplicationUi();
         }
+
+        private void OnBrowseSyncClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+
+            controlSync.PageExtra["domain.uuid"] = item.uuid;
+            controlSync.PageExtra["domain.name"] = item.name;
+            controlSync.RefreshWithExtra();
+            var bridge = facade.getViewBridge() as IDomainExtendViewBridge;
+            bridge.OnOpenSyncUi();
+        }
+
+        private void onDeleteDomainClicked(object sender, RoutedEventArgs e)
+        {
+            var item = dgDomainList.SelectedItem as DomainEntity;
+            if (null == item)
+                return;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            bridge.OnDeleteSubmit(json);
+        }
+
+        private void listDomain()
+        {
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnListSubmit(json);
+        }
+
+        private void searchDomain(string _name)
+        {
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["offset"] = 0;
+            param["count"] = int.MaxValue;
+            param["name"] = _name;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnSearchSubmit(json);
+        }
+
+        private void getDomain(string _uuid)
+        {
+            var bridge = facade.getViewBridge() as IDomainViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = _uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnGetSubmit(json);
+        }
+
     }
 }

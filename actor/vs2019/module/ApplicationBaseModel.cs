@@ -51,5 +51,38 @@ namespace ogm.actor
                 return status_ as ApplicationModel.ApplicationStatus;
             }
         }
+
+
+        public virtual void SaveAdd(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Application/Add", _rsp);
+        }
+
+
+        public virtual void SaveRemove(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Application/Remove", _rsp);
+        }
+
+
+        public virtual void SaveList(Proto.ApplicationListResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Application/List", _rsp);
+        }
+
+
+        public virtual void SaveGet(Proto.ApplicationGetResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Application/Get", _rsp);
+        }
+
+
+        public virtual void SaveUpdate(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/actor/Application/Update", _rsp);
+        }
+
+
+
     }
 }

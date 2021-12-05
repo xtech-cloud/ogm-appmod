@@ -9,12 +9,10 @@ namespace ogm.actor
         void OnUpdateSubmit(string _json);
         void OnDeleteSubmit(string _json);
         void OnListSubmit(string _json);
-        void OnSearchSubmit(string _json);
+        void OnGetSubmit(string _json);
         void OnFindSubmit(string _json);
+        void OnSearchSubmit(string _json);
         void OnExecuteSubmit(string _json);
 
-        void OnOpenGuardUi();
-        void OnOpenSyncUi();
-        void OnOpenApplicationUi();
     }
 }

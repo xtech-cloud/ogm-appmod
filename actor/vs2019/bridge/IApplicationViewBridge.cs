@@ -8,6 +8,7 @@ namespace ogm.actor
         void OnAddSubmit(string _json);
         void OnRemoveSubmit(string _json);
         void OnListSubmit(string _json);
+        void OnGetSubmit(string _json);
         void OnUpdateSubmit(string _json);
 
     }

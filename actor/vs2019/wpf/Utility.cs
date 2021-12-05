@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ogm.actor
 {
@@ -15,6 +16,20 @@ namespace ogm.actor
             DrawingImage drawingImage = new DrawingImage(aGeometryDrawing);
             drawingImage.Freeze();
             return drawingImage;
+        }
+
+        public static ImageSource ImageFromBytes(byte[] _bytes)
+        {
+            using (var ms = new System.IO.MemoryStream(_bytes))
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.StreamSource = ms;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
         }
     }
 }

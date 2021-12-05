@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,10 +26,10 @@ namespace ogm.actor
         {
             getLogger().Trace("setup ogm.actor.DeviceView");
 
-           addRouter("/ogm/actor/Device/List", this.handleDeviceList);
-    
-           addRouter("/ogm/actor/Device/Search", this.handleDeviceSearch);
-    
+            addObserver(DeviceModel.NAME, "_.reply.arrived:ogm/actor/Device/List", this.handleReceiveDeviceList);
+
+            addObserver(DeviceModel.NAME, "_.reply.arrived:ogm/actor/Device/Search", this.handleReceiveDeviceSearch);
+
         }
 
         protected override void postSetup()
@@ -49,30 +49,36 @@ namespace ogm.actor
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleDeviceList(Model.Status _status, object _data)
+        private void handleReceiveDeviceList(Model.Status _status, object _data)
         {
-            var rsp = (Proto.DeviceListResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DeviceListResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Device/List is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveList(json);
         }
-    
-        private void handleDeviceSearch(Model.Status _status, object _data)
+
+        private void handleReceiveDeviceSearch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.DeviceSearchResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.DeviceSearchResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Device/Search is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveSearch(json);
         }
-    
+
     }
 }

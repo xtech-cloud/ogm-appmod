@@ -1,5 +1,5 @@
 
-using System;
+using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
 
@@ -26,12 +26,12 @@ namespace ogm.actor
         {
             getLogger().Trace("setup ogm.actor.GuardView");
 
-           addRouter("/ogm/actor/Guard/Fetch", this.handleGuardFetch);
-    
-           addRouter("/ogm/actor/Guard/Edit", this.handleGuardEdit);
-    
-           addRouter("/ogm/actor/Guard/Delete", this.handleGuardDelete);
-    
+            addObserver(GuardModel.NAME, "_.reply.arrived:ogm/actor/Guard/Fetch", this.handleReceiveGuardFetch);
+
+            addObserver(GuardModel.NAME, "_.reply.arrived:ogm/actor/Guard/Edit", this.handleReceiveGuardEdit);
+
+            addObserver(GuardModel.NAME, "_.reply.arrived:ogm/actor/Guard/Delete", this.handleReceiveGuardDelete);
+
         }
 
         protected override void postSetup()
@@ -51,39 +51,48 @@ namespace ogm.actor
             Dictionary<string, string> permission = (Dictionary<string,string>) _data;
             bridge.UpdatePermission(permission);
         }
-        
+
 
         public void Alert(string _message)
         {
             bridge.Alert(_message);
         }
 
-        private void handleGuardFetch(Model.Status _status, object _data)
+        private void handleReceiveGuardFetch(Model.Status _status, object _data)
         {
-            var rsp = (Proto.GuardFetchResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.GuardFetchResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Guard/Fetch is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveFetch(json);
         }
-    
-        private void handleGuardEdit(Model.Status _status, object _data)
+
+        private void handleReceiveGuardEdit(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BlankResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Guard/Edit is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveEdit(json);
         }
-    
-        private void handleGuardDelete(Model.Status _status, object _data)
+
+        private void handleReceiveGuardDelete(Model.Status _status, object _data)
         {
-            var rsp = (Proto.BlankResponse)_data;
-            if(rsp._status._code.AsInt32() == 0)
-                bridge.Alert("Success");
-            else
-                bridge.Alert(string.Format("Failure：\n\nCode: {0}\nMessage:\n{1}", rsp._status._code.AsInt32(), rsp._status._message.AsString()));
+            var rsp = _data as Proto.BlankResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Guard/Delete is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveDelete(json);
         }
-    
+
     }
 }
