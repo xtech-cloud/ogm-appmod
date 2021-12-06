@@ -1,10 +1,10 @@
-
+﻿
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>ogm.file.module</AssemblyName>
-    <Version>3.7.3</Version>
+    <Version>3.7.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

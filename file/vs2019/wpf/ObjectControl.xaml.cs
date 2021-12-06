@@ -164,7 +164,7 @@ namespace ogm.file
                     return;
                 }
                 string filepath = Path.Combine(control.tbUploadPrefix.Text, Path.GetFileName(_filepath));
-                control.flushObject(_uuid, _md5, _filepath);
+                control.flushObject(_uuid, _md5, filepath);
             }
 
             private string formatSize(long _size)
