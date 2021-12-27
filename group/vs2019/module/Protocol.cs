@@ -289,13 +289,13 @@ namespace ogm.group.Proto
                 public ElementWhereResponse()
                 {
                     _status = new Status();
-                _collection = Any.FromStringAry(new string[0]);
+                _uuid = new Dictionary<string, string>();
 
                 }
                 [JsonPropertyName("status")]
             public Status _status {get;set;}
-            [JsonPropertyName("collection")]
-            public Any _collection {get;set;}
+            [JsonPropertyName("uuid")]
+            public Dictionary<string, string> _uuid {get;set;}
 
             }
 
