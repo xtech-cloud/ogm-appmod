@@ -54,7 +54,7 @@ namespace ogm.group
             }
         }
 
-        public MemberControl controlMember { get; set; }
+        public ElementControl controlElement { get; set; }
         public CollectionFacade facade { get; set; }
         public ObservableCollection<CollectionEntity> CollectionList { get; set; }
 
@@ -127,11 +127,11 @@ namespace ogm.group
             if (null == item)
                 return;
 
-            controlMember.PageExtra["collection.uuid"] = item.uuid;
-            controlMember.PageExtra["collection.name"] = item.name;
-            controlMember.RefreshWithExtra();
+            controlElement.PageExtra["collection.uuid"] = item.uuid;
+            controlElement.PageExtra["collection.name"] = item.name;
+            controlElement.RefreshWithExtra();
             var bridge = facade.getViewBridge() as ICollectionExtendViewBridge;
-            bridge.OnOpenMemberUi();
+            bridge.OnOpenElementUi();
         }
 
         private void onCollectionSelectionChanged(object sender, SelectionChangedEventArgs e)

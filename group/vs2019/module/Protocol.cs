@@ -131,45 +131,51 @@ namespace ogm.group.Proto
 
             }
 
-            public class MemberAddRequest
+            public class ElementAddRequest
             {
-                public MemberAddRequest()
+                public ElementAddRequest()
                 {
                     _collection = Any.FromString("");
-                _element = Any.FromString("");
+                _key = Any.FromString("");
                 _alias = Any.FromString("");
+                _label = Any.FromStringAry(new string[0]);
 
                 }
                 [JsonPropertyName("collection")]
             public Any _collection {get;set;}
-            [JsonPropertyName("element")]
-            public Any _element {get;set;}
+            [JsonPropertyName("key")]
+            public Any _key {get;set;}
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
+            [JsonPropertyName("label")]
+            public Any _label {get;set;}
 
             }
 
-            public class MemberUpdateRequest
+            public class ElementUpdateRequest
             {
-                public MemberUpdateRequest()
+                public ElementUpdateRequest()
                 {
                     _uuid = Any.FromString("");
-                _element = Any.FromString("");
+                _key = Any.FromString("");
                 _alias = Any.FromString("");
+                _label = Any.FromStringAry(new string[0]);
 
                 }
                 [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
-            [JsonPropertyName("element")]
-            public Any _element {get;set;}
+            [JsonPropertyName("key")]
+            public Any _key {get;set;}
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
+            [JsonPropertyName("label")]
+            public Any _label {get;set;}
 
             }
 
-            public class MemberListRequest
+            public class ElementListRequest
             {
-                public MemberListRequest()
+                public ElementListRequest()
                 {
                     _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
@@ -185,14 +191,14 @@ namespace ogm.group.Proto
 
             }
 
-            public class MemberSearchRequest
+            public class ElementSearchRequest
             {
-                public MemberSearchRequest()
+                public ElementSearchRequest()
                 {
                     _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _collection = Any.FromString("");
-                _element = Any.FromString("");
+                _key = Any.FromString("");
                 _alias = Any.FromString("");
 
                 }
@@ -202,20 +208,20 @@ namespace ogm.group.Proto
             public Any _count {get;set;}
             [JsonPropertyName("collection")]
             public Any _collection {get;set;}
-            [JsonPropertyName("element")]
-            public Any _element {get;set;}
+            [JsonPropertyName("key")]
+            public Any _key {get;set;}
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
 
             }
 
-            public class MemberListResponse
+            public class ElementListResponse
             {
-                public MemberListResponse()
+                public ElementListResponse()
                 {
                     _status = new Status();
                 _total = Any.FromInt64(0);
-                _entity = new MemberEntity[0];
+                _entity = new ElementEntity[0];
 
                 }
                 [JsonPropertyName("status")]
@@ -223,13 +229,13 @@ namespace ogm.group.Proto
             [JsonPropertyName("total")]
             public Any _total {get;set;}
             [JsonPropertyName("entity")]
-            public MemberEntity[] _entity {get;set;}
+            public ElementEntity[] _entity {get;set;}
 
             }
 
-            public class MemberRemoveRequest
+            public class ElementRemoveRequest
             {
-                public MemberRemoveRequest()
+                public ElementRemoveRequest()
                 {
                     _uuid = Any.FromString("");
 
@@ -239,9 +245,9 @@ namespace ogm.group.Proto
 
             }
 
-            public class MemberGetRequest
+            public class ElementGetRequest
             {
-                public MemberGetRequest()
+                public ElementGetRequest()
                 {
                     _uuid = Any.FromString("");
 
@@ -251,36 +257,36 @@ namespace ogm.group.Proto
 
             }
 
-            public class MemberGetResponse
+            public class ElementGetResponse
             {
-                public MemberGetResponse()
+                public ElementGetResponse()
                 {
                     _status = new Status();
-                _entity = new MemberEntity();
+                _entity = new ElementEntity();
 
                 }
                 [JsonPropertyName("status")]
             public Status _status {get;set;}
             [JsonPropertyName("entity")]
-            public MemberEntity _entity {get;set;}
+            public ElementEntity _entity {get;set;}
 
             }
 
-            public class MemberWhereRequest
+            public class ElementWhereRequest
             {
-                public MemberWhereRequest()
+                public ElementWhereRequest()
                 {
-                    _element = Any.FromString("");
+                    _key = Any.FromString("");
 
                 }
-                [JsonPropertyName("element")]
-            public Any _element {get;set;}
+                [JsonPropertyName("key")]
+            public Any _key {get;set;}
 
             }
 
-            public class MemberWhereResponse
+            public class ElementWhereResponse
             {
-                public MemberWhereResponse()
+                public ElementWhereResponse()
                 {
                     _status = new Status();
                 _collection = Any.FromStringAry(new string[0]);
@@ -362,24 +368,27 @@ namespace ogm.group.Proto
 
             }
 
-            public class MemberEntity
+            public class ElementEntity
             {
-                public MemberEntity()
+                public ElementEntity()
                 {
                     _uuid = Any.FromString("");
                 _collection = Any.FromString("");
-                _element = Any.FromString("");
+                _key = Any.FromString("");
                 _alias = Any.FromString("");
+                _label = Any.FromStringAry(new string[0]);
 
                 }
                 [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
             [JsonPropertyName("collection")]
             public Any _collection {get;set;}
-            [JsonPropertyName("element")]
-            public Any _element {get;set;}
+            [JsonPropertyName("key")]
+            public Any _key {get;set;}
             [JsonPropertyName("alias")]
             public Any _alias {get;set;}
+            [JsonPropertyName("label")]
+            public Any _label {get;set;}
 
             }
 

@@ -8,11 +8,34 @@ namespace ogm.group
         public long capacity { get; set; }
     }
 
-    public class MemberEntity
+    public class ElementEntity
     {
         public string uuid { get; set; }
-        public string element { get; set; }
+        public string key { get; set; }
         public string alias { get; set; }
+        public string[] label
+        {
+            get
+            {
+                return label_;
+            }
+
+            set
+            {
+                label_ = value;
+                if (null != label_)
+                {
+                    _label = "";
+                    foreach (var label in value)
+                        _label += label + ",";
+                    if (_label.Length > 0)
+                        _label = _label.Remove(_label.Length - 1, 1);
+                }
+            }
+        }
+        public string _label { get; set; }
+
+        private string[] label_;
     }
 
 
@@ -43,14 +66,14 @@ namespace ogm.group
         }
     }
 
-    public class MemberListReply : Reply
+    public class ElementListReply : Reply
     {
         public long total { get; set; }
-        public MemberEntity[] entity { get; set; }
+        public ElementEntity[] entity { get; set; }
 
-        public MemberListReply()
+        public ElementListReply()
         {
-            entity = new MemberEntity[0];
+            entity = new ElementEntity[0];
         }
     }
 

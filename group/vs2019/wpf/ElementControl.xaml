@@ -1,4 +1,4 @@
-<UserControl x:Class="ogm.group.MemberControl"
+<UserControl x:Class="ogm.group.ElementControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -35,12 +35,13 @@
 
         <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <DockPanel Margin="24">
-                <hc:UniformSpacingPanel Name="formAddMember" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                <hc:UniformSpacingPanel Name="formAddElement" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
                     <Border Style="{StaticResource BorderTipPrimary}">
                         <TextBlock Text="加入成员"/>
                     </Border>
-                    <TextBox Name="tbAddElement" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="元素" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbAddKey" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="键" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbAddAlias" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="别名" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbAddLabel" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="标签" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
                         <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onAddSubmitClicked" />
                         <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onAddCancelClicked" />
@@ -74,18 +75,19 @@
 
                 <hc:SimplePanel>
                     <Button Content="+ 加入"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onAddClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionAdd}"/>
-                    <DataGrid Name="dgMemberList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding MemberList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onMemberSelectionChanged">
+                    <DataGrid Name="dgElementList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding ElementList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onElementSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:MemberControl}}}" Click="onEditMemberClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:ElementControl}}}" Click="onEditElementClicked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Binding="{Binding uuid}" Header="UUID" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding element}" Header="元素" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding key}" Header="键" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding alias}" Header="别名" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding _label}" Header="标签" IsReadOnly="True"/>
                             <DataGridTemplateColumn Width="80" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -98,7 +100,7 @@
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" IsEnabled="{Binding Path=PermissionDelete, RelativeSource={RelativeSource AncestorType={x:Type local:MemberControl}}}" Click="onDeleteMemberClicked"/>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" IsEnabled="{Binding Path=PermissionDelete, RelativeSource={RelativeSource AncestorType={x:Type local:ElementControl}}}" Click="onDeleteElementClicked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

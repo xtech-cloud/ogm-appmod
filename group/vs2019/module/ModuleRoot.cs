@@ -28,13 +28,13 @@ namespace ogm.group
                 framework_.getStaticPipe().RegisterService(CollectionService.NAME, new CollectionService());
 
                 // 注册数据层
-                framework_.getStaticPipe().RegisterModel(MemberModel.NAME, new MemberModel());
+                framework_.getStaticPipe().RegisterModel(ElementModel.NAME, new ElementModel());
                 // 注册视图层
-                framework_.getStaticPipe().RegisterView(MemberView.NAME, new MemberView());
+                framework_.getStaticPipe().RegisterView(ElementView.NAME, new ElementView());
                 // 注册控制层
-                framework_.getStaticPipe().RegisterController(MemberController.NAME, new MemberController());
+                framework_.getStaticPipe().RegisterController(ElementController.NAME, new ElementController());
                 // 注册服务层
-                framework_.getStaticPipe().RegisterService(MemberService.NAME, new MemberService());
+                framework_.getStaticPipe().RegisterService(ElementService.NAME, new ElementService());
 
         }
 
@@ -51,13 +51,13 @@ namespace ogm.group
                 framework_.getStaticPipe().CancelModel(CollectionModel.NAME);
 
                 // 注销服务层
-                framework_.getStaticPipe().CancelService(MemberService.NAME);
+                framework_.getStaticPipe().CancelService(ElementService.NAME);
                 // 注销控制层
-                framework_.getStaticPipe().CancelController(MemberController.NAME);
+                framework_.getStaticPipe().CancelController(ElementController.NAME);
                 // 注销视图层
-                framework_.getStaticPipe().CancelView(MemberView.NAME);
+                framework_.getStaticPipe().CancelView(ElementView.NAME);
                 // 注销数据层
-                framework_.getStaticPipe().CancelModel(MemberModel.NAME);
+                framework_.getStaticPipe().CancelModel(ElementModel.NAME);
 
         }
 

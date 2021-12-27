@@ -7,31 +7,32 @@ using XTC.oelMVCS;
 
 namespace ogm.group
 {
-    public class MemberBaseService: Service
+    public class ElementBaseService: Service
     {
-        protected MemberModel model = null;
+        protected ElementModel model = null;
         protected Options options = null;
 
         protected override void preSetup()
         {
             options = new Options();
             options.header["apikey"] = getConfig().getField("apikey").AsString();
-            model = findModel(MemberModel.NAME) as MemberModel;
+            model = findModel(ElementModel.NAME) as ElementModel;
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup ogm.group.MemberService");
+            getLogger().Trace("setup ogm.group.ElementService");
         }
 
-            public void PostAdd(Proto.MemberAddRequest _request)
+            public void PostAdd(Proto.ElementAddRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["collection"] = _request._collection;
-            paramMap["element"] = _request._element;
+            paramMap["key"] = _request._key;
             paramMap["alias"] = _request._alias;
+            paramMap["label"] = _request._label;
 
-                post(string.Format("{0}/ogm/group/Member/Add", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Add", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
                     var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveAdd(rsp);
@@ -42,14 +43,15 @@ namespace ogm.group
             }
 
 
-            public void PostUpdate(Proto.MemberUpdateRequest _request)
+            public void PostUpdate(Proto.ElementUpdateRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["uuid"] = _request._uuid;
-            paramMap["element"] = _request._element;
+            paramMap["key"] = _request._key;
             paramMap["alias"] = _request._alias;
+            paramMap["label"] = _request._label;
 
-                post(string.Format("{0}/ogm/group/Member/Update", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Update", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
                     var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveUpdate(rsp);
@@ -60,16 +62,16 @@ namespace ogm.group
             }
 
 
-            public void PostList(Proto.MemberListRequest _request)
+            public void PostList(Proto.ElementListRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
             paramMap["collection"] = _request._collection;
 
-                post(string.Format("{0}/ogm/group/Member/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.MemberListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.ElementListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveList(rsp);
                 }, (_err) =>
                 {
@@ -78,18 +80,18 @@ namespace ogm.group
             }
 
 
-            public void PostSearch(Proto.MemberSearchRequest _request)
+            public void PostSearch(Proto.ElementSearchRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
             paramMap["collection"] = _request._collection;
-            paramMap["element"] = _request._element;
+            paramMap["key"] = _request._key;
             paramMap["alias"] = _request._alias;
 
-                post(string.Format("{0}/ogm/group/Member/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.MemberListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.ElementListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveSearch(rsp);
                 }, (_err) =>
                 {
@@ -98,12 +100,12 @@ namespace ogm.group
             }
 
 
-            public void PostRemove(Proto.MemberRemoveRequest _request)
+            public void PostRemove(Proto.ElementRemoveRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["uuid"] = _request._uuid;
 
-                post(string.Format("{0}/ogm/group/Member/Remove", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Remove", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
                     var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveRemove(rsp);
@@ -114,14 +116,14 @@ namespace ogm.group
             }
 
 
-            public void PostGet(Proto.MemberGetRequest _request)
+            public void PostGet(Proto.ElementGetRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["uuid"] = _request._uuid;
 
-                post(string.Format("{0}/ogm/group/Member/Get", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Get", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.MemberGetResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.ElementGetResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveGet(rsp);
                 }, (_err) =>
                 {
@@ -130,14 +132,14 @@ namespace ogm.group
             }
 
 
-            public void PostWhere(Proto.MemberWhereRequest _request)
+            public void PostWhere(Proto.ElementWhereRequest _request)
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["element"] = _request._element;
+                paramMap["key"] = _request._key;
 
-                post(string.Format("{0}/ogm/group/Member/Where", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                post(string.Format("{0}/ogm/group/Element/Where", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
-                    var rsp = JsonSerializer.Deserialize<Proto.MemberWhereResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    var rsp = JsonSerializer.Deserialize<Proto.ElementWhereResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveWhere(rsp);
                 }, (_err) =>
                 {

@@ -5,50 +5,50 @@ using XTC.oelMVCS;
 
 namespace ogm.group
 {
-    public class MemberBaseView: View
+    public class ElementBaseView: View
     {
         protected Facade facade = null;
-        protected MemberModel model = null;
-        protected IMemberUiBridge bridge = null;
+        protected ElementModel model = null;
+        protected IElementUiBridge bridge = null;
 
         protected override void preSetup()
         {
-            model = findModel(MemberModel.NAME) as MemberModel;
-            var service = findService(MemberService.NAME) as MemberService;
-            facade = findFacade("ogm.group.MemberFacade");
-            MemberViewBridge vb = new MemberViewBridge();
-            vb.view = this as MemberView;
+            model = findModel(ElementModel.NAME) as ElementModel;
+            var service = findService(ElementService.NAME) as ElementService;
+            facade = findFacade("ogm.group.ElementFacade");
+            ElementViewBridge vb = new ElementViewBridge();
+            vb.view = this as ElementView;
             vb.service = service;
             facade.setViewBridge(vb);
         }
 
         protected override void setup()
         {
-            getLogger().Trace("setup ogm.group.MemberView");
+            getLogger().Trace("setup ogm.group.ElementView");
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Add", this.handleReceiveMemberAdd);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Add", this.handleReceiveElementAdd);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Update", this.handleReceiveMemberUpdate);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Update", this.handleReceiveElementUpdate);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/List", this.handleReceiveMemberList);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/List", this.handleReceiveElementList);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Search", this.handleReceiveMemberSearch);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Search", this.handleReceiveElementSearch);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Remove", this.handleReceiveMemberRemove);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Remove", this.handleReceiveElementRemove);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Get", this.handleReceiveMemberGet);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Get", this.handleReceiveElementGet);
 
-            addObserver(MemberModel.NAME, "_.reply.arrived:ogm/group/Member/Where", this.handleReceiveMemberWhere);
+            addObserver(ElementModel.NAME, "_.reply.arrived:ogm/group/Element/Where", this.handleReceiveElementWhere);
 
         }
 
         protected override void postSetup()
         {
-            bridge = facade.getUiBridge() as IMemberUiBridge;
+            bridge = facade.getUiBridge() as IElementUiBridge;
             object rootPanel = bridge.getRootPanel();
             // 通知主程序挂载界面
             Dictionary<string, object> data = new Dictionary<string, object>();
-            data["ogm.group.Member"] = rootPanel;
+            data["ogm.group.Element"] = rootPanel;
             model.Broadcast("/module/view/attach", data);
             // 监听权限更新
             addRouter("/permission/updated", this.handlePermissionUpdated);
@@ -66,84 +66,84 @@ namespace ogm.group
             bridge.Alert(_message);
         }
 
-        private void handleReceiveMemberAdd(Model.Status _status, object _data)
+        private void handleReceiveElementAdd(Model.Status _status, object _data)
         {
             var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Add is null");
+                getLogger().Error("rsp of Element/Add is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveAdd(json);
         }
 
-        private void handleReceiveMemberUpdate(Model.Status _status, object _data)
+        private void handleReceiveElementUpdate(Model.Status _status, object _data)
         {
             var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Update is null");
+                getLogger().Error("rsp of Element/Update is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveUpdate(json);
         }
 
-        private void handleReceiveMemberList(Model.Status _status, object _data)
+        private void handleReceiveElementList(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.MemberListResponse;
+            var rsp = _data as Proto.ElementListResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/List is null");
+                getLogger().Error("rsp of Element/List is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveList(json);
         }
 
-        private void handleReceiveMemberSearch(Model.Status _status, object _data)
+        private void handleReceiveElementSearch(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.MemberListResponse;
+            var rsp = _data as Proto.ElementListResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Search is null");
+                getLogger().Error("rsp of Element/Search is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveSearch(json);
         }
 
-        private void handleReceiveMemberRemove(Model.Status _status, object _data)
+        private void handleReceiveElementRemove(Model.Status _status, object _data)
         {
             var rsp = _data as Proto.UuidResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Remove is null");
+                getLogger().Error("rsp of Element/Remove is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveRemove(json);
         }
 
-        private void handleReceiveMemberGet(Model.Status _status, object _data)
+        private void handleReceiveElementGet(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.MemberGetResponse;
+            var rsp = _data as Proto.ElementGetResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Get is null");
+                getLogger().Error("rsp of Element/Get is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveGet(json);
         }
 
-        private void handleReceiveMemberWhere(Model.Status _status, object _data)
+        private void handleReceiveElementWhere(Model.Status _status, object _data)
         {
-            var rsp = _data as Proto.MemberWhereResponse;
+            var rsp = _data as Proto.ElementWhereResponse;
             if(null == rsp)
             {
-                getLogger().Error("rsp of Member/Where is null");
+                getLogger().Error("rsp of Element/Where is null");
                 return;
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);

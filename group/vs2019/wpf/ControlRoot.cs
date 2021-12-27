@@ -13,7 +13,7 @@ namespace ogm.group
         {
             register();
 
-            controlCollection_.controlMember = controlMember_;
+            controlCollection_.controlElement = controlElement_;
         }
 
         public void Cancel()

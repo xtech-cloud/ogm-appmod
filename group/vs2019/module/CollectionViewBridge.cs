@@ -7,9 +7,9 @@ namespace ogm.group
 {
     public class CollectionViewBridge : CollectionBaseViewBridge, ICollectionExtendViewBridge
     {
-        public void OnOpenMemberUi()
+        public void OnOpenElementUi()
         {
-            view.OpenMemberUi();
+            view.OpenElementUi();
         }
     }
 }

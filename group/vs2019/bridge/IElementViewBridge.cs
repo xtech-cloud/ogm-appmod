@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using XTC.oelMVCS;
 namespace ogm.group
 {
-    public interface IMemberViewBridge : View.Facade.Bridge
+    public interface IElementViewBridge : View.Facade.Bridge
     {
         void OnAddSubmit(string _json);
         void OnUpdateSubmit(string _json);

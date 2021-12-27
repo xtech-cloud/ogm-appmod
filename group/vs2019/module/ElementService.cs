@@ -7,8 +7,8 @@ using XTC.oelMVCS;
 
 namespace ogm.group
 {
-    public class MemberService: MemberBaseService
+    public class ElementService: ElementBaseService
     {
-        public const string NAME = "ogm.group.MemberService";
+        public const string NAME = "ogm.group.ElementService";
     }
 }

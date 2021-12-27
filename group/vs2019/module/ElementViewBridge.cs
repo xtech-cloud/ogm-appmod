@@ -5,7 +5,7 @@ using XTC.oelMVCS;
 
 namespace ogm.group
 {
-    public class MemberViewBridge : MemberBaseViewBridge, IMemberExtendViewBridge
+    public class ElementViewBridge : ElementBaseViewBridge, IElementExtendViewBridge
     {
     }
 }

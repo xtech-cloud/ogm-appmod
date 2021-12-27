@@ -14,9 +14,9 @@ namespace ogm.group
             addRouter("/sidemenu/tab/activated", handleTabActivated);
         }
 
-        public void OpenMemberUi()
+        public void OpenElementUi()
         {
-            model.Broadcast("/sidemenu/active/tab", "ogm.group.Member");
+            model.Broadcast("/sidemenu/active/tab", "ogm.group.Element");
         }
 
         private void handleTabActivated(Model.Status _status, object _data)

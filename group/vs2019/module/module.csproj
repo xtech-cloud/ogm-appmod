@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>ogm.group.module</AssemblyName>
-    <Version>3.2.2</Version>
+    <Version>3.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using XTC.oelMVCS;
 namespace ogm.group
 {
-    public interface IMemberUiBridge : View.Facade.Bridge
+    public interface IElementUiBridge : View.Facade.Bridge
     {
         object getRootPanel();
         void Alert(string _message);

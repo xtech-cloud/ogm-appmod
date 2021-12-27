@@ -14,9 +14,9 @@ namespace ogm.group
         protected CollectionControl controlCollection_ {get;set;}
         protected CollectionControl.CollectionUiBridge uiCollectionBridge_  {get;set;}
 
-        protected MemberFacade facadeMember_ {get;set;}
-        protected MemberControl controlMember_ {get;set;}
-        protected MemberControl.MemberUiBridge uiMemberBridge_  {get;set;}
+        protected ElementFacade facadeElement_ {get;set;}
+        protected ElementControl controlElement_ {get;set;}
+        protected ElementControl.ElementUiBridge uiElementBridge_  {get;set;}
 
         public void Inject(Framework _framework)
         {
@@ -36,13 +36,13 @@ namespace ogm.group
                 facadeCollection_.setUiBridge(uiCollectionBridge_);
 
                 // 注册UI装饰
-                facadeMember_ = new MemberFacade();
-                framework_.getStaticPipe().RegisterFacade(MemberFacade.NAME, facadeMember_);
-                controlMember_ = new MemberControl();
-                controlMember_.facade = facadeMember_;
-                uiMemberBridge_ = new MemberControl.MemberUiBridge();
-                uiMemberBridge_.control = controlMember_;
-                facadeMember_.setUiBridge(uiMemberBridge_);
+                facadeElement_ = new ElementFacade();
+                framework_.getStaticPipe().RegisterFacade(ElementFacade.NAME, facadeElement_);
+                controlElement_ = new ElementControl();
+                controlElement_.facade = facadeElement_;
+                uiElementBridge_ = new ElementControl.ElementUiBridge();
+                uiElementBridge_.control = controlElement_;
+                facadeElement_.setUiBridge(uiElementBridge_);
 
         }
 
@@ -53,7 +53,7 @@ namespace ogm.group
                 framework_.getStaticPipe().CancelFacade(CollectionFacade.NAME);
 
                 // 注销UI装饰
-                framework_.getStaticPipe().CancelFacade(MemberFacade.NAME);
+                framework_.getStaticPipe().CancelFacade(ElementFacade.NAME);
 
         }
 

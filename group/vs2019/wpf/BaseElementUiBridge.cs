@@ -5,9 +5,9 @@ using HandyControl.Controls;
 
 namespace ogm.group
 {
-    public class BaseMemberUiBridge: IMemberUiBridge
+    public class BaseElementUiBridge: IElementUiBridge
     {
-        public MemberControl control {get;set;}
+        public ElementControl control {get;set;}
 
         public object getRootPanel()
         {
