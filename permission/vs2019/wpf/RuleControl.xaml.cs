@@ -13,9 +13,9 @@ namespace ogm.permission
         {
             public override void UpdatePermission(Dictionary<string, string> _permission)
             {
-                control.PermissionAdd = _permission.ContainsKey("/ogm/group/Rule/Add");
-                control.PermissionEdit = _permission.ContainsKey("/ogm/group/Rule/Update");
-                control.PermissionDelete = _permission.ContainsKey("/ogm/group/Rule/Delete");
+                control.PermissionAdd = _permission.ContainsKey("/ogm/permission/Rule/Add");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/permission/Rule/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/permission/Rule/Delete");
             }
 
             public override void ReceiveAdd(string _json)

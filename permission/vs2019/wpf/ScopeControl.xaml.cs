@@ -12,9 +12,9 @@ namespace ogm.permission
         {
             public override void UpdatePermission(Dictionary<string, string> _permission)
             {
-                control.PermissionCreate = _permission.ContainsKey("/ogm/group/Scope/Create");
-                control.PermissionEdit = _permission.ContainsKey("/ogm/group/Scope/Update");
-                control.PermissionDelete = _permission.ContainsKey("/ogm/group/Scope/Delete");
+                control.PermissionCreate = _permission.ContainsKey("/ogm/permission/Scope/Create");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/permission/Scope/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/permission/Scope/Delete");
             }
 
             public override void ReceiveCreate(string _json)
