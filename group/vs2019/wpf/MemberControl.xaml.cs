@@ -181,5 +181,13 @@ namespace ogm.group
             var bridge = facade.getViewBridge() as IMemberViewBridge;
             bridge.OnSearchSubmit(json);
         }
+
+        private void onCopyUUID(object sender, RoutedEventArgs e)
+        {
+            var item = dgMemberList.SelectedItem as MemberEntity;
+            if (null == item)
+                return;
+            Clipboard.SetDataObject(item.uuid);
+        }
     }
 }

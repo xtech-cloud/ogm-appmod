@@ -83,8 +83,18 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding uuid}" Header="UUID" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding element}" Header="元素" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding alias}" Header="别名" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="onCopyUUID">拷贝UUID</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

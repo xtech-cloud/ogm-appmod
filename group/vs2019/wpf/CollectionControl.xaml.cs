@@ -168,5 +168,13 @@ namespace ogm.group
             var bridge = facade.getViewBridge() as ICollectionViewBridge;
             bridge.OnSearchSubmit(json);
         }
+
+        private void onCopyUUID(object sender, RoutedEventArgs e)
+        {
+            var item = dgCollectionList.SelectedItem as CollectionEntity;
+            if (null == item)
+                return;
+            Clipboard.SetDataObject(item.uuid);
+        }
     }
 }
