@@ -89,6 +89,18 @@ namespace ogm.permission
         }
 
 
+        public virtual void SaveExport(Proto.RuleExportResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/permission/Rule/Export", _rsp);
+        }
+
+
+        public virtual void SaveImport(Proto.RuleImportResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/permission/Rule/Import", _rsp);
+        }
+
+
 
     }
 }

@@ -14,6 +14,8 @@ namespace ogm.permission
         void ReceiveGet(string _json);
         void ReceiveList(string _json);
         void ReceiveSearch(string _json);
+        void ReceiveExport(string _json);
+        void ReceiveImport(string _json);
 
     }
 }

@@ -53,6 +53,20 @@ namespace ogm.permission
             }
 
 
+            public void OnExportSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.RuleExportRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostExport(req);
+            }
+
+
+            public void OnImportSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.RuleImportRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostImport(req);
+            }
+
+
 
     }
 }

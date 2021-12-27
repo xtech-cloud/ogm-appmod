@@ -11,6 +11,8 @@ namespace ogm.permission
         void OnGetSubmit(string _json);
         void OnListSubmit(string _json);
         void OnSearchSubmit(string _json);
+        void OnExportSubmit(string _json);
+        void OnImportSubmit(string _json);
 
     }
 }

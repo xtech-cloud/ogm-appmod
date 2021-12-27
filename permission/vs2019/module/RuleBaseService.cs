@@ -133,6 +133,39 @@ namespace ogm.permission
             }
 
 
+            public void PostExport(Proto.RuleExportRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["scope"] = _request._scope;
+
+                post(string.Format("{0}/ogm/permission/Rule/Export", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.RuleExportResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveExport(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
+            public void PostImport(Proto.RuleImportRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["scope"] = _request._scope;
+            paramMap["dump"] = _request._dump;
+
+                post(string.Format("{0}/ogm/permission/Rule/Import", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.RuleImportResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveImport(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
 
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {

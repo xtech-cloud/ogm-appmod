@@ -3,6 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
+using System.IO;
+using HandyControl.Controls;
 
 namespace ogm.permission
 {
@@ -85,6 +88,35 @@ namespace ogm.permission
             {
                 ReceiveList(_json);
             }
+
+            public override void ReceiveExport(string _json)
+            {
+                base.ReceiveExport(_json);
+                var reply = JsonSerializer.Deserialize<RuleExportReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Filter = "Json文件|*.json";
+                sfd.FileName = control.tbScope.Text;
+                if (sfd.ShowDialog() == true)
+                {
+                    File.WriteAllText(sfd.FileName, reply.dump);
+                }
+            }
+
+            public override void ReceiveImport(string _json)
+            {
+                base.ReceiveImport(_json);
+                var reply = JsonSerializer.Deserialize<RuleImportReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+
+                control.listRule();
+                if(reply.failure.Length > 0)
+                    Growl.Warning(string.Format("Has {0} rules import failed", reply.failure.Length), "StatusGrowl");
+            }
+
 
             public void HandleTabActivated()
             {
@@ -271,6 +303,36 @@ namespace ogm.permission
             string json = JsonSerializer.Serialize(param);
             var bridge = facade.getViewBridge() as IRuleViewBridge;
             bridge.OnSearchSubmit(json);
+        }
+
+        private void onImportClicked(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbScope.Uid))
+                return;
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Json文件|*.json";
+            if (true != ofd.ShowDialog())
+                return;
+            string dump = File.ReadAllText(ofd.FileName);
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["scope"] = tbScope.Uid;
+            param["dump"] = dump;
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as IRuleViewBridge;
+            bridge.OnImportSubmit(json);
+        }
+
+        private void onExportClicked(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbScope.Uid))
+                return;
+
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["scope"] = tbScope.Uid;
+            string json = JsonSerializer.Serialize(param);
+            var bridge = facade.getViewBridge() as IRuleViewBridge;
+            bridge.OnExportSubmit(json);
         }
     }
 }

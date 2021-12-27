@@ -38,6 +38,10 @@ namespace ogm.permission
 
             addObserver(RuleModel.NAME, "_.reply.arrived:ogm/permission/Rule/Search", this.handleReceiveRuleSearch);
 
+            addObserver(RuleModel.NAME, "_.reply.arrived:ogm/permission/Rule/Export", this.handleReceiveRuleExport);
+
+            addObserver(RuleModel.NAME, "_.reply.arrived:ogm/permission/Rule/Import", this.handleReceiveRuleImport);
+
         }
 
         protected override void postSetup()
@@ -134,6 +138,30 @@ namespace ogm.permission
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveSearch(json);
+        }
+
+        private void handleReceiveRuleExport(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.RuleExportResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Rule/Export is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveExport(json);
+        }
+
+        private void handleReceiveRuleImport(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.RuleImportResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Rule/Import is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveImport(json);
         }
 
     }

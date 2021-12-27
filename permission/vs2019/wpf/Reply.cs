@@ -109,4 +109,24 @@ namespace ogm.permission
 
     }
 
+    public class RuleExportReply : Reply
+    {
+        public string dump { get; set; }
+        public RuleExportReply()
+        {
+            dump = "";
+        }
+
+    }
+
+    public class RuleImportReply : Reply
+    {
+        public string[] failure { get; set; }
+        public RuleImportReply()
+        {
+            failure = new string[0];
+        }
+
+    }
+
 }

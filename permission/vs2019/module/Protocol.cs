@@ -152,6 +152,63 @@ namespace ogm.permission.Proto
 
             }
 
+            public class RuleExportRequest
+            {
+                public RuleExportRequest()
+                {
+                    _scope = Any.FromString("");
+
+                }
+                [JsonPropertyName("scope")]
+            public Any _scope {get;set;}
+
+            }
+
+            public class RuleExportResponse
+            {
+                public RuleExportResponse()
+                {
+                    _status = new Status();
+                _dump = Any.FromString("");
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("dump")]
+            public Any _dump {get;set;}
+
+            }
+
+            public class RuleImportRequest
+            {
+                public RuleImportRequest()
+                {
+                    _scope = Any.FromString("");
+                _dump = Any.FromString("");
+
+                }
+                [JsonPropertyName("scope")]
+            public Any _scope {get;set;}
+            [JsonPropertyName("dump")]
+            public Any _dump {get;set;}
+
+            }
+
+            public class RuleImportResponse
+            {
+                public RuleImportResponse()
+                {
+                    _status = new Status();
+                _failure = Any.FromStringAry(new string[0]);
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("failure")]
+            public Any _failure {get;set;}
+
+            }
+
             public class ScopeCreateRequest
             {
                 public ScopeCreateRequest()

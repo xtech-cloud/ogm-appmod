@@ -74,6 +74,24 @@ namespace ogm.permission
                 Growl.Warning(reply.status.message, "StatusGrowl");
         }
 
+        public virtual void ReceiveExport(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
+        public virtual void ReceiveImport(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
 
     }
 }
