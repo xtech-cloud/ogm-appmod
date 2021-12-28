@@ -1,0 +1,131 @@
+<UserControl x:Class="ogm.license.KeyControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ogm.license"
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource self}}"
+             d:DesignHeight="900" d:DesignWidth="1440">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/Theme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <hc:SimplePanel Margin="24">
+                <StackPanel>
+                    <hc:UniformSpacingPanel Spacing="24" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBox Name="tbSpace" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="空间" Style="{StaticResource TextBoxExtend}"/>
+                        <hc:NumericUpDown Name="nudCapacity" Width="110" hc:InfoElement.TitleWidth="50" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="激活力" Style="{StaticResource NumericUpDownExtend}"/>
+                        <hc:NumericUpDown Name="nudExpiry" Width="110" hc:InfoElement.TitleWidth="50" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="有效期" Style="{StaticResource NumericUpDownExtend}"/>
+                        <hc:NumericUpDown Name="nudBan" Width="110" hc:InfoElement.TitleWidth="50" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="禁用码" Style="{StaticResource NumericUpDownExtend}"/>
+                    </hc:UniformSpacingPanel>
+                    <hc:UniformSpacingPanel Margin="0,24,0,0" Spacing="24" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBox Name="tbNumber" Width="300" hc:InfoElement.TitleWidth="50" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="激活码" Style="{StaticResource TextBoxExtend}"/>
+                        <TextBox Name="tbStorage" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="数据" Style="{StaticResource TextBoxExtend}"/>
+                        <TextBox Name="tbProfile" Width="300" hc:InfoElement.TitleWidth="50" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="描述" Style="{StaticResource TextBoxExtend}"/>
+                    </hc:UniformSpacingPanel>
+                </StackPanel>
+                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
+                    <Button Content="查询"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onSearchClicked" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+
+        <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+            <DockPanel Margin="24">
+                <hc:UniformSpacingPanel Name="formNewKey" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipPrimary}">
+                        <TextBlock Text="新建激活码"/>
+                    </Border>
+                    <hc:NumericUpDown Name="nudNewCount" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="数量" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownExtend}"/>
+                    <hc:NumericUpDown Name="nudNewCapacity" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="激活力" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownExtend}"/>
+                    <hc:NumericUpDown Name="nudNewExpiry" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="有效期" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownExtend}"/>
+                    <TextBox Name="tbNewStorage" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="数据" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbNewProfile" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="描述" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Click="onNewSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onNewCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+                <hc:UniformSpacingPanel Name="formEditKey" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipDanger}">
+                        <TextBlock Text="编辑激活码"/>
+                    </Border>
+                    <TextBox Name="tbEditNumber" IsEnabled="False" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="激活码" hc:InfoElement.Necessary="True" IsReadOnly="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditProfile" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="描述" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:NumericUpDown Name="nudEditBan" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="禁用码" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownExtend}"/>
+                    <TextBox Name="tbEditReason" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="禁用原因" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onEditSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onEditCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+
+                <hc:UniformSpacingPanel Name="formActivate" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipDanger}">
+                        <TextBlock Text="激活"/>
+                    </Border>
+                    <TextBox Name="tbActivateNumber" IsEnabled="False" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="激活码" hc:InfoElement.Necessary="True" IsReadOnly="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbActivateConsumer" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="消费者" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onActivateSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onActivateCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+                <hc:SimplePanel>
+                    <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionCreate}" />
+                    <DataGrid Name="dgKeyList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding KeyList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onKeySelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PenGeometry}" Click="onEditKeyClicked" IsEnabled="{Binding Path=PermissionEdit, RelativeSource={RelativeSource AncestorType={x:Type local:KeyControl}}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding number}" Header="激活码" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding capacity}" Header="激活力" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding expiry}" Header="有效期" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding storage}" Header="数据" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding profile}" Header="描述" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding ban}" Header="状态" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding reason}" Header="禁用原因" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding createdAt}" Header="创建时间" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding activatedAt}" Header="激活时间" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="OnActivateClick" IsEnabled="{Binding PermissionActivate}">激活</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--/
+                            <DataGridCheckBoxColumn Width="100" CanUserResize="False" Binding="{Binding IsSelected}" Header="{ex:Lang Key={x:Static langs:LangKeys.Selected}}"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DemoTypes}}" Width="100" CanUserResize="False" SelectedValueBinding="{Binding Type}" Header="{ex:Lang Key={x:Static langs:LangKeys.Type}}"/>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource TrashGeometry}" Click="onDeleteKeyClicked" IsEnabled="{Binding Path=PermissionDelete, RelativeSource={RelativeSource AncestorType={x:Type local:KeyControl}}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            -->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </hc:SimplePanel>
+            </DockPanel>
+        </Border>
+    </DockPanel>
+</UserControl>

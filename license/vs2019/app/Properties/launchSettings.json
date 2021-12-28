@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "app": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "apikey": "ogm.dev",
+        "domain": "http://localhost"
+      }
+    }
+  }
+}
