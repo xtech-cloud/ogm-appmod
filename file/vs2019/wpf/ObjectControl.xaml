@@ -35,21 +35,30 @@
 
         <Border Margin="0,24,0,0" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <DockPanel Margin="24">
-                <StackPanel Name="formUploadObject" Orientation="Vertical" Width="300" Margin="0,0,24,0">
-                    <Border Style="{StaticResource BorderTipPrimary}">
-                        <TextBlock Text="上传文件"/>
-                    </Border>
-                    <TextBox x:Name="tbUploadPrefix" Margin="0,24,0,0" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件路径" Style="{StaticResource TextBoxExtend}"/>
-                    <Button Margin="0,24,0,0" Content="选择文件"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenFileClicked" />
-                    <TextBlock x:Name="tbFilename" Margin="0,24,0,0"/>
-                    <ProgressBar Name="pbUpload" Margin="0,24,0,0" Style="{StaticResource ProgressBarSuccess}" Value="40"/>
-                    <TextBlock x:Name="tbUploadSuccess" Margin="0,24,0,0" Text="上传成功" Style="{StaticResource TextBlockDefaultSuccess}" HorizontalAlignment="Left"/>
-                    <TextBlock x:Name="tbUploadFailury" Margin="0,24,0,0" Text="上传失败" Style="{StaticResource TextBlockDefaultDanger}" HorizontalAlignment="Left"/>
-                    <hc:UniformSpacingPanel Margin="0,32,0,0" Spacing="24" HorizontalAlignment="Right">
-                        <Button Content="关闭"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onUploadCancelClicked" />
-                    </hc:UniformSpacingPanel>
-                </StackPanel>
-                <hc:UniformSpacingPanel Name="formEditObject" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                <DockPanel Name="formUploadObject" Width="300" Margin="0,0,24,0" DockPanel.Dock="Left">
+                    <StackPanel DockPanel.Dock="Top">
+                        <Border Style="{StaticResource BorderTipPrimary}">
+                            <TextBlock Text="上传文件"/>
+                        </Border>
+                        <TextBox x:Name="tbUploadPrefix" Margin="0,24,0,0" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件路径" Style="{StaticResource TextBoxExtend}"/>
+                        <CheckBox Name="cbSaveAsMD5" Margin="0,24,0,0" Style="{StaticResource CheckBoxBaseStyle}" HorizontalAlignment="Left">使用MD5值作为文件名存入存储引擎</CheckBox>
+                        <Button Margin="0,24,0,0" Content="选择文件"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenFileClicked" />
+                        <Button Margin="0,24,0,0" Content="选择文件夹"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenDirClicked" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <ProgressBar Name="pbUpload" Margin="0,24,0,0" Style="{StaticResource ProgressBarSuccess}" Value="40"/>
+                        <TextBlock x:Name="tbUploadSuccess" Margin="0,24,0,0" Text="上传成功文件：{0}个" Style="{StaticResource TextBlockDefaultSuccess}" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="tbUploadFailury" Margin="0,24,0,0" Text="上传失败文件：{0}个" Style="{StaticResource TextBlockDefaultDanger}" HorizontalAlignment="Left"/>
+                        <hc:UniformSpacingPanel Margin="0,32,0,0" Spacing="24" HorizontalAlignment="Right">
+                            <Button Name="btnUploadSubmit" Content="上传"  Width="80" Style="{StaticResource ButtonInfo}" HorizontalAlignment="Right" Click="onUploadSubmitClicked" />
+                            <Button Name="btnUploadCancel" Content="关闭"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onUploadCancelClicked" />
+                        </hc:UniformSpacingPanel>
+                    </StackPanel>
+                    <ListBox Margin="0,24,0,0" ItemsSource="{Binding UploadObjects}" BorderThickness="0" >
+                    </ListBox>
+                </DockPanel>
+
+                <hc:UniformSpacingPanel Name="formEditObject" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0" DockPanel.Dock="Left">
                     <Border Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="编辑文件"/>
                     </Border>
@@ -61,7 +70,10 @@
                 </hc:UniformSpacingPanel>
 
                 <hc:SimplePanel>
-                    <Button Content="+ 上传"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onUploadClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Left">
+                        <Button Content="+ 上传"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onUploadClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
+                    </hc:UniformSpacingPanel>
+                    <Button Content="清空"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onClearClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
                     <DataGrid Name="dgObjectList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding ObjectList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onObjectSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
@@ -73,6 +85,7 @@
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Binding="{Binding filepath}" Header="名称" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _size}" Header="文件大小" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding uname}" Header="存储名" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding md5}" Header="MD5" IsReadOnly="True"/>
                             <DataGridTemplateColumn Width="80" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>

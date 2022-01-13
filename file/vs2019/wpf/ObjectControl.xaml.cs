@@ -1,5 +1,5 @@
-
 using System.Windows.Controls;
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -8,39 +8,27 @@ using Microsoft.Win32;
 using System.IO;
 using System.Security.Cryptography;
 using System;
-using Minio;
-using Minio.DataModel.Tracing;
-using Minio.Exceptions;
-using System.Threading.Tasks;
+using System.Net;
+using Forms = System.Windows.Forms;
 
 namespace ogm.file
 {
-    public class MinioLog : IRequestLogger
-    {
-        public Action<int> Callback;
-        public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
-        {
-            if (responseToLog.statusCode == System.Net.HttpStatusCode.OK)
-            {
-                foreach (var header in requestToLog.parameters)
-                {
-                    if (header.value == null)
-                        continue;
-                    if (header.name.Equals("partNumber"))
-                    {
-                        int partNumber = Convert.ToInt32(header.value);
-                        Callback(partNumber);
-                    }
-                }
-            }
-        }
-    }
-
-
     public partial class ObjectControl : UserControl
     {
         //页面参数，用于页面间跳转时传递数据
         public Dictionary<string, object> PageExtra = new Dictionary<string, object>();
+
+        public class UploadObject
+        {
+            public string path { get; set; } // 存储桶中的对象路径
+            public string filepath { get; set; } // 对象的本地文件路径
+            public long size { get; set; }
+            public string uname { get; set; } // 在存储引擎中
+            public string md5 { get; set; }
+            public bool valid { get; set; } // 是否有效
+        }
+
+        private Queue<UploadObject> uploadQueue_ = new Queue<UploadObject>();
 
         public class ObjectUiBridge : BaseObjectUiBridge, IObjectExtendUiBridge
         {
@@ -72,43 +60,24 @@ namespace ogm.file
                 if (!control.PageExtra.TryGetValue("bucket.scope", out o_scope))
                     return;
                 string scope = (string)o_scope;
-                object o_md5;
-                if (!control.PageExtra.TryGetValue("object.md5", out o_md5))
-                    return;
-                string md5 = (string)o_md5;
-                object o_filepath;
-                if (!control.PageExtra.TryGetValue("object.file", out o_filepath))
-                    return;
-                string file_fullpath = (string)o_filepath;
-                object o_size;
-                if (!control.PageExtra.TryGetValue("object.size", out o_size))
-                    return;
-                long size = (long)o_size;
+
+                var uo = control.uploadQueue_.Peek();
+                long size = uo.size;
+                string uname = uo.uname;
+                string md5 = uo.md5;
 
                 var reply = JsonSerializer.Deserialize<ObjectPrepareReply>(_json);
                 if (reply.status.code == 200)
                 {
                     control.pbUpload.Visibility = Visibility.Collapsed;
-                    string filepath = Path.Combine(control.tbUploadPrefix.Text, Path.GetFileName(file_fullpath));
-                    control.flushObject(uuid, md5, filepath);
+                    control.flushObject(uuid, uname, md5, uo.path);
                     return;
                 }
 
                 int total_minio_chunk_count = (int)Math.Ceiling(Convert.ToDouble(size) / 1024 / 5120);
                 if (2 == reply.engine)
                 {
-                    string[] token = reply.accessToken.Split(' ');
-                    Uri uri = new Uri(reply.url);
-                    MinioClient minio = new MinioClient(uri.Authority, token[0], token[1]);
-                    minio.SetTraceOn(new MinioLog()
-                    {
-                        Callback = number =>
-                        {
-                            double process = Math.Round(Convert.ToDouble(number) / total_minio_chunk_count, 2) * 100;
-                            control.pbUpload.Dispatcher.Invoke(new Action(() => { control.pbUpload.Value = process; }));
-                        }
-                    });
-                    upload(minio, uuid, scope, md5, file_fullpath);
+                    putFile(uuid, scope, uname, size, md5, uo.filepath, uo.path, reply.accessToken);
                 }
             }
 
@@ -117,19 +86,24 @@ namespace ogm.file
                 base.ReceiveFlush(_json);
                 Reply reply = JsonSerializer.Deserialize<Reply>(_json);
                 control.pbUpload.Visibility = Visibility.Collapsed;
+                var uo = control.uploadQueue_.Dequeue();
                 if (reply.status.code == 0)
                 {
+                    control.uploadSuccessCount_ += 1;
                     control.tbUploadSuccess.Visibility = Visibility.Visible;
                     control.tbPrefix.Text = "";
                     control.tbName.Text = "";
                     control.listObject(control.tbBucket.Uid);
+                    control.UploadObjects.Remove(uo.path);
                 }
                 else
                 {
+                    control.uploadFailureCount_ += 1;
                     control.tbUploadFailury.Visibility = Visibility.Visible;
                 }
-                control.PageExtra.Remove("bucket.md5");
-                control.PageExtra.Remove("bucket.file");
+                control.tbUploadSuccess.Text = string.Format(control.uploadSuccessFormat_, control.uploadSuccessCount_);
+                control.tbUploadFailury.Text = string.Format(control.uploadFailureFormat_, control.uploadFailureCount_);
+                control.prepareFile();
             }
 
             public override void ReceiveRemove(string _json)
@@ -151,21 +125,29 @@ namespace ogm.file
                     Clipboard.SetDataObject(reply.url);
             }
 
-            private async Task upload(MinioClient _minio, string _uuid, string _scope, string _md5, string _filepath)
+            private void putFile(string _uuid, string _scope, string _uname, long _size, string _md5, string _filepath, string _uri, string _url)
             {
+                WebClient wc = new WebClient();
+                wc.UploadFileCompleted += new UploadFileCompletedEventHandler((_sender, _args) =>
+                {
+                    control.flushObject(_uuid, _uname, _md5, _uri);
+                });
+                wc.UploadProgressChanged += new UploadProgressChangedEventHandler((_sender, _args) =>
+                {
+                    control.pbUpload.Value = _args.BytesSent * 100 / _size;
+                });
                 try
                 {
-                    await _minio.PutObjectAsync(_scope, _md5, _filepath);
+                    wc.UploadFileAsync(new Uri(_url), "PUT", _filepath);
                 }
-                catch (MinioException e)
+                catch (System.Exception e)
                 {
                     control.pbUpload.Visibility = Visibility.Collapsed;
                     control.tbUploadFailury.Visibility = Visibility.Visible;
                     return;
                 }
-                string filepath = Path.Combine(control.tbUploadPrefix.Text, Path.GetFileName(_filepath));
-                control.flushObject(_uuid, _md5, filepath);
             }
+
 
             private string formatSize(long _size)
             {
@@ -185,6 +167,7 @@ namespace ogm.file
 
         public ObjectFacade facade { get; set; }
         public ObservableCollection<ObjectEntity> ObjectList { get; set; }
+        public ObservableCollection<string> UploadObjects { get; set; }
 
         public static readonly DependencyProperty PermissionUploadProperty = DependencyProperty.Register("PermissionUpload", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
         public static readonly DependencyProperty PermissionEditProperty = DependencyProperty.Register("PermissionEdit", typeof(bool), typeof(ObjectControl), new PropertyMetadata(true));
@@ -220,17 +203,23 @@ namespace ogm.file
             set { SetValue(PermissionPublishProperty, value); }
         }
 
+        private string uploadSuccessFormat_ { get; set; }
+        private string uploadFailureFormat_ { get; set; }
+        private int uploadSuccessCount_;
+        private int uploadFailureCount_;
+
+
 
         public ObjectControl()
         {
             ObjectList = new ObservableCollection<ObjectEntity>();
+            UploadObjects = new ObservableCollection<string>();
             InitializeComponent();
             formEditObject.Visibility = Visibility.Collapsed;
             formUploadObject.Visibility = Visibility.Collapsed;
             pbUpload.Visibility = Visibility.Collapsed;
-            tbFilename.Visibility = Visibility.Collapsed;
-            tbUploadSuccess.Visibility = Visibility.Collapsed;
-            tbUploadFailury.Visibility = Visibility.Collapsed;
+            uploadSuccessFormat_ = tbUploadSuccess.Text;
+            uploadFailureFormat_ = tbUploadFailury.Text;
         }
 
         public void RefreshWithExtra()
@@ -277,58 +266,25 @@ namespace ogm.file
 
         private void onOpenFileClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            tbFilename.Text = "";
-            pbUpload.Value = 0;
-            pbUpload.Visibility = Visibility.Collapsed;
-            tbFilename.Visibility = Visibility.Collapsed;
-            tbUploadSuccess.Visibility = Visibility.Collapsed;
-            tbUploadFailury.Visibility = Visibility.Collapsed;
+            resetUpload();
+
             OpenFileDialog dialog = new OpenFileDialog();
             if (false == dialog.ShowDialog())
                 return;
 
-            tbFilename.Visibility = Visibility.Visible;
-            tbFilename.Text = Path.GetFileName(dialog.FileName);
             string filepath = dialog.FileName;
-            string md5str = "";
-            long size = 0;
-            try
-            {
-                FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                size = fs.Length;
-                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-                byte[] buffer = md5Provider.ComputeHash(fs);
-                md5str = BitConverter.ToString(buffer);
-                md5str = md5str.Replace("-", "");
-                md5Provider.Clear();
-                fs.Close();
-
-            }
-            catch (Exception ex)
-            {
-                //
-                tbUploadFailury.Visibility = Visibility.Visible;
-                return;
-            }
-            if (string.IsNullOrEmpty(md5str))
-                return;
-
             //TODO 多文件上传
-            object uuid;
-            if (!PageExtra.TryGetValue("bucket.uuid", out uuid))
-                return;
-            PageExtra["object.file"] = filepath;
-            PageExtra["object.md5"] = md5str;
-            PageExtra["object.size"] = size;
 
-            pbUpload.Visibility = Visibility.Visible;
-            Dictionary<string, object> param = new Dictionary<string, object>();
-            param["bucket"] = (string)uuid;
-            param["uname"] = md5str;
-            param["size"] = size;
-            var bridge = facade.getViewBridge() as IObjectViewBridge;
-            string json = JsonSerializer.Serialize(param);
-            bridge.OnPrepareSubmit(json);
+            btnUploadSubmit.IsEnabled = false;
+            btnUploadCancel.IsEnabled = false;
+            UploadObject uo = buildUploadObject(Path.GetDirectoryName(filepath), filepath);
+            if (uo.valid)
+                uploadQueue_.Enqueue(uo);
+            else
+                tbUploadFailury.Visibility = Visibility.Visible;
+            UploadObjects.Add(uo.path);
+            btnUploadSubmit.IsEnabled = true;
+            btnUploadCancel.IsEnabled = true;
         }
 
         private void onUploadCancelClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -355,6 +311,8 @@ namespace ogm.file
         {
             formUploadObject.Visibility = Visibility.Visible;
             formEditObject.Visibility = Visibility.Collapsed;
+            btnUploadSubmit.IsEnabled = false;
+            resetUpload();
         }
 
         private void onObjectSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -433,15 +391,113 @@ namespace ogm.file
             bridge.OnSearchSubmit(json);
         }
 
-        private void flushObject(string _bucket, string _md5, string _filename)
+        private void flushObject(string _bucket, string _uname, string _md5, string _path)
         {
             var bridge = facade.getViewBridge() as IObjectViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["bucket"] = _bucket;
-            param["uname"] = _md5;
-            param["path"] = _filename;
+            param["uname"] = _uname;
+            param["path"] = _path;
+            param["md5"] = _md5;
             string json = JsonSerializer.Serialize(param);
             bridge.OnFlushSubmit(json);
+        }
+
+        private void onUploadSubmitClicked(object sender, RoutedEventArgs e)
+        {
+            btnUploadSubmit.IsEnabled = false;
+            prepareFile();
+        }
+
+        private void onClearClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onOpenDirClicked(object sender, RoutedEventArgs e)
+        {
+            resetUpload();
+
+            Forms.FolderBrowserDialog dialog = new Forms.FolderBrowserDialog();
+            if (Forms.DialogResult.OK != dialog.ShowDialog())
+                return;
+
+            btnUploadSubmit.IsEnabled = false;
+            btnUploadCancel.IsEnabled = false;
+            string dir = dialog.SelectedPath;
+            foreach (var file in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
+            {
+                UploadObject uo = buildUploadObject(dir, file);
+                if (uo.valid)
+                {
+                    uploadQueue_.Enqueue(uo);
+                }
+                UploadObjects.Add(uo.path);
+            }
+            btnUploadSubmit.IsEnabled = true;
+            btnUploadCancel.IsEnabled = true;
+        }
+
+        private void prepareFile()
+        {
+            object uuid;
+            if (!PageExtra.TryGetValue("bucket.uuid", out uuid))
+                return;
+            if (uploadQueue_.Count == 0)
+                return;
+
+            var uo = uploadQueue_.Peek();
+            pbUpload.Visibility = Visibility.Visible;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["bucket"] = (string)uuid;
+            param["uname"] = uo.uname;
+            param["size"] = uo.size;
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnPrepareSubmit(json);
+        }
+
+        private UploadObject buildUploadObject(string _dir, string _file)
+        {
+            string path = Path.GetRelativePath(_dir, _file).Replace("\\", "/");
+            UploadObject uo = new UploadObject();
+            uo.valid = true;
+            uo.path = string.Format("{0}{1}", tbUploadPrefix.Text, path);
+            uo.filepath = _file;
+            try
+            {
+                FileStream fs = new FileStream(_file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                uo.size = fs.Length;
+                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
+                byte[] buffer = md5Provider.ComputeHash(fs);
+                string md5str = "";
+                md5str = BitConverter.ToString(buffer);
+                md5str = md5str.Replace("-", "");
+                md5Provider.Clear();
+                fs.Close();
+                uo.md5 = md5str;
+            }
+            catch (Exception ex)
+            {
+                uo.valid = false;
+            }
+            if (true == cbSaveAsMD5.IsChecked)
+                uo.uname = uo.md5;
+            else
+                uo.uname = uo.path;
+            return uo;
+        }
+
+        private void resetUpload()
+        {
+            uploadQueue_.Clear();
+            UploadObjects.Clear();
+            pbUpload.Value = 0;
+            pbUpload.Visibility = Visibility.Collapsed;
+            tbUploadSuccess.Visibility = Visibility.Collapsed;
+            tbUploadFailury.Visibility = Visibility.Collapsed;
+            uploadFailureCount_ = 0;
+            uploadSuccessCount_ = 0;
         }
     }
 }

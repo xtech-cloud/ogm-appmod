@@ -231,6 +231,7 @@ namespace ogm.file.Proto
                     _bucket = Any.FromString("");
                 _uname = Any.FromString("");
                 _size = Any.FromInt64(0);
+                _expiry = Any.FromInt64(0);
 
                 }
                 [JsonPropertyName("bucket")]
@@ -239,6 +240,8 @@ namespace ogm.file.Proto
             public Any _uname {get;set;}
             [JsonPropertyName("size")]
             public Any _size {get;set;}
+            [JsonPropertyName("expiry")]
+            public Any _expiry {get;set;}
 
             }
 
@@ -270,6 +273,7 @@ namespace ogm.file.Proto
                     _bucket = Any.FromString("");
                 _uname = Any.FromString("");
                 _path = Any.FromString("");
+                _md5 = Any.FromString("");
 
                 }
                 [JsonPropertyName("bucket")]
@@ -278,6 +282,8 @@ namespace ogm.file.Proto
             public Any _uname {get;set;}
             [JsonPropertyName("path")]
             public Any _path {get;set;}
+            [JsonPropertyName("md5")]
+            public Any _md5 {get;set;}
 
             }
 
@@ -316,10 +322,13 @@ namespace ogm.file.Proto
                 public ObjectPreviewRequest()
                 {
                     _uuid = Any.FromString("");
+                _expiry = Any.FromInt64(0);
 
                 }
                 [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
+            [JsonPropertyName("expiry")]
+            public Any _expiry {get;set;}
 
             }
 
@@ -671,6 +680,7 @@ namespace ogm.file.Proto
                 _url = Any.FromString("");
                 _size = Any.FromInt64(0);
                 _md5 = Any.FromString("");
+                _uname = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
@@ -683,6 +693,8 @@ namespace ogm.file.Proto
             public Any _size {get;set;}
             [JsonPropertyName("md5")]
             public Any _md5 {get;set;}
+            [JsonPropertyName("uname")]
+            public Any _uname {get;set;}
 
             }
 

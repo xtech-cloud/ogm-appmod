@@ -76,7 +76,7 @@ namespace ogm.file
             if (100 == _engine)
                 return "Custom";
             return "Unknown";
-            
+
 
         }
 
@@ -122,6 +122,7 @@ namespace ogm.file
         public string filepath { get; set; }
         public long size { get; set; }
         public string md5 { get; set; }
+        public string uname { get; set; }
 
         public string _size { get; set; }
 

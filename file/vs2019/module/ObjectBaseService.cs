@@ -30,6 +30,7 @@ namespace ogm.file
                 paramMap["bucket"] = _request._bucket;
             paramMap["uname"] = _request._uname;
             paramMap["size"] = _request._size;
+            paramMap["expiry"] = _request._expiry;
 
                 post(string.Format("{0}/ogm/file/Object/Prepare", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
@@ -48,6 +49,7 @@ namespace ogm.file
                 paramMap["bucket"] = _request._bucket;
             paramMap["uname"] = _request._uname;
             paramMap["path"] = _request._path;
+            paramMap["md5"] = _request._md5;
 
                 post(string.Format("{0}/ogm/file/Object/Flush", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
@@ -187,6 +189,7 @@ namespace ogm.file
             {
                 Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
                 paramMap["uuid"] = _request._uuid;
+            paramMap["expiry"] = _request._expiry;
 
                 post(string.Format("{0}/ogm/file/Object/Preview", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
