@@ -32,6 +32,15 @@ namespace ogm.file
 
         public class ObjectUiBridge : BaseObjectUiBridge, IObjectExtendUiBridge
         {
+            public override void UpdatePermission(Dictionary<string, string> _permission)
+            {
+                control.PermissionUpload = _permission.ContainsKey("/ogm/file/Object/Upload");
+                control.PermissionEdit = _permission.ContainsKey("/ogm/file/Object/Update");
+                control.PermissionDelete = _permission.ContainsKey("/ogm/file/Object/Delete");
+                control.PermissionPreview = _permission.ContainsKey("/ogm/file/Object/Preview");
+                control.PermissionPublish = _permission.ContainsKey("/ogm/file/Object/Publish");
+            }
+
             public override void ReceiveList(string _json)
             {
                 base.ReceiveList(_json);

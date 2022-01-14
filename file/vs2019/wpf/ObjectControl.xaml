@@ -23,7 +23,7 @@
             <hc:SimplePanel Margin="24">
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBox x:Name="tbBucket" Width="240" hc:InfoElement.TitleWidth="62" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="存储池" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
-                    <TextBox x:Name="tbPrefix" Margin="24,0,0,0" Width="240" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件路径" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox x:Name="tbPrefix" Margin="24,0,0,0" Width="240" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="路径前缀" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox x:Name="tbName" Margin="24,0,0,0" Width="240" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件名" Style="{StaticResource TextBoxExtend}"/>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -73,7 +73,7 @@
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Left">
                         <Button Content="+ 上传"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onUploadClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
                     </hc:UniformSpacingPanel>
-                    <Button Content="清空"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onClearClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
+                    <Button Content="清空"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onClearClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionDelete}" />
                     <DataGrid Name="dgObjectList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding ObjectList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onObjectSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">

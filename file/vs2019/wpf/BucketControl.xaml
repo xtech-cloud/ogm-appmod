@@ -79,6 +79,28 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
 
+                <hc:UniformSpacingPanel Name="formGenerateManifest" Spacing="24" Orientation="Vertical" Width="300" Margin="0,0,24,0">
+                    <Border Style="{StaticResource BorderTipInfo}">
+                        <TextBlock Text="生成清单"/>
+                    </Border>
+                    <CheckBox x:Name="cbHasFilepath" HorizontalAlignment="Left" IsChecked="True">包含 filepath 字段</CheckBox>
+                    <CheckBox x:Name="cbHasUname" HorizontalAlignment="Left" IsChecked="False">包含 uname 字段</CheckBox>
+                    <CheckBox x:Name="cbHasUrl" HorizontalAlignment="Left" IsChecked="False">包含 url 字段</CheckBox>
+                    <CheckBox x:Name="cbHasMd5" HorizontalAlignment="Left" IsChecked="True">包含 md5 字段</CheckBox>
+                    <CheckBox x:Name="cbHasSize" HorizontalAlignment="Left" IsChecked="True">包含 size 字段</CheckBox>
+                    <ComboBox Name="cbGenerateFormat" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件格式" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="json"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBox Name="tbGenerateInclude" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="包含文件" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbGenerateExclude" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="排除文件" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbGenerateSaveAs" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="另存为" Style="{StaticResource TextBoxExtend}"/>
+                    <Button Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="OnOpenGenerateTemplateClicked">选择模板文件</Button>
+                    <TextBlock x:Name="tbGenerateTemplate"></TextBlock>
+                    <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Right" Margin="0,8,0,0">
+                        <Button Content="确定"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onGenerateSubmitClicked" />
+                        <Button Content="取消"  Width="80" Style="{StaticResource ButtonDashed}" HorizontalAlignment="Right" Click="onGenerateCancelClicked" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
                 <hc:SimplePanel>
                     <Button Content="+ 创建"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onCreateClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionCreate}"/>
                     <DataGrid Name="dgBucketList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding BucketList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onBucketSelectionChanged">
@@ -104,6 +126,15 @@
                                     <DataTemplate>
                                         <TextBlock Style="{StaticResource TextBlockDefault}">
                                             <Hyperlink Click="OnBrowseObjectClick">浏览文件</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="OnGenerateManifestClick">生成清单</Hyperlink>
                                         </TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

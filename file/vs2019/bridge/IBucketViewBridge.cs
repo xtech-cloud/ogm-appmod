@@ -13,6 +13,7 @@ namespace ogm.file
         void OnSearchSubmit(string _json);
         void OnUpdateSubmit(string _json);
         void OnResetTokenSubmit(string _json);
+        void OnGenerateManifestSubmit(string _json);
 
     }
 }

@@ -67,6 +67,13 @@ namespace ogm.file
             }
 
 
+            public void OnGenerateManifestSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.BucketGenerateManifestRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostGenerateManifest(req);
+            }
+
+
 
     }
 }

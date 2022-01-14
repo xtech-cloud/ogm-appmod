@@ -224,6 +224,51 @@ namespace ogm.file.Proto
 
             }
 
+            public class BucketGenerateManifestRequest
+            {
+                public BucketGenerateManifestRequest()
+                {
+                    _uuid = Any.FromString("");
+                _field = Any.FromStringAry(new string[0]);
+                _format = Any.FromString("");
+                _template = Any.FromString("");
+                _saveAs = Any.FromString("");
+                _include = Any.FromStringAry(new string[0]);
+                _exclude = Any.FromStringAry(new string[0]);
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+            [JsonPropertyName("field")]
+            public Any _field {get;set;}
+            [JsonPropertyName("format")]
+            public Any _format {get;set;}
+            [JsonPropertyName("template")]
+            public Any _template {get;set;}
+            [JsonPropertyName("saveAs")]
+            public Any _saveAs {get;set;}
+            [JsonPropertyName("include")]
+            public Any _include {get;set;}
+            [JsonPropertyName("exclude")]
+            public Any _exclude {get;set;}
+
+            }
+
+            public class BucketGenerateManifestResponse
+            {
+                public BucketGenerateManifestResponse()
+                {
+                    _status = new Status();
+                _result = Any.FromString("");
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("result")]
+            public Any _result {get;set;}
+
+            }
+
             public class ObjectPrepareRequest
             {
                 public ObjectPrepareRequest()

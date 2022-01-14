@@ -1,9 +1,11 @@
 
 using System.Windows.Controls;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Text.Json;
+using Microsoft.Win32;
 
 namespace ogm.file
 {
@@ -30,6 +32,8 @@ namespace ogm.file
                     e._totalSize = Utility.FormatSize(e.totalSize);
                     e._usedSize = Utility.FormatSize(e.usedSize);
                     e._engine = BucketEntity.engineToString(e.engine);
+                    if (!control.PermissionEdit)
+                        e.accessSecret = "********************************";
                     control.BucketList.Add(e);
                 }
             }
@@ -67,9 +71,9 @@ namespace ogm.file
                 var reply = JsonSerializer.Deserialize<BucketGetReply>(_json);
                 if (reply.status.code != 0)
                     return;
-                foreach(var e in control.BucketList)
+                foreach (var e in control.BucketList)
                 {
-                    if(e.uuid.Equals(reply.entity.uuid))
+                    if (e.uuid.Equals(reply.entity.uuid))
                     {
                         e.CopyFromOther(reply.entity);
                         break;
@@ -86,9 +90,18 @@ namespace ogm.file
                 control.listBucket();
             }
 
+            public override void ReceiveGenerateManifest(string _json)
+            {
+                base.ReceiveGenerateManifest(_json);
+                var reply = JsonSerializer.Deserialize<Reply>(_json);
+                if (reply.status.code != 0)
+                    return;
+                control.formGenerateManifest.Visibility = Visibility.Collapsed;
+            }
+
             public void HandleTabActivated()
             {
-                if(string.IsNullOrEmpty(control.tbName.Text) && control.BucketList.Count == 0)
+                if (string.IsNullOrEmpty(control.tbName.Text) && control.BucketList.Count == 0)
                 {
                     control.listBucket();
                 }
@@ -129,6 +142,7 @@ namespace ogm.file
             InitializeComponent();
             formEditBucket.Visibility = Visibility.Collapsed;
             formNewBucket.Visibility = Visibility.Collapsed;
+            formGenerateManifest.Visibility = Visibility.Collapsed;
         }
 
         private void onResetCliked(object sender, System.Windows.RoutedEventArgs e)
@@ -153,6 +167,7 @@ namespace ogm.file
         {
             formEditBucket.Visibility = Visibility.Collapsed;
             formNewBucket.Visibility = Visibility.Visible;
+            formGenerateManifest.Visibility = Visibility.Collapsed;
 
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["name"] = tbNewName.Text;
@@ -205,6 +220,7 @@ namespace ogm.file
         {
             formNewBucket.Visibility = Visibility.Visible;
             formEditBucket.Visibility = Visibility.Collapsed;
+            formGenerateManifest.Visibility = Visibility.Collapsed;
         }
 
         private void onEditBucketClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -214,6 +230,7 @@ namespace ogm.file
                 return;
             formEditBucket.Visibility = Visibility.Visible;
             formNewBucket.Visibility = Visibility.Collapsed;
+            formGenerateManifest.Visibility = Visibility.Collapsed;
 
             tbEditUUID.Text = item.uuid;
             tbEditName.Text = item.name;
@@ -255,6 +272,7 @@ namespace ogm.file
         private void onBucketSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             formNewBucket.Visibility = Visibility.Collapsed;
+            formGenerateManifest.Visibility = Visibility.Collapsed;
             var item = dgBucketList.SelectedItem as BucketEntity;
             if (null == item)
                 return;
@@ -305,5 +323,54 @@ namespace ogm.file
             bridge.OnGetSubmit(json);
         }
 
+        private void OnGenerateManifestClick(object sender, RoutedEventArgs e)
+        {
+            formGenerateManifest.Visibility = Visibility.Visible;
+            tbGenerateTemplate.Text = "";
+        }
+
+        private void onGenerateSubmitClicked(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tbGenerateTemplate.Text))
+                return;
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            List<string> field = new List<string>();
+            if (true == cbHasFilepath.IsChecked)
+                field.Add("filepath");
+            if (true == cbHasUname.IsChecked)
+                field.Add("uname");
+            if (true == cbHasUrl.IsChecked)
+                field.Add("url");
+            if (true == cbHasMd5.IsChecked)
+                field.Add("md5");
+            if (true == cbHasSize.IsChecked)
+                field.Add("size");
+            param["field"] = field.ToArray();
+            param["format"] = cbGenerateFormat.Text;
+            param["saveAs"] = tbGenerateSaveAs.Text;
+            param["template"] = File.ReadAllText(tbGenerateTemplate.Text);
+            param["include"] = tbGenerateInclude.Text.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
+            param["exclude"] = tbGenerateExclude.Text.Split(";",System.StringSplitOptions.RemoveEmptyEntries);
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnGenerateManifestSubmit(json);
+        }
+
+        private void onGenerateCancelClicked(object sender, RoutedEventArgs e)
+        {
+            formGenerateManifest.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnOpenGenerateTemplateClicked(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            if (false == dialog.ShowDialog())
+                return;
+            tbGenerateTemplate.Text = dialog.FileName;
+        }
     }
 }

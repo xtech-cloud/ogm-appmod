@@ -170,6 +170,28 @@ namespace ogm.file
             }
 
 
+            public void PostGenerateManifest(Proto.BucketGenerateManifestRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["uuid"] = _request._uuid;
+            paramMap["field"] = _request._field;
+            paramMap["format"] = _request._format;
+            paramMap["template"] = _request._template;
+            paramMap["saveAs"] = _request._saveAs;
+            paramMap["include"] = _request._include;
+            paramMap["exclude"] = _request._exclude;
+
+                post(string.Format("{0}/ogm/file/Bucket/GenerateManifest", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.BucketGenerateManifestResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveGenerateManifest(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
 
         protected override void asyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {

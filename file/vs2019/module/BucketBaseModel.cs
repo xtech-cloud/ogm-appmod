@@ -101,6 +101,12 @@ namespace ogm.file
         }
 
 
+        public virtual void SaveGenerateManifest(Proto.BucketGenerateManifestResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/GenerateManifest", _rsp);
+        }
+
+
 
     }
 }
