@@ -74,6 +74,13 @@ namespace ogm.file
             }
 
 
+            public void OnCleanSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.BucketCleanRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostClean(req);
+            }
+
+
 
     }
 }

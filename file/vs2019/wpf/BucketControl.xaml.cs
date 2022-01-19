@@ -178,6 +178,7 @@ namespace ogm.file
             param["accessKey"] = tbNewKey.Text;
             param["accessSecret"] = tbNewSecret.Text;
             param["url"] = tbNewUrl.Text;
+            param["mode"] = cbNewMode.Text;
 
             var bridge = facade.getViewBridge() as IBucketViewBridge;
             string json = JsonSerializer.Serialize(param);
@@ -252,6 +253,7 @@ namespace ogm.file
             controlObject.PageExtra["bucket.uuid"] = item.uuid;
             controlObject.PageExtra["bucket.name"] = item.name;
             controlObject.PageExtra["bucket.scope"] = item.scope;
+            controlObject.PageExtra["bucket.mode"] = item.mode;
             controlObject.RefreshWithExtra();
             var bridge = facade.getViewBridge() as IBucketExtendViewBridge;
             bridge.OnOpenObjectUi();
@@ -340,22 +342,16 @@ namespace ogm.file
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["uuid"] = item.uuid;
             List<string> field = new List<string>();
-            if (true == cbHasFilepath.IsChecked)
-                field.Add("filepath");
-            if (true == cbHasUname.IsChecked)
-                field.Add("uname");
-            if (true == cbHasUrl.IsChecked)
-                field.Add("url");
-            if (true == cbHasMd5.IsChecked)
-                field.Add("md5");
-            if (true == cbHasSize.IsChecked)
-                field.Add("size");
+            field.Add("path");
+            field.Add("hash");
+            field.Add("url");
+            field.Add("size");
             param["field"] = field.ToArray();
             param["format"] = cbGenerateFormat.Text;
             param["saveAs"] = tbGenerateSaveAs.Text;
             param["template"] = File.ReadAllText(tbGenerateTemplate.Text);
             param["include"] = tbGenerateInclude.Text.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
-            param["exclude"] = tbGenerateExclude.Text.Split(";",System.StringSplitOptions.RemoveEmptyEntries);
+            param["exclude"] = tbGenerateExclude.Text.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
             string json = JsonSerializer.Serialize(param);
             bridge.OnGenerateManifestSubmit(json);
         }
@@ -371,6 +367,21 @@ namespace ogm.file
             if (false == dialog.ShowDialog())
                 return;
             tbGenerateTemplate.Text = dialog.FileName;
+        }
+
+        private void OnCleanClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBoxResult.Cancel == MessageBox.Show("Are you sure clean this bucket?", "", MessageBoxButton.OKCancel))
+                return;
+
+            var item = dgBucketList.SelectedItem as BucketEntity;
+            if (null == item)
+                return;
+            var bridge = facade.getViewBridge() as IBucketViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnCleanSubmit(json);
         }
     }
 }

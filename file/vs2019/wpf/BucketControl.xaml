@@ -45,6 +45,10 @@
                         <ComboBoxItem Content="七牛云"></ComboBoxItem>
                         <ComboBoxItem Content="自定义"></ComboBoxItem>
                     </ComboBox>
+                    <ComboBox Name="cbNewMode" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="存储模式" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="hash"></ComboBoxItem>
+                        <ComboBoxItem Content="path"></ComboBoxItem>
+                    </ComboBox>
                     <TextBox Name="tbNewAddress" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎地址" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbNewScope" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎存储桶" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbNewKey" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="引擎Key" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
@@ -83,11 +87,6 @@
                     <Border Style="{StaticResource BorderTipInfo}">
                         <TextBlock Text="生成清单"/>
                     </Border>
-                    <CheckBox x:Name="cbHasFilepath" HorizontalAlignment="Left" IsChecked="True">包含 filepath 字段</CheckBox>
-                    <CheckBox x:Name="cbHasUname" HorizontalAlignment="Left" IsChecked="False">包含 uname 字段</CheckBox>
-                    <CheckBox x:Name="cbHasUrl" HorizontalAlignment="Left" IsChecked="False">包含 url 字段</CheckBox>
-                    <CheckBox x:Name="cbHasMd5" HorizontalAlignment="Left" IsChecked="True">包含 md5 字段</CheckBox>
-                    <CheckBox x:Name="cbHasSize" HorizontalAlignment="Left" IsChecked="True">包含 size 字段</CheckBox>
                     <ComboBox Name="cbGenerateFormat" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件格式" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch" SelectedIndex="0">
                         <ComboBoxItem Content="json"></ComboBoxItem>
                     </ComboBox>
@@ -116,6 +115,7 @@
                             <DataGridTextColumn Binding="{Binding _totalSize}" Header="总容量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _usedSize}" Header="已用容量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _engine}" Header="存储引擎" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding mode}" Header="存储模式" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding address}" Header="引擎地址" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding scope}" Header="引擎存储桶" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding accessKey}" Header="Key" IsReadOnly="True"/>
@@ -135,6 +135,15 @@
                                     <DataTemplate>
                                         <TextBlock Style="{StaticResource TextBlockDefault}">
                                             <Hyperlink Click="OnGenerateManifestClick">生成清单</Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Style="{StaticResource TextBlockDefault}">
+                                            <Hyperlink Click="OnCleanClick">清空对象</Hyperlink>
                                         </TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

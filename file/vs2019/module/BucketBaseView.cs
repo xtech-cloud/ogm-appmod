@@ -44,6 +44,8 @@ namespace ogm.file
 
             addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/GenerateManifest", this.handleReceiveBucketGenerateManifest);
 
+            addObserver(BucketModel.NAME, "_.reply.arrived:ogm/file/Bucket/Clean", this.handleReceiveBucketClean);
+
         }
 
         protected override void postSetup()
@@ -176,6 +178,18 @@ namespace ogm.file
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveGenerateManifest(json);
+        }
+
+        private void handleReceiveBucketClean(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.UuidResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Bucket/Clean is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveClean(json);
         }
 
     }

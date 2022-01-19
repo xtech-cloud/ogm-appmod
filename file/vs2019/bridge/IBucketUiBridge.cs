@@ -17,6 +17,7 @@ namespace ogm.file
         void ReceiveUpdate(string _json);
         void ReceiveResetToken(string _json);
         void ReceiveGenerateManifest(string _json);
+        void ReceiveClean(string _json);
 
     }
 }

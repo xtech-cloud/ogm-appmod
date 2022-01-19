@@ -48,6 +48,10 @@ namespace ogm.file
 
             addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/Retract", this.handleReceiveObjectRetract);
 
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/ConvertFromBase64", this.handleReceiveObjectConvertFromBase64);
+
+            addObserver(ObjectModel.NAME, "_.reply.arrived:ogm/file/Object/ConvertFromUrl", this.handleReceiveObjectConvertFromUrl);
+
         }
 
         protected override void postSetup()
@@ -204,6 +208,30 @@ namespace ogm.file
             }
             string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
             bridge.ReceiveRetract(json);
+        }
+
+        private void handleReceiveObjectConvertFromBase64(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.ObjectConvertFromBase64Response;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/ConvertFromBase64 is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveConvertFromBase64(json);
+        }
+
+        private void handleReceiveObjectConvertFromUrl(Model.Status _status, object _data)
+        {
+            var rsp = _data as Proto.ObjectConvertFromUrlResponse;
+            if(null == rsp)
+            {
+                getLogger().Error("rsp of Object/ConvertFromUrl is null");
+                return;
+            }
+            string json = JsonSerializer.Serialize(rsp, JsonOptions.DefaultSerializerOptions);
+            bridge.ReceiveConvertFromUrl(json);
         }
 
     }

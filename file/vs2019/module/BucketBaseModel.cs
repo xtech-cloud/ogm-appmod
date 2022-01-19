@@ -107,6 +107,12 @@ namespace ogm.file
         }
 
 
+        public virtual void SaveClean(Proto.UuidResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Bucket/Clean", _rsp);
+        }
+
+
 
     }
 }

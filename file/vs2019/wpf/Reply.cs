@@ -56,6 +56,7 @@ namespace ogm.file
         public string accessKey { get; set; }
         public string accessSecret { get; set; }
         public string url { get; set; }
+        public string mode { get; set; }
 
         public string _engine { get; set; }
         public string _totalSize { get; set; }
@@ -119,10 +120,9 @@ namespace ogm.file
     {
         public string uuid { get; set; }
         public string name { get; set; }
-        public string filepath { get; set; }
+        public string path { get; set; }
         public long size { get; set; }
-        public string md5 { get; set; }
-        public string uname { get; set; }
+        public string hash { get; set; }
 
         public string _size { get; set; }
 

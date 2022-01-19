@@ -35,6 +35,7 @@ namespace ogm.file
             paramMap["accessKey"] = _request._accessKey;
             paramMap["accessSecret"] = _request._accessSecret;
             paramMap["url"] = _request._url;
+            paramMap["mode"] = _request._mode;
 
                 post(string.Format("{0}/ogm/file/Bucket/Make", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
@@ -185,6 +186,22 @@ namespace ogm.file
                 {
                     var rsp = JsonSerializer.Deserialize<Proto.BucketGenerateManifestResponse>(_reply, JsonOptions.DefaultSerializerOptions);
                     model.SaveGenerateManifest(rsp);
+                }, (_err) =>
+                {
+                    getLogger().Error(_err.getMessage());
+                }, null);
+            }
+
+
+            public void PostClean(Proto.BucketCleanRequest _request)
+            {
+                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+                paramMap["uuid"] = _request._uuid;
+
+                post(string.Format("{0}/ogm/file/Bucket/Clean", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+                {
+                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                    model.SaveClean(rsp);
                 }, (_err) =>
                 {
                     getLogger().Error(_err.getMessage());

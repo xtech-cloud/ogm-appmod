@@ -40,8 +40,8 @@
                         <Border Style="{StaticResource BorderTipPrimary}">
                             <TextBlock Text="上传文件"/>
                         </Border>
-                        <TextBox x:Name="tbUploadPrefix" Margin="0,24,0,0" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="文件路径" Style="{StaticResource TextBoxExtend}"/>
-                        <CheckBox Name="cbSaveAsMD5" Margin="0,24,0,0" Style="{StaticResource CheckBoxBaseStyle}" HorizontalAlignment="Left">使用MD5值作为文件名存入存储引擎</CheckBox>
+                        <TextBox x:Name="tbUploadPrefix" Margin="0,24,0,0" hc:InfoElement.TitleWidth="72" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="路径前缀" Style="{StaticResource TextBoxExtend}"/>
+                        <CheckBox Name="cbOverride" Margin="0,24,0,0" Style="{StaticResource CheckBoxBaseStyle}" HorizontalAlignment="Left">覆盖已存在文件</CheckBox>
                         <Button Margin="0,24,0,0" Content="选择文件"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenFileClicked" />
                         <Button Margin="0,24,0,0" Content="选择文件夹"  Style="{StaticResource ButtonDefault}" HorizontalAlignment="Stretch" Click="onOpenDirClicked" />
                     </StackPanel>
@@ -73,7 +73,6 @@
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Left">
                         <Button Content="+ 上传"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onUploadClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
                     </hc:UniformSpacingPanel>
-                    <Button Content="清空"  Width="80" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Right" Click="onClearClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionDelete}" />
                     <DataGrid Name="dgObjectList" Margin="0,48,0,0" HeadersVisibility="All" RowHeaderWidth="60" AutoGenerateColumns="False" ItemsSource="{Binding ObjectList}" hc:DataGridAttach.ShowRowNumber="True" SelectionMode="Single" SelectionChanged="onObjectSelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="50" CanUserResize="False">
@@ -83,10 +82,9 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Binding="{Binding filepath}" Header="名称" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding path}" Header="路径" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _size}" Header="文件大小" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding uname}" Header="存储名" IsReadOnly="True"/>
-                            <DataGridTextColumn Binding="{Binding md5}" Header="MD5" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding hash}" Header="散列值" IsReadOnly="True"/>
                             <DataGridTemplateColumn Width="80" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

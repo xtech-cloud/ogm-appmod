@@ -6,11 +6,12 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ogm.file.wpf</AssemblyName>
-    <Version>3.14.1</Version>
+    <Version>3.19.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\bridge\bridge.csproj" />
+    <ProjectReference Include="..\module\module.csproj" />
   </ItemGroup>
 
   <ItemGroup>

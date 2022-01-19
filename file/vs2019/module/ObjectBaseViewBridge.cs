@@ -88,6 +88,20 @@ namespace ogm.file
             }
 
 
+            public void OnConvertFromBase64Submit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.ObjectConvertFromBase64Request>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostConvertFromBase64(req);
+            }
+
+
+            public void OnConvertFromUrlSubmit(string _json)
+            {
+                var req = JsonSerializer.Deserialize<Proto.ObjectConvertFromUrlRequest>(_json, JsonOptions.DefaultSerializerOptions);
+                service.PostConvertFromUrl(req);
+            }
+
+
 
     }
 }

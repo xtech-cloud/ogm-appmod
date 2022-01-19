@@ -20,6 +20,7 @@ namespace ogm.file.Proto
                 _accessKey = Any.FromString("");
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
+                _mode = Any.FromString("");
 
                 }
                 [JsonPropertyName("name")]
@@ -38,6 +39,8 @@ namespace ogm.file.Proto
             public Any _accessSecret {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
+            [JsonPropertyName("mode")]
+            public Any _mode {get;set;}
 
             }
 
@@ -269,24 +272,42 @@ namespace ogm.file.Proto
 
             }
 
+            public class BucketCleanRequest
+            {
+                public BucketCleanRequest()
+                {
+                    _uuid = Any.FromString("");
+
+                }
+                [JsonPropertyName("uuid")]
+            public Any _uuid {get;set;}
+
+            }
+
             public class ObjectPrepareRequest
             {
                 public ObjectPrepareRequest()
                 {
                     _bucket = Any.FromString("");
-                _uname = Any.FromString("");
+                _hash = Any.FromString("");
+                _path = Any.FromString("");
                 _size = Any.FromInt64(0);
                 _expiry = Any.FromInt64(0);
+                _override = Any.FromBool(false);
 
                 }
                 [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
-            [JsonPropertyName("uname")]
-            public Any _uname {get;set;}
+            [JsonPropertyName("hash")]
+            public Any _hash {get;set;}
+            [JsonPropertyName("path")]
+            public Any _path {get;set;}
             [JsonPropertyName("size")]
             public Any _size {get;set;}
             [JsonPropertyName("expiry")]
             public Any _expiry {get;set;}
+            [JsonPropertyName("override")]
+            public Any _override {get;set;}
 
             }
 
@@ -316,19 +337,16 @@ namespace ogm.file.Proto
                 public ObjectFlushRequest()
                 {
                     _bucket = Any.FromString("");
-                _uname = Any.FromString("");
+                _hash = Any.FromString("");
                 _path = Any.FromString("");
-                _md5 = Any.FromString("");
 
                 }
                 [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
-            [JsonPropertyName("uname")]
-            public Any _uname {get;set;}
+            [JsonPropertyName("hash")]
+            public Any _hash {get;set;}
             [JsonPropertyName("path")]
             public Any _path {get;set;}
-            [JsonPropertyName("md5")]
-            public Any _md5 {get;set;}
 
             }
 
@@ -508,13 +526,13 @@ namespace ogm.file.Proto
                 public ObjectFindRequest()
                 {
                     _bucket = Any.FromString("");
-                _filepath = Any.FromString("");
+                _path = Any.FromString("");
 
                 }
                 [JsonPropertyName("bucket")]
             public Any _bucket {get;set;}
-            [JsonPropertyName("filepath")]
-            public Any _filepath {get;set;}
+            [JsonPropertyName("path")]
+            public Any _path {get;set;}
 
             }
 
@@ -623,6 +641,66 @@ namespace ogm.file.Proto
 
             }
 
+            public class ObjectConvertFromBase64Request
+            {
+                public ObjectConvertFromBase64Request()
+                {
+                    _bucket = Any.FromString("");
+                _source = new Base64Source[0];
+
+                }
+                [JsonPropertyName("bucket")]
+            public Any _bucket {get;set;}
+            [JsonPropertyName("source")]
+            public Base64Source[] _source {get;set;}
+
+            }
+
+            public class ObjectConvertFromBase64Response
+            {
+                public ObjectConvertFromBase64Response()
+                {
+                    _status = new Status();
+                _failure = Any.FromStringAry(new string[0]);
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("failure")]
+            public Any _failure {get;set;}
+
+            }
+
+            public class ObjectConvertFromUrlRequest
+            {
+                public ObjectConvertFromUrlRequest()
+                {
+                    _bucket = Any.FromString("");
+                _source = new UrlSource[0];
+
+                }
+                [JsonPropertyName("bucket")]
+            public Any _bucket {get;set;}
+            [JsonPropertyName("source")]
+            public UrlSource[] _source {get;set;}
+
+            }
+
+            public class ObjectConvertFromUrlResponse
+            {
+                public ObjectConvertFromUrlResponse()
+                {
+                    _status = new Status();
+                _failure = Any.FromStringAry(new string[0]);
+
+                }
+                [JsonPropertyName("status")]
+            public Status _status {get;set;}
+            [JsonPropertyName("failure")]
+            public Any _failure {get;set;}
+
+            }
+
             public class Status
             {
                 public Status()
@@ -689,6 +767,7 @@ namespace ogm.file.Proto
                 _accessKey = Any.FromString("");
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
+                _mode = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
@@ -713,6 +792,8 @@ namespace ogm.file.Proto
             public Any _accessSecret {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
+            [JsonPropertyName("mode")]
+            public Any _mode {get;set;}
 
             }
 
@@ -721,25 +802,64 @@ namespace ogm.file.Proto
                 public ObjectEntity()
                 {
                     _uuid = Any.FromString("");
-                _filepath = Any.FromString("");
+                _path = Any.FromString("");
+                _hash = Any.FromString("");
                 _url = Any.FromString("");
                 _size = Any.FromInt64(0);
-                _md5 = Any.FromString("");
-                _uname = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
             public Any _uuid {get;set;}
-            [JsonPropertyName("filepath")]
-            public Any _filepath {get;set;}
+            [JsonPropertyName("path")]
+            public Any _path {get;set;}
+            [JsonPropertyName("hash")]
+            public Any _hash {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
             [JsonPropertyName("size")]
             public Any _size {get;set;}
-            [JsonPropertyName("md5")]
-            public Any _md5 {get;set;}
-            [JsonPropertyName("uname")]
-            public Any _uname {get;set;}
+
+            }
+
+            public class Base64Source
+            {
+                public Base64Source()
+                {
+                    _path = Any.FromString("");
+                _hash = Any.FromString("");
+                _size = Any.FromInt64(0);
+                _content = Any.FromString("");
+
+                }
+                [JsonPropertyName("path")]
+            public Any _path {get;set;}
+            [JsonPropertyName("hash")]
+            public Any _hash {get;set;}
+            [JsonPropertyName("size")]
+            public Any _size {get;set;}
+            [JsonPropertyName("content")]
+            public Any _content {get;set;}
+
+            }
+
+            public class UrlSource
+            {
+                public UrlSource()
+                {
+                    _path = Any.FromString("");
+                _hash = Any.FromString("");
+                _size = Any.FromInt64(0);
+                _content = Any.FromString("");
+
+                }
+                [JsonPropertyName("path")]
+            public Any _path {get;set;}
+            [JsonPropertyName("hash")]
+            public Any _hash {get;set;}
+            [JsonPropertyName("size")]
+            public Any _size {get;set;}
+            [JsonPropertyName("content")]
+            public Any _content {get;set;}
 
             }
 

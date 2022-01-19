@@ -119,6 +119,18 @@ namespace ogm.file
         }
 
 
+        public virtual void SaveConvertFromBase64(Proto.ObjectConvertFromBase64Response _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Object/ConvertFromBase64", _rsp);
+        }
+
+
+        public virtual void SaveConvertFromUrl(Proto.ObjectConvertFromUrlResponse _rsp) 
+        {
+             this.Bubble("_.reply.arrived:ogm/file/Object/ConvertFromUrl", _rsp);
+        }
+
+
 
     }
 }

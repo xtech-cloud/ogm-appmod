@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System;
 using System.Net;
 using Forms = System.Windows.Forms;
+using HandyControl.Controls;
 
 namespace ogm.file
 {
@@ -21,11 +22,11 @@ namespace ogm.file
         public class UploadObject
         {
             public string path { get; set; } // 存储桶中的对象路径
-            public string filepath { get; set; } // 对象的本地文件路径
+            public string file { get; set; } // 本地文件
             public long size { get; set; }
-            public string uname { get; set; } // 在存储引擎中
-            public string md5 { get; set; }
+            public string hash { get; set; }
             public bool valid { get; set; } // 是否有效
+            public bool isOverride { get; set; } // 覆盖写入
         }
 
         private Queue<UploadObject> uploadQueue_ = new Queue<UploadObject>();
@@ -60,7 +61,13 @@ namespace ogm.file
 
             public override void ReceivePrepare(string _json)
             {
-                base.ReceivePrepare(_json);
+                var reply = JsonSerializer.Deserialize<ObjectPrepareReply>(_json);
+                if (reply.status.code != 0 && reply.status.code != 200)
+                {
+                    Growl.Warning(reply.status.message, "StatusGrowl");
+                    return;
+                }
+
                 object o_uuid;
                 if (!control.PageExtra.TryGetValue("bucket.uuid", out o_uuid))
                     return;
@@ -72,28 +79,32 @@ namespace ogm.file
 
                 var uo = control.uploadQueue_.Peek();
                 long size = uo.size;
-                string uname = uo.uname;
-                string md5 = uo.md5;
+                string path = uo.path;
+                string hash = uo.hash;
 
-                var reply = JsonSerializer.Deserialize<ObjectPrepareReply>(_json);
                 if (reply.status.code == 200)
                 {
                     control.pbUpload.Visibility = Visibility.Collapsed;
-                    control.flushObject(uuid, uname, md5, uo.path);
+                    control.flushObject(uuid, path, hash);
                     return;
                 }
 
                 int total_minio_chunk_count = (int)Math.Ceiling(Convert.ToDouble(size) / 1024 / 5120);
                 if (2 == reply.engine)
                 {
-                    putFile(uuid, scope, uname, size, md5, uo.filepath, uo.path, reply.accessToken);
+                    putFile(uuid, path, hash, size, uo.file, reply.accessToken);
                 }
             }
 
             public override void ReceiveFlush(string _json)
             {
-                base.ReceiveFlush(_json);
                 Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+                if (reply.status.code != 0 && reply.status.code != 200)
+                {
+                    Growl.Warning(reply.status.message, "StatusGrowl");
+                    return;
+                }
+
                 control.pbUpload.Visibility = Visibility.Collapsed;
                 var uo = control.uploadQueue_.Dequeue();
                 if (reply.status.code == 0)
@@ -102,7 +113,6 @@ namespace ogm.file
                     control.tbUploadSuccess.Visibility = Visibility.Visible;
                     control.tbPrefix.Text = "";
                     control.tbName.Text = "";
-                    control.listObject(control.tbBucket.Uid);
                     control.UploadObjects.Remove(uo.path);
                 }
                 else
@@ -134,12 +144,12 @@ namespace ogm.file
                     Clipboard.SetDataObject(reply.url);
             }
 
-            private void putFile(string _uuid, string _scope, string _uname, long _size, string _md5, string _filepath, string _uri, string _url)
+            private void putFile(string _uuid, string _path, string _hash, long _size, string _file, string _url)
             {
                 WebClient wc = new WebClient();
                 wc.UploadFileCompleted += new UploadFileCompletedEventHandler((_sender, _args) =>
                 {
-                    control.flushObject(_uuid, _uname, _md5, _uri);
+                    control.flushObject(_uuid, _path, _hash);
                 });
                 wc.UploadProgressChanged += new UploadProgressChangedEventHandler((_sender, _args) =>
                 {
@@ -147,7 +157,7 @@ namespace ogm.file
                 });
                 try
                 {
-                    wc.UploadFileAsync(new Uri(_url), "PUT", _filepath);
+                    wc.UploadFileAsync(new Uri(_url), "PUT", _file);
                 }
                 catch (System.Exception e)
                 {
@@ -239,6 +249,11 @@ namespace ogm.file
             object o_name;
             if (!PageExtra.TryGetValue("bucket.name", out o_name))
                 return;
+            object o_mode;
+            if (!PageExtra.TryGetValue("bucket.mode", out o_mode))
+                return;
+            string mode = o_mode as string;
+            cbOverride.Visibility = mode.Equals("path") ? Visibility.Visible : Visibility.Collapsed;
             tbBucket.Uid = (string)o_uuid;
             tbBucket.Text = (string)o_name;
             tbBucket.IsEnabled = false;
@@ -281,6 +296,8 @@ namespace ogm.file
             if (false == dialog.ShowDialog())
                 return;
 
+            tbUploadPrefix.IsEnabled = false;
+            cbOverride.IsEnabled = false;
             string filepath = dialog.FileName;
             //TODO 多文件上传
 
@@ -321,6 +338,8 @@ namespace ogm.file
             formUploadObject.Visibility = Visibility.Visible;
             formEditObject.Visibility = Visibility.Collapsed;
             btnUploadSubmit.IsEnabled = false;
+            tbUploadPrefix.IsEnabled = true;
+            cbOverride.IsEnabled = true;
             resetUpload();
         }
 
@@ -331,7 +350,7 @@ namespace ogm.file
             if (null == item)
                 return;
 
-            tbEditFilepath.Text = item.filepath;
+            tbEditFilepath.Text = item.path;
         }
 
         private void onEditObjectClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -342,7 +361,7 @@ namespace ogm.file
             formEditObject.Visibility = Visibility.Visible;
             formUploadObject.Visibility = Visibility.Collapsed;
 
-            tbEditFilepath.Text = item.filepath;
+            tbEditFilepath.Text = item.path;
         }
 
         private void onDownloadObjectClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -400,14 +419,13 @@ namespace ogm.file
             bridge.OnSearchSubmit(json);
         }
 
-        private void flushObject(string _bucket, string _uname, string _md5, string _path)
+        private void flushObject(string _bucket, string _path, string _hash)
         {
             var bridge = facade.getViewBridge() as IObjectViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["bucket"] = _bucket;
-            param["uname"] = _uname;
             param["path"] = _path;
-            param["md5"] = _md5;
+            param["hash"] = _hash;
             string json = JsonSerializer.Serialize(param);
             bridge.OnFlushSubmit(json);
         }
@@ -418,11 +436,6 @@ namespace ogm.file
             prepareFile();
         }
 
-        private void onClearClicked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void onOpenDirClicked(object sender, RoutedEventArgs e)
         {
             resetUpload();
@@ -431,6 +444,8 @@ namespace ogm.file
             if (Forms.DialogResult.OK != dialog.ShowDialog())
                 return;
 
+            tbUploadPrefix.IsEnabled = false;
+            cbOverride.IsEnabled = false;
             btnUploadSubmit.IsEnabled = false;
             btnUploadCancel.IsEnabled = false;
             string dir = dialog.SelectedPath;
@@ -453,14 +468,19 @@ namespace ogm.file
             if (!PageExtra.TryGetValue("bucket.uuid", out uuid))
                 return;
             if (uploadQueue_.Count == 0)
+            {
+                listObject(tbBucket.Uid);
                 return;
+            }
 
             var uo = uploadQueue_.Peek();
             pbUpload.Visibility = Visibility.Visible;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["bucket"] = (string)uuid;
-            param["uname"] = uo.uname;
+            param["path"] = uo.path;
+            param["hash"] = uo.hash;
             param["size"] = uo.size;
+            param["override"] = uo.isOverride;
             var bridge = facade.getViewBridge() as IObjectViewBridge;
             string json = JsonSerializer.Serialize(param);
             bridge.OnPrepareSubmit(json);
@@ -472,7 +492,7 @@ namespace ogm.file
             UploadObject uo = new UploadObject();
             uo.valid = true;
             uo.path = string.Format("{0}{1}", tbUploadPrefix.Text, path);
-            uo.filepath = _file;
+            uo.file = _file;
             try
             {
                 FileStream fs = new FileStream(_file, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -484,16 +504,13 @@ namespace ogm.file
                 md5str = md5str.Replace("-", "");
                 md5Provider.Clear();
                 fs.Close();
-                uo.md5 = md5str;
+                uo.hash = md5str;
             }
             catch (Exception ex)
             {
                 uo.valid = false;
             }
-            if (true == cbSaveAsMD5.IsChecked)
-                uo.uname = uo.md5;
-            else
-                uo.uname = uo.path;
+            uo.isOverride = (true == cbOverride.IsChecked);
             return uo;
         }
 

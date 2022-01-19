@@ -19,6 +19,8 @@ namespace ogm.file
         void ReceivePublish(string _json);
         void ReceivePreview(string _json);
         void ReceiveRetract(string _json);
+        void ReceiveConvertFromBase64(string _json);
+        void ReceiveConvertFromUrl(string _json);
 
     }
 }

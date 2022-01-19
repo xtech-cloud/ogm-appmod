@@ -7,7 +7,7 @@ using XTC.oelMVCS;
 
 namespace ogm.file
 {
-    public class ObjectBaseService: Service
+    public class ObjectBaseService : Service
     {
         protected ObjectModel model = null;
         protected Options options = null;
@@ -24,198 +24,209 @@ namespace ogm.file
             getLogger().Trace("setup ogm.file.ObjectService");
         }
 
-            public void PostPrepare(Proto.ObjectPrepareRequest _request)
-            {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["bucket"] = _request._bucket;
-            paramMap["uname"] = _request._uname;
+        public void PostPrepare(Proto.ObjectPrepareRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["bucket"] = _request._bucket;
+            paramMap["hash"] = _request._hash;
+            paramMap["path"] = _request._path;
             paramMap["size"] = _request._size;
             paramMap["expiry"] = _request._expiry;
+            paramMap["override"] = _request._override;
 
-                post(string.Format("{0}/ogm/file/Object/Prepare", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectPrepareResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SavePrepare(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostFlush(Proto.ObjectFlushRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Prepare", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["bucket"] = _request._bucket;
-            paramMap["uname"] = _request._uname;
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPrepareResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SavePrepare(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostFlush(Proto.ObjectFlushRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["bucket"] = _request._bucket;
+            paramMap["hash"] = _request._hash;
             paramMap["path"] = _request._path;
-            paramMap["md5"] = _request._md5;
 
-                post(string.Format("{0}/ogm/file/Object/Flush", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveFlush(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostLink(Proto.ObjectLinkRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Flush", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["bucket"] = _request._bucket;
+                var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveFlush(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostLink(Proto.ObjectLinkRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["bucket"] = _request._bucket;
             paramMap["filepath"] = _request._filepath;
             paramMap["url"] = _request._url;
             paramMap["overwrite"] = _request._overwrite;
 
-                post(string.Format("{0}/ogm/file/Object/Link", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveLink(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostGet(Proto.ObjectGetRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Link", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["uuid"] = _request._uuid;
-
-                post(string.Format("{0}/ogm/file/Object/Get", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectGetResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveGet(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostFind(Proto.ObjectFindRequest _request)
+                var rsp = JsonSerializer.Deserialize<Proto.BlankResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveLink(rsp);
+            }, (_err) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["bucket"] = _request._bucket;
-            paramMap["filepath"] = _request._filepath;
-
-                post(string.Format("{0}/ogm/file/Object/Find", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectFindResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveFind(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
 
 
-            public void PostRemove(Proto.ObjectRemoveRequest _request)
+        public void PostGet(Proto.ObjectGetRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+
+            post(string.Format("{0}/ogm/file/Object/Get", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["uuid"] = _request._uuid;
-
-                post(string.Format("{0}/ogm/file/Object/Remove", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveRemove(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostList(Proto.ObjectListRequest _request)
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectGetResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveGet(rsp);
+            }, (_err) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["offset"] = _request._offset;
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostFind(Proto.ObjectFindRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["bucket"] = _request._bucket;
+            paramMap["path"] = _request._path;
+
+            post(string.Format("{0}/ogm/file/Object/Find", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectFindResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveFind(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostRemove(Proto.ObjectRemoveRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+
+            post(string.Format("{0}/ogm/file/Object/Remove", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveRemove(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostList(Proto.ObjectListRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
             paramMap["bucket"] = _request._bucket;
 
-                post(string.Format("{0}/ogm/file/Object/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveList(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostSearch(Proto.ObjectSearchRequest _request)
+            post(string.Format("{0}/ogm/file/Object/List", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["offset"] = _request._offset;
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectListResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveList(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostSearch(Proto.ObjectSearchRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
             paramMap["bucket"] = _request._bucket;
             paramMap["prefix"] = _request._prefix;
             paramMap["name"] = _request._name;
 
-                post(string.Format("{0}/ogm/file/Object/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectSearchResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveSearch(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostPublish(Proto.ObjectPublishRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["uuid"] = _request._uuid;
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectSearchResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveSearch(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostPublish(Proto.ObjectPublishRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
             paramMap["expiry"] = _request._expiry;
 
-                post(string.Format("{0}/ogm/file/Object/Publish", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectPublishResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SavePublish(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostPreview(Proto.ObjectPreviewRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Publish", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["uuid"] = _request._uuid;
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPublishResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SavePublish(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostPreview(Proto.ObjectPreviewRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
             paramMap["expiry"] = _request._expiry;
 
-                post(string.Format("{0}/ogm/file/Object/Preview", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.ObjectPreviewResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SavePreview(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
-
-
-            public void PostRetract(Proto.ObjectRetractRequest _request)
+            post(string.Format("{0}/ogm/file/Object/Preview", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
             {
-                Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
-                paramMap["uuid"] = _request._uuid;
+                var rsp = JsonSerializer.Deserialize<Proto.ObjectPreviewResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SavePreview(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
 
-                post(string.Format("{0}/ogm/file/Object/Retract", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
-                {
-                    var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
-                    model.SaveRetract(rsp);
-                }, (_err) =>
-                {
-                    getLogger().Error(_err.getMessage());
-                }, null);
-            }
+
+        public void PostRetract(Proto.ObjectRetractRequest _request)
+        {
+            Dictionary<string, Any> paramMap = new Dictionary<string, Any>();
+            paramMap["uuid"] = _request._uuid;
+
+            post(string.Format("{0}/ogm/file/Object/Retract", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
+            {
+                var rsp = JsonSerializer.Deserialize<Proto.UuidResponse>(_reply, JsonOptions.DefaultSerializerOptions);
+                model.SaveRetract(rsp);
+            }, (_err) =>
+            {
+                getLogger().Error(_err.getMessage());
+            }, null);
+        }
+
+
+        public void PostConvertFromBase64(Proto.ObjectConvertFromBase64Request _request)
+        {
+        }
+
+
+        public void PostConvertFromUrl(Proto.ObjectConvertFromUrlRequest _request)
+        {
+        }
 
 
 

@@ -119,6 +119,24 @@ namespace ogm.file
                 Growl.Warning(reply.status.message, "StatusGrowl");
         }
 
+        public virtual void ReceiveConvertFromBase64(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
+        public virtual void ReceiveConvertFromUrl(string _json) 
+        {
+            Reply reply = JsonSerializer.Deserialize<Reply>(_json);
+            if (reply.status.code == 0)
+                Growl.Success("Success", "StatusGrowl");
+            else
+                Growl.Warning(reply.status.message, "StatusGrowl");
+        }
+
 
     }
 }
