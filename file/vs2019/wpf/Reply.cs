@@ -47,6 +47,7 @@ namespace ogm.file
     {
         public string uuid { get; set; }
         public string name { get; set; }
+        public string alias { get; set; }
         public string token { get; set; }
         public long totalSize { get; set; }
         public long usedSize { get; set; }
@@ -161,6 +162,11 @@ namespace ogm.file
 
 
     public class PublishReply : Reply
+    {
+        public string url { get; set; }
+    }
+
+    public class PreviewReply : Reply
     {
         public string url { get; set; }
     }

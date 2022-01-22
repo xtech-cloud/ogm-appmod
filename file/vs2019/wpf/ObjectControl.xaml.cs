@@ -11,9 +11,19 @@ using System;
 using System.Net;
 using Forms = System.Windows.Forms;
 using HandyControl.Controls;
+using System.Windows.Media.Imaging;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ogm.file
 {
+    public enum FileType
+    {
+        Unknown,
+        Image,
+    }
+
     public partial class ObjectControl : UserControl
     {
         //页面参数，用于页面间跳转时传递数据
@@ -25,7 +35,6 @@ namespace ogm.file
             public string file { get; set; } // 本地文件
             public long size { get; set; }
             public string hash { get; set; }
-            public bool valid { get; set; } // 是否有效
             public bool isOverride { get; set; } // 覆盖写入
         }
 
@@ -144,6 +153,15 @@ namespace ogm.file
                     Clipboard.SetDataObject(reply.url);
             }
 
+            public override void ReceivePreview(string _json)
+            {
+                base.ReceivePublish(_json);
+                PreviewReply reply = JsonSerializer.Deserialize<PreviewReply>(_json);
+                if (reply.status.code != 0)
+                    return;
+                control.refreshObject(reply.url);
+            }
+
             private void putFile(string _uuid, string _path, string _hash, long _size, string _file, string _url)
             {
                 WebClient wc = new WebClient();
@@ -166,7 +184,6 @@ namespace ogm.file
                     return;
                 }
             }
-
 
             private string formatSize(long _size)
             {
@@ -226,8 +243,7 @@ namespace ogm.file
         private string uploadFailureFormat_ { get; set; }
         private int uploadSuccessCount_;
         private int uploadFailureCount_;
-
-
+        private HttpWebRequest webReq_ { get; set; }
 
         public ObjectControl()
         {
@@ -239,6 +255,7 @@ namespace ogm.file
             pbUpload.Visibility = Visibility.Collapsed;
             uploadSuccessFormat_ = tbUploadSuccess.Text;
             uploadFailureFormat_ = tbUploadFailury.Text;
+            spPreview.Visibility = Visibility.Collapsed;
         }
 
         public void RefreshWithExtra()
@@ -304,10 +321,7 @@ namespace ogm.file
             btnUploadSubmit.IsEnabled = false;
             btnUploadCancel.IsEnabled = false;
             UploadObject uo = buildUploadObject(Path.GetDirectoryName(filepath), filepath);
-            if (uo.valid)
-                uploadQueue_.Enqueue(uo);
-            else
-                tbUploadFailury.Visibility = Visibility.Visible;
+            uploadQueue_.Enqueue(uo);
             UploadObjects.Add(uo.path);
             btnUploadSubmit.IsEnabled = true;
             btnUploadCancel.IsEnabled = true;
@@ -351,6 +365,9 @@ namespace ogm.file
                 return;
 
             tbEditFilepath.Text = item.path;
+
+            if (spPreview.Visibility == Visibility.Visible)
+                preview();
         }
 
         private void onEditObjectClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -375,6 +392,12 @@ namespace ogm.file
             string json = JsonSerializer.Serialize(param);
             //bridge.OnPreviewSubmit(json);
             bridge.OnPublishSubmit(json);
+        }
+
+        private void onPreviewObjectClicked(object sender, RoutedEventArgs e)
+        {
+            spPreview.Visibility = Visibility.Visible;
+            preview();
         }
 
         private void onDeleteObjectClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -452,10 +475,7 @@ namespace ogm.file
             foreach (var file in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
             {
                 UploadObject uo = buildUploadObject(dir, file);
-                if (uo.valid)
-                {
-                    uploadQueue_.Enqueue(uo);
-                }
+                uploadQueue_.Enqueue(uo);
                 UploadObjects.Add(uo.path);
             }
             btnUploadSubmit.IsEnabled = true;
@@ -475,6 +495,26 @@ namespace ogm.file
 
             var uo = uploadQueue_.Peek();
             pbUpload.Visibility = Visibility.Visible;
+            pbUpload.Value = 0;
+            try
+            {
+                FileStream fs = new FileStream(uo.file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                uo.size = fs.Length;
+                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
+                byte[] buffer = md5Provider.ComputeHash(fs);
+                string md5str = "";
+                md5str = BitConverter.ToString(buffer);
+                md5str = md5str.Replace("-", "");
+                md5Provider.Clear();
+                fs.Close();
+                uo.hash = md5str;
+            }
+            catch (Exception ex)
+            {
+                uo.path = "";
+                uo.hash = "";
+            }
+
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["bucket"] = (string)uuid;
             param["path"] = uo.path;
@@ -490,26 +530,8 @@ namespace ogm.file
         {
             string path = Path.GetRelativePath(_dir, _file).Replace("\\", "/");
             UploadObject uo = new UploadObject();
-            uo.valid = true;
             uo.path = string.Format("{0}{1}", tbUploadPrefix.Text, path);
             uo.file = _file;
-            try
-            {
-                FileStream fs = new FileStream(_file, FileMode.Open, FileAccess.Read, FileShare.Read);
-                uo.size = fs.Length;
-                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-                byte[] buffer = md5Provider.ComputeHash(fs);
-                string md5str = "";
-                md5str = BitConverter.ToString(buffer);
-                md5str = md5str.Replace("-", "");
-                md5Provider.Clear();
-                fs.Close();
-                uo.hash = md5str;
-            }
-            catch (Exception ex)
-            {
-                uo.valid = false;
-            }
             uo.isOverride = (true == cbOverride.IsChecked);
             return uo;
         }
@@ -525,5 +547,102 @@ namespace ogm.file
             uploadFailureCount_ = 0;
             uploadSuccessCount_ = 0;
         }
+
+        private void onClosePreviewClicked(object sender, RoutedEventArgs e)
+        {
+            spPreview.Visibility = Visibility.Collapsed;
+        }
+
+        private void preview()
+        {
+            var item = dgObjectList.SelectedItem as ObjectEntity;
+            if (null == item)
+                return;
+
+            var bridge = facade.getViewBridge() as IObjectViewBridge;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param["uuid"] = item.uuid;
+            string json = JsonSerializer.Serialize(param);
+            bridge.OnPreviewSubmit(json);
+        }
+
+        private async Task refreshObject(string _url)
+        {
+            if (null != webReq_)
+            {
+                webReq_.Abort();
+                webReq_ = null;
+            }
+
+
+            imgViewer.Visibility = Visibility.Hidden;
+            txtViewer.Visibility = Visibility.Hidden;
+
+            try
+            {
+                webReq_ = (HttpWebRequest)WebRequest.Create(_url);
+                HttpWebResponse rsp = await webReq_.GetResponseAsync() as HttpWebResponse;
+                if (rsp == null)
+                {
+                    return;
+                }
+                if (rsp.StatusCode != HttpStatusCode.OK)
+                {
+                    rsp.Close();
+                    return;
+                }
+
+                Stream stream = rsp.GetResponseStream();
+                MemoryStream ms = new MemoryStream();
+                byte[] head = new byte[6];
+                int size = stream.Read(head, 0, head.Length);
+                ms.Write(head, 0, size);
+                FileType fileType = parseFormat(head, size);
+                if (FileType.Image == fileType)
+                {
+                    imgViewer.Visibility = Visibility.Visible;
+                    imgViewer.Source = new BitmapImage(new Uri(_url));
+                }
+                else
+                {
+                    // 最大读取 10K
+                    int buffer_size = 1024 * 10;
+                    byte[] data = new byte[buffer_size];
+                    do
+                    {
+                        size = stream.Read(data, 0, data.Length);
+                        ms.Write(data, 0, size);
+                    } while (size > 0 && ms.Length < buffer_size);
+                    string text = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+                    txtViewer.Visibility = Visibility.Visible;
+                    txtViewer.Text = text;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                return;
+            }
+        }
+
+        private FileType parseFormat(byte[] _head, int _size)
+        {
+            if (_head.Length == _size)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in _head)
+                {
+                    sb.Append(Convert.ToString(b, 16).PadLeft(2, '0').PadRight(3, ' '));
+                }
+                string hex = sb.ToString().ToUpper();
+                // PNG
+                if (hex.StartsWith("89 50 4E"))
+                    return FileType.Image;
+                // JPG
+                else if (hex.StartsWith("FF D8"))
+                    return FileType.Image;
+            }
+            return FileType.Unknown;
+        }
+
     }
 }

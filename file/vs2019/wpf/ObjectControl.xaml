@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:ogm.file"
              mc:Ignorable="d" 
              DataContext="{Binding RelativeSource={RelativeSource self}}"
-             d:DesignHeight="900" d:DesignWidth="1440">
+             d:DesignHeight="900" d:DesignWidth="2048">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -69,6 +69,14 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
 
+                <hc:SimplePanel Name="spPreview" Margin="16, 0" Width="480" DockPanel.Dock="Right">
+                    <Button Style="{StaticResource ButtonDashed}" Width="120" VerticalAlignment="Top" Click="onClosePreviewClicked" HorizontalAlignment="Right">关闭</Button>
+                    <!--
+                    <hc:ImageViewer Name="imgViewer" Background="{StaticResource SecondaryRegionBrush}" Margin="0,48,0,48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    -->
+                    <Image Name="imgViewer" Margin="0,48,0,48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <TextBox Name="txtViewer" Style="{StaticResource TextBoxExtend}" Margin="0,48,0,48" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True"/>
+                </hc:SimplePanel>
                 <hc:SimplePanel>
                     <hc:UniformSpacingPanel Spacing="24" HorizontalAlignment="Left">
                         <Button Content="+ 上传"  Width="80" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Left" Click="onUploadClicked" VerticalAlignment="Top" IsEnabled="{Binding Path=PermissionUpload}" />
@@ -85,7 +93,14 @@
                             <DataGridTextColumn Binding="{Binding path}" Header="路径" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _size}" Header="文件大小" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding hash}" Header="散列值" IsReadOnly="True"/>
-                            <DataGridTemplateColumn Width="80" CanUserResize="False">
+                            <DataGridTemplateColumn Width="54" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource PreviewGeometry}" IsEnabled="{Binding Path=PermissionPublish, RelativeSource={RelativeSource AncestorType={x:Type local:ObjectControl}}}" Click="onPreviewObjectClicked"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="50" CanUserResize="False">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Width="50" Padding="16,8" Margin="5" Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource PrimaryTextBrush}" hc:IconElement.Geometry="{StaticResource DownloadGeometry}" IsEnabled="{Binding Path=PermissionPublish, RelativeSource={RelativeSource AncestorType={x:Type local:ObjectControl}}}" Click="onDownloadObjectClicked"/>
@@ -106,6 +121,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </hc:SimplePanel>
+
             </DockPanel>
         </Border>
     </DockPanel>

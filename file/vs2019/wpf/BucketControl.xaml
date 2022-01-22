@@ -21,8 +21,9 @@
     <DockPanel>
         <Border DockPanel.Dock="Top" Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
             <hc:SimplePanel Margin="24">
-                <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Left">
+                <hc:UniformSpacingPanel Spacing="24" Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBox Name="tbName" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbAlias" Width="300" hc:InfoElement.TitleWidth="40" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="备注" Style="{StaticResource TextBoxExtend}"/>
                 </hc:UniformSpacingPanel>
                 <hc:UniformSpacingPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="重置"  Width="80" Style="{StaticResource ButtonDefault}" HorizontalAlignment="Right" Click="onResetCliked" />
@@ -38,6 +39,7 @@
                         <TextBlock Text="新建存储池"/>
                     </Border>
                     <TextBox Name="tbNewName" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbNewAlias" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="备注" Style="{StaticResource TextBoxExtend}"/>
                     <hc:NumericUpDown Name="tbNewCapacity" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="容量（GB)" hc:InfoElement.Necessary="True" Minimum="0" Style="{StaticResource NumericUpDownPlus}"/>
                     <ComboBox Name="cbNewEngine" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="存储引擎" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch">
                         <ComboBoxItem Content="本地"></ComboBoxItem>
@@ -65,6 +67,7 @@
                     </Border>
                     <TextBox Name="tbEditUUID" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="uuid" hc:InfoElement.Necessary="True" IsReadOnly="True" Style="{StaticResource TextBoxExtend}"/>
                     <TextBox Name="tbEditName" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="名称" hc:InfoElement.Necessary="True" Style="{StaticResource TextBoxExtend}"/>
+                    <TextBox Name="tbEditAlias" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="备注" Style="{StaticResource TextBoxExtend}"/>
                     <hc:NumericUpDown Name="tbEditCapacity" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="容量（GB)" hc:InfoElement.Necessary="True" Minimum="0" Style="{StaticResource NumericUpDownPlus}"/>
                     <ComboBox Name="cbEditEngine" hc:InfoElement.TitleWidth="100" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="存储引擎" hc:InfoElement.Necessary="True" Style="{StaticResource ComboBoxExtend}" HorizontalAlignment="Stretch">
                         <ComboBoxItem Content="本地"></ComboBoxItem>
@@ -112,6 +115,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Binding="{Binding name}" Header="名称" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding alias}" Header="备注" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _totalSize}" Header="总容量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _usedSize}" Header="已用容量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding _engine}" Header="存储引擎" IsReadOnly="True"/>

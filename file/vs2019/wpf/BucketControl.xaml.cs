@@ -153,13 +153,13 @@ namespace ogm.file
 
         private void onSearchClicked(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(tbName.Text))
+            if (string.IsNullOrEmpty(tbName.Text) && string.IsNullOrEmpty(tbAlias.Text))
             {
                 listBucket();
             }
             else
             {
-                searchBucket(tbName.Text);
+                searchBucket(tbName.Text, tbAlias.Text);
             }
         }
 
@@ -171,6 +171,7 @@ namespace ogm.file
 
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["name"] = tbNewName.Text;
+            param["alias"] = tbNewAlias.Text;
             param["capacity"] = tbNewCapacity.Value * 1024 * 1024 * 1024;
             param["engine"] = cbNewEngine.SelectedIndex + 1;
             param["address"] = tbNewAddress.Text;
@@ -199,6 +200,7 @@ namespace ogm.file
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["uuid"] = item.uuid;
             param["name"] = tbEditName.Text;
+            param["alias"] = tbEditAlias.Text;
             param["capacity"] = tbEditCapacity.Value * 1024 * 1024 * 1024;
             param["engine"] = cbEditEngine.SelectedIndex + 1;
             param["address"] = tbEditAddress.Text;
@@ -279,7 +281,15 @@ namespace ogm.file
             if (null == item)
                 return;
 
+            tbEditAddress.Text = item.address;
+            tbEditAlias.Text = item.alias;
+            tbEditCapacity.Value = item.totalSize/1024/1024/1024;
+            tbEditKey.Text = item.accessKey;
             tbEditName.Text = item.name;
+            tbEditScope.Text = item.scope;
+            tbEditSecret.Text = item.accessSecret;
+            tbEditUrl.Text = item.url;
+            tbEditUUID.Text = item.uuid;
         }
 
         private int engineFromStringToInt(string _engine)
@@ -305,13 +315,14 @@ namespace ogm.file
             bridge.OnListSubmit(json);
         }
 
-        private void searchBucket(string _name)
+        private void searchBucket(string _name, string _alias)
         {
             var bridge = facade.getViewBridge() as IBucketViewBridge;
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["offset"] = 0;
             param["count"] = int.MaxValue;
             param["name"] = _name;
+            param["alias"] = _alias;
             string json = JsonSerializer.Serialize(param);
             bridge.OnSearchSubmit(json);
         }

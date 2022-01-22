@@ -4,7 +4,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "apikey": "ogm.dev",
-        "domain": "http://localhost"
+        "domain": "http://172.16.10.52:9080"
       }
     }
   }

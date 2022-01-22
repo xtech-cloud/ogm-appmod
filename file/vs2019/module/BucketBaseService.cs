@@ -36,6 +36,7 @@ namespace ogm.file
             paramMap["accessSecret"] = _request._accessSecret;
             paramMap["url"] = _request._url;
             paramMap["mode"] = _request._mode;
+            paramMap["alias"] = _request._alias;
 
                 post(string.Format("{0}/ogm/file/Bucket/Make", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
@@ -119,6 +120,7 @@ namespace ogm.file
                 paramMap["offset"] = _request._offset;
             paramMap["count"] = _request._count;
             paramMap["name"] = _request._name;
+            paramMap["alias"] = _request._alias;
 
                 post(string.Format("{0}/ogm/file/Bucket/Search", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {
@@ -143,6 +145,7 @@ namespace ogm.file
             paramMap["accessKey"] = _request._accessKey;
             paramMap["accessSecret"] = _request._accessSecret;
             paramMap["url"] = _request._url;
+            paramMap["alias"] = _request._alias;
 
                 post(string.Format("{0}/ogm/file/Bucket/Update", getConfig().getField("domain").AsString()), paramMap, (_reply) =>
                 {

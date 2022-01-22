@@ -21,6 +21,7 @@ namespace ogm.file.Proto
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
                 _mode = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("name")]
@@ -41,6 +42,8 @@ namespace ogm.file.Proto
             public Any _url {get;set;}
             [JsonPropertyName("mode")]
             public Any _mode {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
@@ -150,6 +153,7 @@ namespace ogm.file.Proto
                     _offset = Any.FromInt64(0);
                 _count = Any.FromInt64(0);
                 _name = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("offset")]
@@ -158,6 +162,8 @@ namespace ogm.file.Proto
             public Any _count {get;set;}
             [JsonPropertyName("name")]
             public Any _name {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
@@ -192,6 +198,7 @@ namespace ogm.file.Proto
                 _accessKey = Any.FromString("");
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
@@ -212,6 +219,8 @@ namespace ogm.file.Proto
             public Any _accessSecret {get;set;}
             [JsonPropertyName("url")]
             public Any _url {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
@@ -768,6 +777,7 @@ namespace ogm.file.Proto
                 _accessSecret = Any.FromString("");
                 _url = Any.FromString("");
                 _mode = Any.FromString("");
+                _alias = Any.FromString("");
 
                 }
                 [JsonPropertyName("uuid")]
@@ -794,6 +804,8 @@ namespace ogm.file.Proto
             public Any _url {get;set;}
             [JsonPropertyName("mode")]
             public Any _mode {get;set;}
+            [JsonPropertyName("alias")]
+            public Any _alias {get;set;}
 
             }
 
