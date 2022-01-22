@@ -1,0 +1,18 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>ogm.analytics.module</AssemblyName>
+    <Version>3.6.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bridge\bridge.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="oelMVCS" Version="1.9.5" />
+  </ItemGroup>
+
+</Project>
