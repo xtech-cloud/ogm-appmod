@@ -153,6 +153,7 @@ namespace ogm.file
                     Clipboard.SetDataObject(reply.url);
             }
 
+
             public override void ReceivePreview(string _json)
             {
                 base.ReceivePublish(_json);
@@ -160,6 +161,7 @@ namespace ogm.file
                 if (reply.status.code != 0)
                     return;
                 control.refreshObject(reply.url);
+                Clipboard.SetDataObject(reply.url);
             }
 
             private void putFile(string _uuid, string _path, string _hash, long _size, string _file, string _url)
@@ -390,8 +392,8 @@ namespace ogm.file
             Dictionary<string, object> param = new Dictionary<string, object>();
             param["uuid"] = item.uuid;
             string json = JsonSerializer.Serialize(param);
-            //bridge.OnPreviewSubmit(json);
-            bridge.OnPublishSubmit(json);
+            bridge.OnPreviewSubmit(json);
+            //bridge.OnPublishSubmit(json);
         }
 
         private void onPreviewObjectClicked(object sender, RoutedEventArgs e)

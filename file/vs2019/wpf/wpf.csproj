@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ogm.file.wpf</AssemblyName>
-    <Version>3.21.0</Version>
+    <Version>3.21.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
