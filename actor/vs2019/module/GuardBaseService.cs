@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.Json;
 using System.Collections.Generic;
 using XTC.oelMVCS;
+using System.Threading.Tasks;
 
 namespace ogm.actor
 {
@@ -86,7 +87,7 @@ namespace ogm.actor
             doAsyncRequest(_url, _method, _params, _onReply, _onError, _options);
         }
 
-        protected async void doAsyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
+        protected async Task doAsyncRequest(string _url, string _method, Dictionary<string, Any> _params, OnReplyCallback _onReply, OnErrorCallback _onError, Options _options)
         {
             string reply = "";
             try

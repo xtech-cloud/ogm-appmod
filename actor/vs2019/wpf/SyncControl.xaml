@@ -113,6 +113,20 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="50" CanUserResize="False" Header="手柄">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding _controllerIcon}" Width="16" Height="16" Stretch="Uniform"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="50" CanUserResize="False" Header="手柄">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding _controllerIcon}" Width="16" Height="16" Stretch="Uniform"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Binding="{Binding _storageAvailable}" Header="可用空间" IsReadOnly="True"/>
                                 <DataGridTextColumn Binding="{Binding application}" Header="前台应用" IsReadOnly="True"/>
                                 <!--/
@@ -124,7 +138,7 @@
                     </DockPanel>
                 </TabItem>
 
-                <TabItem Header="画面监控" Width="160">
+                <TabItem Header="画面监控" Width="160" Height="30" VerticalAlignment="Top">
                     <hc:SimplePanel>
                         <ListBox Name="pageMonitorWall" Margin="0,0,0,40" BorderThickness="0" Style="{StaticResource WrapPanelHorizontalListBox}" ItemsSource="{Binding DeviceList}">
                             <ListBox.ItemTemplate>
@@ -153,8 +167,8 @@
                         <Button Content="截屏"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onCaptureClicked" VerticalAlignment="Bottom"/>
                         <hc:SimplePanel Name="pageMonitorSingle">
                             <TextBlock TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Style="{StaticResource TextBlockSubTitleBold}" Text="{Binding _alias}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                            <Label Name="lMonitorAlias" Margin="16" FontSize="26" VerticalAlignment="Top"></Label>
-                            <Image Margin="0,40,0,40" Source="{Binding monitorImage}" Stretch="Uniform"/>
+                            <Label Name="lMonitorAlias" Margin="16" FontSize="22" VerticalAlignment="Top"></Label>
+                            <Image x:Name="imgMonitorCapture" Margin="0,70,0,40" Stretch="Uniform"/>
                             <Button Content="切换"  Width="80" Style="{StaticResource ButtonPrimary}" Click="onCloseMonitorClicked" VerticalAlignment="Bottom"/>
                         </hc:SimplePanel>
                     </hc:SimplePanel>

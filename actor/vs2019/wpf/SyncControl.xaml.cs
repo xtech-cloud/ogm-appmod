@@ -57,10 +57,12 @@ namespace ogm.actor
                     if (e._healthy > 0)
                     {
                         healthyColor = Colors.Green;
+                        e.controllerBattery = 8;
                     }
                     else
                     {
                         e.battery = 0;
+                        e.controllerBattery = 0;
                         e.volume = 0;
                         e.brightness = 0;
                         e.networkStrength = 0;
@@ -97,6 +99,7 @@ namespace ogm.actor
                     else if (batteryLevel > 0)
                         batteryColor = Colors.Red;
                     e._batteryIcon = Utility.GeometrySourceFromResource(control, string.Format("Battery{0}Geometry", batteryLevel), batteryColor);
+                    e._controllerIcon = Utility.GeometrySourceFromResource(control, string.Format("Battery{0}Geometry", e.controllerBattery), batteryColor);
 
                     if (control.deviceIndexMap.ContainsKey(e.uuid))
                     {
@@ -139,7 +142,6 @@ namespace ogm.actor
         public ObservableCollection<DeviceEntity> DeviceList { get; set; }
         public bool isSyncPush = false;
         public string monitorAlias { get; set; }
-        public ImageSource monitorImage { get; set; }
 
 
         //Éè±¸Ë÷Òý
@@ -291,10 +293,21 @@ namespace ogm.actor
             pageMonitorSingle.Visibility = Visibility.Visible;
             pageMonitorWall.Visibility = Visibility.Collapsed;
 
+
             Button btn = sender as Button;
             if (null == btn)
                 return;
-            lMonitorAlias.Content = btn.Tag;
+            lMonitorAlias.Content = btn.Tag.ToString();
+
+            imgMonitorCapture.Source = null;
+            foreach (var device in DeviceList)
+            {
+                if (device._alias.Equals(btn.Tag.ToString()))
+                {
+                    imgMonitorCapture.Source = device._capture;
+                    break;
+                }
+            }
         }
 
         private async Task asyncLoopPull()

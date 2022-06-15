@@ -125,6 +125,7 @@ namespace ogm.actor
         }
 
         public int battery { get; set; }
+        public int controllerBattery { get; set; }
         public int volume { get; set; }
         public int brightness { get; set; }
         public long storageAvailable { get; set; }
@@ -133,6 +134,7 @@ namespace ogm.actor
         public int _healthy { get; set; }
         public string _storageAvailable { get; set; }
         public ImageSource _batteryIcon { get; set; }
+        public ImageSource _controllerIcon { get; set; }
         public ImageSource _healthyIcon { get; set; }
         public ImageSource _capture { get; set; }
         public Visibility _waitVisibility { get; set; }
@@ -177,6 +179,7 @@ namespace ogm.actor
             OnPrepertyChanged("_storageAvailable");
             OnPrepertyChanged("_batteryIcon");
             OnPrepertyChanged("_healthyIcon");
+            OnPrepertyChanged("_controllerIcon");
         }
     }
 
